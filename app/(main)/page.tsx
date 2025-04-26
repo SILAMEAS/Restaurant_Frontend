@@ -1,13 +1,33 @@
+"use client"
 import Link from "next/link"
 import Image from "next/image"
 import { ArrowRight } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import {useAppDispatch, useAppSelector} from "@/lib/redux/hooks";
+import {decrement, increment} from "@/lib/redux/counterSlice";
 
 export default function Home() {
+  const counter = useAppSelector((state) => state.counter.value);
+  const dispatch = useAppDispatch();
   return (
     <div className="container ">
+      <div className="p-4 bg-red-700">
+        <h1 className="text-2xl font-bold">Counter: {counter}</h1>
+        <button
+            onClick={() => dispatch(increment())}
+            className="px-4 py-2 mr-2 bg-blue-500 text-white rounded"
+        >
+          Increment
+        </button>
+        <button
+            onClick={() => dispatch(decrement())}
+            className="px-4 py-2 bg-red-500 text-white rounded"
+        >
+          Decrement
+        </button>
+      </div>
       {/* Hero Section */}
       <section className="container py-12 md:py-24 lg:py-32 flex-col items-center justify-center">
         <div className=" px-4 md:px-6 ">
