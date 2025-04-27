@@ -12,7 +12,7 @@ export default function MainLayout({
       <main className="flex-col flex-1 items-center justify-center ">{children}</main>
       <footer className="border-t py-6 px-4 md:px-6">
         <div className="container mx-auto text-center text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Foodie. All rights reserved.
+          © {new Date().getFullYear()} LaCy. All rights reserved.
         </div>
       </footer>
     </div>

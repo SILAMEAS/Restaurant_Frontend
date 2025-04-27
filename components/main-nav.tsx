@@ -45,7 +45,7 @@ export function MainNav() {
     <div className="flex items-center justify-between py-4 px-4 md:px-6 border-b w-full">
       <div className="flex items-center">
         <Link href="/" className="flex items-center">
-          <span className="text-xl font-bold">Foodie</span>
+          <span className="text-xl font-bold">LaCy</span>
         </Link>
       </div>
 

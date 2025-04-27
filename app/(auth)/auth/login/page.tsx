@@ -31,7 +31,7 @@ export default function LoginPage() {
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link href="/" className="absolute left-4 top-4 md:left-8 md:top-8 text-lg font-bold">
-        Foodie
+        LaCy
       </Link>
       <Card className="w-full max-w-md bg-transparent border-2">
         <CardHeader className="space-y-1">

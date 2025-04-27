@@ -7,6 +7,7 @@ import { store, persistor } from '@/lib/redux/store';
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import type React from 'react';
+import PageLoader from "@/components/loading/PageLoder";
 
 // Dynamically import PersistGate with SSR disabled
 const PersistGate = dynamic(
