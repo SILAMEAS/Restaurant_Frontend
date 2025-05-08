@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Package, Users, Tag } from "lucide-react"
 import { useToast } from "@/components/ui/use-toast"
+import { useDashboardQuery } from "@/lib/redux/api"
 
 // Sample users data
 const usersData = [
@@ -165,6 +166,7 @@ const categoriesData = [
 ]
 
 export default function AdminDashboardPage() {
+  const dashboard=useDashboardQuery({});
   const [users, setUsers] = useState(usersData)
   const [orders, setOrders] = useState(ordersData)
   const [categories, setCategories] = useState(categoriesData)
@@ -212,7 +214,7 @@ export default function AdminDashboardPage() {
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{users.length}</div>
+            <div className="text-2xl font-bold">{dashboard?.currentData?.total_users??0}</div>
             <p className="text-xs text-muted-foreground">+2 from last week</p>
           </CardContent>
         </Card>
@@ -222,7 +224,7 @@ export default function AdminDashboardPage() {
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{orders.length}</div>
+            <div className="text-2xl font-bold">{ dashboard?.currentData?.total_orders??0}</div>
             <p className="text-xs text-muted-foreground">+12 from last week</p>
           </CardContent>
         </Card>
@@ -232,7 +234,7 @@ export default function AdminDashboardPage() {
             <Tag className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{categories.length}</div>
+            <div className="text-2xl font-bold">{dashboard?.currentData?.total_categories??0}</div>
             <p className="text-xs text-muted-foreground">+1 from last week</p>
           </CardContent>
         </Card>
