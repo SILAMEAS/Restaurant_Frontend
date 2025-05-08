@@ -8,6 +8,7 @@ import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import type React from 'react';
 import PageLoader from "@/components/loading/PageLoder";
+import { ToastContainer, toast } from 'react-toastify';
 
 // Dynamically import PersistGate with SSR disabled
 const PersistGate = dynamic(
@@ -26,7 +27,6 @@ export default function ReduxProvider({ children }: { children: React.ReactNode 
                     disableTransitionOnChange
                 >
                     {children}
-                    <Toaster />
                 </ThemeProvider>
             </PersistGate>
         </Provider>

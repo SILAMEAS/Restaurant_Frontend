@@ -1,6 +1,6 @@
 // features/api/apiSlice.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import {RestauratsReponse} from "@/lib/redux/type";
+import {LoginFormData, RestauratsReponse} from "@/lib/redux/type";
 
 interface Restaurant {
     id: number;
@@ -13,6 +13,9 @@ export const apiSlice = createApi({
     baseQuery: fetchBaseQuery({ baseUrl:process.env.NEXT_PUBLIC_BASE_URL+ '/api/' }), // Adjust baseUrl to your API
     endpoints: (builder) => ({
         getRestaurants: builder.query<RestauratsReponse, unknown>({
+            query: () => 'restaurants', // This will call /api/restaurants
+        }),
+        login: builder.query<any, LoginFormData>({
             query: () => 'restaurants', // This will call /api/restaurants
         }),
     }),

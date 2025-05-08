@@ -12,6 +12,5 @@ export default function Home() {
         <FeatureRestaurant/>
         {/* Featured Categories */}
         <FeatureCategories/>
-
     </div>)
 }

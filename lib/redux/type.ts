@@ -1,3 +1,4 @@
+import { z } from "zod";
 
 export interface RestauratsReponse {
     contents:   Content[];
@@ -34,3 +35,11 @@ export interface ContactInformation {
     phone: string;
     email: string;
 }
+
+// Define the schema for form validation using Zod
+export const loginSchema = z.object({
+    email: z.string().email("Please enter a valid email address"),
+    password: z.string().min(3, "Password must be at least 3 characters long"),
+  });
+  
+export type LoginFormData = z.infer<typeof loginSchema>;

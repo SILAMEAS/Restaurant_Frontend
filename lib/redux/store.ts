@@ -1,41 +1,37 @@
 // lib/redux/store.ts
-import { configureStore } from '@reduxjs/toolkit';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import { apiSlice } from '@/lib/redux/api';
 import counterReducer from './counterSlice';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
+import { authSlice } from './auth';
 
-// Define the shape of the root state
-interface RootState {
-    [apiSlice.reducerPath]: ReturnType<typeof apiSlice.reducer>;
-    counter: ReturnType<typeof counterReducer>;
-}
+// Combine all reducers
+const rootReducer = combineReducers({
+  [apiSlice.reducerPath]: apiSlice.reducer,
+  [authSlice.reducerPath]: authSlice.reducer,
+  counter: counterReducer,
+});
 
-// Persist config for the counter slice
+// Persist only the counter slice
 const persistConfig = {
-    key: 'root',
-    storage,
-    whitelist: ['counter'],
+  key: 'root',
+  storage,
+  whitelist: ['counter'],
 };
 
-// Combine reducers and apply persistence with proper typing
-const persistedReducer = persistReducer<RootState>(persistConfig, (state, action) => ({
-    [apiSlice.reducerPath]: apiSlice.reducer(
-        state ? state[apiSlice.reducerPath] : undefined,
-        action
-    ),
-    counter: counterReducer(state ? state.counter : undefined, action),
-}));
+const persistedReducer = persistReducer(persistConfig, rootReducer);
 
+// Create store
 export const store = configureStore({
-    reducer: persistedReducer,
-    middleware: (getDefaultMiddleware) =>
-        getDefaultMiddleware({
-            serializableCheck: {
-                ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
-            },
-        }).concat(apiSlice.middleware),
+  reducer: persistedReducer,
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat(apiSlice.middleware, authSlice.middleware),
 });
 
 setupListeners(store.dispatch);
@@ -43,6 +39,6 @@ setupListeners(store.dispatch);
 // Create the persistor
 export const persistor = persistStore(store);
 
-// Define RootState and AppDispatch types after store creation
+// Types
 export type RootStateType = ReturnType<typeof store.getState>;
 export type AppDispatch = typeof store.dispatch;

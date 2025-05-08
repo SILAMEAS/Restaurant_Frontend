@@ -1,4 +1,5 @@
 import React, {PropsWithChildren} from 'react';
+import { ToastContainer } from 'react-toastify';
 
 const LayoutAuth = ({children}:PropsWithChildren) => {
     return (
