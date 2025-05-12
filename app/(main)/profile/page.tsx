@@ -12,9 +12,12 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Heart, Plus, Pencil, Trash2 } from "lucide-react"
 import { useProfileQuery } from "@/lib/redux/api"
 import { useAppSelector } from "@/lib/redux/hooks"
+import { skip } from "node:test"
+import { useGlobalState } from "@/hooks/useGlobalState"
 
 export default function ProfilePage() {
-  const getProfile = useProfileQuery();
+  const {profile}=useGlobalState();
+  const getProfile = useProfileQuery({},{skip:Boolean(profile)});
   const [addresses, setAddresses] = useState([
     { id: 1, name: "Home", address: "123 Main St, Anytown, USA", default: true },
     { id: 2, name: "Work", address: "456 Office Blvd, Workville, USA", default: false },
@@ -43,8 +46,8 @@ export default function ProfilePage() {
                   <AvatarFallback>JD</AvatarFallback>
                 </Avatar>
               </div>
-              <CardTitle>John Doe</CardTitle>
-              <CardDescription>john.doe@example.com</CardDescription>
+              <CardTitle>{profile?.fullName}</CardTitle>
+              <CardDescription>{profile?.email}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex justify-center">
@@ -77,11 +80,11 @@ export default function ProfilePage() {
                     <form className="space-y-4">
                       <div className="space-y-2">
                         <Label htmlFor="fullName">Full Name</Label>
-                        <Input id="fullName" defaultValue="John Doe" />
+                        <Input id="fullName" defaultValue={profile?.fullName} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" type="email" defaultValue="john.doe@example.com" />
+                        <Input id="email" type="email" defaultValue={profile?.email} />
                       </div>
                       <div className="space-y-2">
                         <Label htmlFor="profilePicture">Profile Picture</Label>
@@ -102,11 +105,11 @@ export default function ProfilePage() {
                     <div className="space-y-4">
                       <div>
                         <h3 className="font-medium">Full Name</h3>
-                        <p className="text-muted-foreground">John Doe</p>
+                        <p className="text-muted-foreground">{profile?.fullName}</p>
                       </div>
                       <div>
                         <h3 className="font-medium">Email</h3>
-                        <p className="text-muted-foreground">john.doe@example.com</p>
+                        <p className="text-muted-foreground">{profile?.email}</p>
                       </div>
                       <div>
                         <h3 className="font-medium">Bio</h3>

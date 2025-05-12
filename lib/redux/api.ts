@@ -22,8 +22,17 @@ export interface IProfile {
     email:      string;
     role:       string;
     addresses:  any[];
-    favourites: any[];
+    favourites: Array<IFavorite>;
 }
+export interface IFavorite {
+    id:           number;
+    name:         string;
+    description:  string;
+    userId:       number;
+    restaurantId: number;
+}
+
+
 export const customBaseQuery = (url: string) => {
     const rawBaseQuery = fetchBaseQuery({
       baseUrl: url,
@@ -43,16 +52,16 @@ export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
     endpoints: (builder) => ({
-        getRestaurants: builder.query<RestauratsReponse, unknown>({
+        getRestaurants: builder.query<RestauratsReponse, void>({
             query: () => 'restaurants', // This will call /api/restaurants
         }),
-        dashboard: builder.query<IDashboard, unknown>({
+        dashboard: builder.query<IDashboard, void>({
             query: () => ({
                 url: '/dashboard',
                 method: "GET"
               }),
         }),
-        profile: builder.query<IProfile, unknown>({
+        profile: builder.query<IProfile, Object>({
             query: () => ({
                 url: 'users/profile',
                 method: "GET",

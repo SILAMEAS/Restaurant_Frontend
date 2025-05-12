@@ -166,7 +166,7 @@ const categoriesData = [
 ]
 
 export default function AdminDashboardPage() {
-  const dashboard=useDashboardQuery({});
+  const dashboard=useDashboardQuery();
   const [users, setUsers] = useState(usersData)
   const [orders, setOrders] = useState(ordersData)
   const [categories, setCategories] = useState(categoriesData)

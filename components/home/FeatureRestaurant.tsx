@@ -4,7 +4,7 @@ import Image from "next/image";
 import {useGetRestaurantsQuery} from "@/lib/redux/api";
 
 const FeatureRestaurant = () => {
-    const {currentData} = useGetRestaurantsQuery({});
+    const {currentData} = useGetRestaurantsQuery();
     return <section className="container px-4 md:px-6 py-8">
         <h2 className="text-3xl font-bold tracking-tight mb-6">Featured Restaurants</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
