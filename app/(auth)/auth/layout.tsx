@@ -1,11 +1,16 @@
+
 import React, {PropsWithChildren} from 'react';
-import { ToastContainer } from 'react-toastify';
 
 const LayoutAuth = ({children}:PropsWithChildren) => {
+
     return (
-        <div className="bg-restaurant-slide bg-cover flex items-center justify-center">
-            {children}
+        <div className='flex'>
+            <div className=" flex items-center justify-center w-[50%]">
+                    {children}
+            </div>
+            <div className="rotate-scale-down-ver bg-restaurant-slide bg-cover flex items-center justify-center w-[50%]"/>
         </div>
+    
     );
 };
 

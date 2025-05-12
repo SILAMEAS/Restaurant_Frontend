@@ -1,6 +1,6 @@
 "use client"
 
-import type React from "react"
+import React from "react"
 
 import { useState } from "react"
 import Link from "next/link"
@@ -11,9 +11,11 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { useLazyLoginQuery } from "@/lib/redux/auth"
+import { useAppDispatch } from "@/lib/redux/hooks"
+import { reset } from "@/lib/redux/counterSlice"
 
 export default function RegisterPage() {
+  const dispatch=useAppDispatch()
   const router = useRouter()
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -29,7 +31,10 @@ export default function RegisterPage() {
       router.push("/")
     }, 1500)
   }
-
+  React.useEffect(()=>{
+    console.log("reset")
+     dispatch(reset())
+  },[])
   return (
     <div className="container flex h-screen w-screen flex-col items-center justify-center">
       <Link href="/" className="absolute left-4 top-4 md:left-8 md:top-8 text-lg font-bold">

@@ -19,7 +19,7 @@ export interface Content {
     registrationDate:   Date;
     address:            Address;
     contactInformation: ContactInformation;
-    imageUrls:          null;
+    imageUrls:          string[];
     rating :             number;
 }
 

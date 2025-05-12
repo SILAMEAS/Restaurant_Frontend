@@ -1,6 +1,8 @@
 // features/api/apiSlice.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {LoginFormData, RestauratsReponse} from "@/lib/redux/type";
+import { store } from './store';
+import { setProfile } from './counterSlice';
 
 interface Restaurant {
     id: number;
@@ -13,9 +15,33 @@ interface IDashboard{
     total_categories:number
 
 }
+export interface IProfile {
+    id:         number;
+    profile:    null;
+    fullName:   string;
+    email:      string;
+    role:       string;
+    addresses:  any[];
+    favourites: any[];
+}
+export const customBaseQuery = (url: string) => {
+    const rawBaseQuery = fetchBaseQuery({
+      baseUrl: url,
+      prepareHeaders: (headers, { getState }) => {
+        const token = (getState() as any).counter.login?.accessToken;
+        if (token) {
+          headers.set("Authorization", `Bearer ${token}`);
+        }
+        return headers;
+      },
+    });
+  
+    return rawBaseQuery;
+  };
+
 export const apiSlice = createApi({
     reducerPath: 'api',
-    baseQuery: fetchBaseQuery({ baseUrl:process.env.NEXT_PUBLIC_BASE_URL+ '/api/' }), // Adjust baseUrl to your API
+    baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
     endpoints: (builder) => ({
         getRestaurants: builder.query<RestauratsReponse, unknown>({
             query: () => 'restaurants', // This will call /api/restaurants
@@ -26,8 +52,19 @@ export const apiSlice = createApi({
                 method: "GET"
               }),
         }),
+        profile: builder.query<IProfile, unknown>({
+            query: () => ({
+                url: 'users/profile',
+                method: "GET",
+                  responseHandler:async(res)=>{
+                                    const data=await res.json();
+                                    store.dispatch(setProfile(data))
+                                }
+              }),
+              
+        }),
     }),
 });
 
 // Export hooks for usage in components
-export const { useGetRestaurantsQuery,useDashboardQuery } = apiSlice;
+export const { useGetRestaurantsQuery,useDashboardQuery,useProfileQuery } = apiSlice;

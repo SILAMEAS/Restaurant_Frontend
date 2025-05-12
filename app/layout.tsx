@@ -3,6 +3,7 @@ import type React from 'react';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
+import './custom.css';
 import ReduxProvider from '../lib/provider/ReduxProvider';
 import {GlobalLoadingProvider} from "@/lib/provider/GlobalLoadingProvider";
 import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Import the new Client Component

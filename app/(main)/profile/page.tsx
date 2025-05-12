@@ -10,8 +10,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { MapPin, Heart, Plus, Pencil, Trash2 } from "lucide-react"
+import { useProfileQuery } from "@/lib/redux/api"
+import { useAppSelector } from "@/lib/redux/hooks"
 
 export default function ProfilePage() {
+  const getProfile = useProfileQuery();
   const [addresses, setAddresses] = useState([
     { id: 1, name: "Home", address: "123 Main St, Anytown, USA", default: true },
     { id: 2, name: "Work", address: "456 Office Blvd, Workville, USA", default: false },
