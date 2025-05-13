@@ -18,16 +18,9 @@ import { useGlobalState } from "@/hooks/useGlobalState"
 export default function ProfilePage() {
   const {profile}=useGlobalState();
   const getProfile = useProfileQuery({},{skip:Boolean(profile)});
-  const [addresses, setAddresses] = useState([
-    { id: 1, name: "Home", address: "123 Main St, Anytown, USA", default: true },
-    { id: 2, name: "Work", address: "456 Office Blvd, Workville, USA", default: false },
-  ])
+  const [addresses, setAddresses] = useState(profile?.addresses ?? [] )
 
-  const [favorites, setFavorites] = useState([
-    { id: 1, name: "Pizza Palace", image: "/placeholder.svg?height=100&width=100", cuisine: "Italian" },
-    { id: 2, name: "Burger Joint", image: "/placeholder.svg?height=100&width=100", cuisine: "American" },
-    { id: 3, name: "Sushi Spot", image: "/placeholder.svg?height=100&width=100", cuisine: "Japanese" },
-  ])
+  const [favorites, setFavorites] = useState(profile?.favourites ?? [])
 
   const [isEditing, setIsEditing] = useState(false)
   const [isAddingAddress, setIsAddingAddress] = useState(false)
@@ -192,7 +185,7 @@ export default function ProfilePage() {
                           id="addressName"
                           placeholder="Home, Work, etc."
                           defaultValue={
-                            editingAddress !== null ? addresses.find((a) => a.id === editingAddress)?.name : ""
+                            editingAddress !== null ? addresses?.find((a) => a.id === editingAddress)?.name : "HOME"
                           }
                         />
                       </div>
@@ -202,7 +195,7 @@ export default function ProfilePage() {
                           id="fullAddress"
                           placeholder="Street, City, State, Zip"
                           defaultValue={
-                            editingAddress !== null ? addresses.find((a) => a.id === editingAddress)?.address : ""
+                            editingAddress !== null ? addresses?.find((a) => a.id === editingAddress)?.streetAddress : ""
                           }
                         />
                       </div>
@@ -223,21 +216,21 @@ export default function ProfilePage() {
                         </Button>
                       </div>
                     </form>
-                  ) : addresses.length > 0 ? (
+                  ) : addresses?.length > 0 ? (
                     <div className="space-y-4">
-                      {addresses.map((address) => (
+                      {addresses?.map((address) => (
                         <div key={address.id} className="flex items-start gap-4 p-4 border rounded-lg">
                           <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-medium">{address.name}</h3>
-                              {address.default && (
+                              <h3 className="font-medium">{address.streetAddress}</h3>
+                              { (
                                 <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
-                                  Default
+                                  {address.name}
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">{address.address}</p>
+                            <p className="text-sm text-muted-foreground mt-1">{address.stateProvince}</p>
                           </div>
                           <div className="flex gap-1">
                             <Button variant="ghost" size="icon" onClick={() => setEditingAddress(address.id)}>

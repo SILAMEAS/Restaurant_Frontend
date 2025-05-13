@@ -17,11 +17,11 @@ interface IDashboard{
 }
 export interface IProfile {
     id:         number;
-    profile:    null;
+    profile?:    string;
     fullName:   string;
     email:      string;
     role:       string;
-    addresses:  any[];
+    addresses:  Array<IAddress>;
     favourites: Array<IFavorite>;
 }
 export interface IFavorite {
@@ -30,6 +30,15 @@ export interface IFavorite {
     description:  string;
     userId:       number;
     restaurantId: number;
+}
+export interface IAddress {
+    id:            number;
+    streetAddress: string;
+    city:          string;
+    country:       string;
+    stateProvince: string;
+    postalCode:    string;
+    name : string;
 }
 
 
