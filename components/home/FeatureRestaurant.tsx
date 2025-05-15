@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {Card, CardContent} from "@/components/ui/card";
 import Image from "next/image";
-import {useGetRestaurantsQuery} from "@/lib/redux/api";
+import {useGetRestaurantsQuery, useProfileQuery} from "@/lib/redux/api";
+import { Button } from "@/components/ui/button"
+import { Heart, Loader2 } from 'lucide-react';
+import { useEndpointProfile } from '@/app/(main)/profile/useEndpointProfile';
+import { ContentRestaurant } from '@/lib/redux/type';
+
 
 const FeatureRestaurant = () => {
     const {currentData} = useGetRestaurantsQuery();
+    const getProfile = useProfileQuery();
+    const {method:{onUnFavorite},trigger:{resultFavUnFavMutation}}=useEndpointProfile();
+    const [clickItem,setClickItem]=useState<ContentRestaurant|undefined>();
     return <section className="container px-4 md:px-6 py-8">
         <h2 className="text-3xl font-bold tracking-tight mb-6">Featured Restaurants</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
@@ -24,7 +32,19 @@ const FeatureRestaurant = () => {
                                     <span
                                         className="bg-primary/10 text-primary px-2 py-0.5 rounded-full text-xs">{i.rating} ★</span>
                         <span className="ml-2 text-muted-foreground">30-45 min</span>
+                        <Button variant="ghost" size="icon" onClick={()=>{
+                            setClickItem(i);
+                            onUnFavorite(i.id)
+                        }}>
+                            {
+                                    resultFavUnFavMutation?.isLoading&&clickItem?.id===i.id?
+                                    <Loader2 className='rotate-center'/>:
+                                    <Heart className={`h-5 w-5 ${getProfile?.currentData?.favourites?.find(it=>it.restaurantId==i.id)?'fill-red-800':"fill-primary"} text-primary`} />
+                            }
+                        
+                          </Button>
                     </div>
+                     
                 </CardContent>
             </Card>))}
         </div>

@@ -21,7 +21,6 @@ export const authSlice = createApi({
                 body,
                 responseHandler:async(res)=>{
                     const data=await res.json();
-                    store.dispatch(setLogin(data))
                 }
               }),
         }),

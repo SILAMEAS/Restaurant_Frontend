@@ -16,6 +16,7 @@ import { LoginFormData, loginSchema } from "@/lib/redux/type";
 
 import { Slide, toast, ToastContainer } from "react-toastify";
 import { useLoginMutation } from "@/lib/redux/auth";
+import { Role } from "@/lib/redux/counterSlice";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -33,18 +34,15 @@ export default function LoginPage() {
   // Handle form submission
   const onSubmit = async (data: LoginFormData) => {
     try{
-      await login(data).unwrap();
-      // setTimeout(() => {
-      //   setIsLoading(false);
-      //   router.push("/");
-      // }, 1500);
+     const res =  await login(data).unwrap();
+
       toast.success("login success !", 
         {
         theme: "dark",
         transition: Slide,
         }
       );
-      router.push("/")
+      res?.role===Role.ADMIN?router.push('/admin'):router.push("/")
     }catch(e:any){
       return toast.error(e?.data?.message, 
         {

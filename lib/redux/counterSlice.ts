@@ -1,12 +1,18 @@
 // counterSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IProfile } from './api';
+import { IFavorite, IProfile } from './api';
+
+export enum Role{
+    USER="USER",
+    OWNER="OWNER",
+    ADMIN="ADMIN"
+}
 
 export interface UserInfo {
     accessToken:  string;
     refreshToken: string;
     userId:       number;
-    role:         string;
+    role:         Role;
     message:      string;
 }
 
@@ -36,9 +42,18 @@ const counterSlice = createSlice({
         setProfile: (state, action: PayloadAction<IProfile>) => {
             state.profile = action.payload;
         },
+        setFavorite: (state, action: PayloadAction<IFavorite>) => {
+            console.log(action.payload)
+        if (state.profile&&action.payload) {
+            state.profile.favourites = [
+            ...(state.profile.favourites || []),
+            action.payload,
+            ];
+        }
+        },
         reset: () => initialState
     },
 });
 
-export const { increment, decrement,setLogin,reset ,setProfile} = counterSlice.actions;
+export const { increment, decrement,setLogin,reset ,setProfile,setFavorite} = counterSlice.actions;
 export default counterSlice.reducer;

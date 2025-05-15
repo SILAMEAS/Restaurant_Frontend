@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export interface RestauratsReponse {
-    contents:   Content[];
+    contents:   ContentRestaurant[];
     page:       number;
     pageSize:   number;
     totalPages: number;
@@ -9,7 +9,7 @@ export interface RestauratsReponse {
     hasNext:    boolean;
 }
 
-export interface Content {
+export interface ContentRestaurant {
     id:                 number;
     name:               string;
     description:        string;

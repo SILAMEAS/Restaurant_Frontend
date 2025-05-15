@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import React, { useState } from "react"
 import Image from "next/image"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
@@ -9,23 +9,35 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, Heart, Plus, Pencil, Trash2 } from "lucide-react"
-import { useProfileQuery } from "@/lib/redux/api"
+import { MapPin, Heart, Plus, Pencil, Trash2, Loader } from "lucide-react"
+import { IAddress, IFavorite, useDeleteAddressMutation, useFavUnFavMutation, useProfileQuery, useUpdateAddressMutation } from "@/lib/redux/api"
 import { useAppSelector } from "@/lib/redux/hooks"
 import { skip } from "node:test"
 import { useGlobalState } from "@/hooks/useGlobalState"
+import { Slide, toast } from "react-toastify"
+import { useEndpointProfile } from "./useEndpointProfile"
 
 export default function ProfilePage() {
-  const {profile}=useGlobalState();
-  const getProfile = useProfileQuery({},{skip:Boolean(profile)});
-  const [addresses, setAddresses] = useState(profile?.addresses ?? [] )
+  const {method:{onDeleteAddress,onUnFavorite,onUpdateCurrentUsageAddress},trigger:{resultDeleteAddress}}=useEndpointProfile();
+  const getProfile = useProfileQuery();
 
-  const [favorites, setFavorites] = useState(profile?.favourites ?? [])
+  const [addresses, setAddresses] = useState<IAddress[]|[]>([]);
 
-  const [isEditing, setIsEditing] = useState(false)
-  const [isAddingAddress, setIsAddingAddress] = useState(false)
-  const [editingAddress, setEditingAddress] = useState<number | null>(null)
+  const [favorites, setFavorites] = useState<IFavorite[]|[]>([]);
 
+  const [isEditing, setIsEditing] = useState(false);
+  const [isAddingAddress, setIsAddingAddress] = useState(false);
+  const [editingAddress, setEditingAddress] = useState<number | null>(null);
+
+  React.useEffect(()=>{
+    if(getProfile?.currentData){
+      setAddresses(getProfile?.currentData?.addresses);
+      setFavorites(getProfile?.currentData?.favourites);
+    }
+  },[getProfile.currentData]);
+
+  const profile = getProfile?.currentData;
+  
   return (
     <div className="container py-10">
       <div className="flex flex-col md:flex-row gap-8">
@@ -128,7 +140,7 @@ export default function ProfilePage() {
                         <div key={favorite.id} className="flex items-center gap-4 p-3 border rounded-lg">
                           <div className="relative h-16 w-16 rounded-md overflow-hidden">
                             <Image
-                              src={favorite.image || "/placeholder.svg"}
+                              src={ "/placeholder.svg"}
                               alt={favorite.name}
                               fill
                               className="object-cover"
@@ -136,9 +148,9 @@ export default function ProfilePage() {
                           </div>
                           <div className="flex-1">
                             <h3 className="font-medium">{favorite.name}</h3>
-                            <p className="text-sm text-muted-foreground">{favorite.cuisine}</p>
+                            {/* <p className="text-sm text-muted-foreground">{favorite.cuisine}</p> */}
                           </div>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" onClick={()=>onUnFavorite(favorite.restaurantId)}>
                             <Heart className="h-5 w-5 fill-primary text-primary" />
                           </Button>
                         </div>
@@ -195,7 +207,7 @@ export default function ProfilePage() {
                           id="fullAddress"
                           placeholder="Street, City, State, Zip"
                           defaultValue={
-                            editingAddress !== null ? addresses?.find((a) => a.id === editingAddress)?.streetAddress : ""
+                            editingAddress !== null ? addresses?.find((a) => a.id === editingAddress)?.street : ""
                           }
                         />
                       </div>
@@ -223,22 +235,43 @@ export default function ProfilePage() {
                           <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
                           <div className="flex-1">
                             <div className="flex items-center gap-2">
-                              <h3 className="font-medium">{address.streetAddress}</h3>
+                              <h3 className="font-medium">{address.street}</h3>
                               { (
                                 <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
                                   {address.name}
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-muted-foreground mt-1">{address.stateProvince}</p>
+                            <p className="text-sm text-muted-foreground mt-1">{address.state}</p>
                           </div>
                           <div className="flex gap-1">
                             <Button variant="ghost" size="icon" onClick={() => setEditingAddress(address.id)}>
                               <Pencil className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon">
-                              <Trash2 className="h-4 w-4" />
+                            <Button variant="ghost" size="icon" onClick={()=>onDeleteAddress(address.id)} >
+                              {
+                                resultDeleteAddress?.isLoading?
+                                <Loader />:
+                                <Trash2 className="h-4 w-4" />
+                              }
+                      
                             </Button>
+                              <div className={`flex items-center gap- ${address.currentUsage?'cursor-not-allowed':"cursor-pointer"}`} 
+                              onClick={()=>{
+                                if(!address.currentUsage){
+                                  onUpdateCurrentUsageAddress(address.id)
+                                }
+                              }}
+                              >
+                                <div className="flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
+                                  <div
+                                    className={`w-[5px] h-[5px] rounded-full ${
+                                      address.currentUsage ? 'bg-green-400' : 'bg-red-400'
+                                    }`}
+                                  />
+                                  <span>{address.currentUsage ? 'Active' : 'Inactive'}</span>
+                                </div>
+                              </div>
                           </div>
                         </div>
                       ))}

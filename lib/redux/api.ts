@@ -2,7 +2,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {LoginFormData, RestauratsReponse} from "@/lib/redux/type";
 import { store } from './store';
-import { setProfile } from './counterSlice';
+import { setFavorite, setProfile } from './counterSlice';
 
 interface Restaurant {
     id: number;
@@ -32,13 +32,14 @@ export interface IFavorite {
     restaurantId: number;
 }
 export interface IAddress {
-    id:            number;
-    streetAddress: string;
-    city:          string;
-    country:       string;
-    stateProvince: string;
-    postalCode:    string;
-    name : string;
+    name:         string;
+    id:           number;
+    street:       string;
+    city:         string;
+    country:      string;
+    state:        string;
+    zip:          string;
+    currentUsage: boolean;
 }
 
 
@@ -60,29 +61,74 @@ export const customBaseQuery = (url: string) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
+    tagTypes:['address','favorite'],
     endpoints: (builder) => ({
+        /** Restaurants */ 
         getRestaurants: builder.query<RestauratsReponse, void>({
             query: () => 'restaurants', // This will call /api/restaurants
         }),
+        favUnFav: builder.mutation<RestauratsReponse,  {restaurantId:number}>({
+            query: ({restaurantId}) => ({
+                url:  `restaurants/${restaurantId}/favorites`,
+                method: "PUT",
+                //   responseHandler:async(res)=>{
+                //                     const data=await res.json();
+                //                     await store.dispatch(setFavorite(data));
+                //                     return data;
+                //                 }
+              }),
+            invalidatesTags: ['favorite'],
+        }),
+        /** Dashboard */ 
         dashboard: builder.query<IDashboard, void>({
             query: () => ({
                 url: '/dashboard',
                 method: "GET"
               }),
         }),
-        profile: builder.query<IProfile, Object>({
+        /** Profile */ 
+        profile: builder.query<IProfile, void>({
             query: () => ({
                 url: 'users/profile',
                 method: "GET",
-                  responseHandler:async(res)=>{
-                                    const data=await res.json();
-                                    store.dispatch(setProfile(data))
-                                }
+                //   responseHandler:async(res)=>{
+                //                     const data=await res.json();
+                //                     store.dispatch(setProfile(data));
+                //                     return data;
+                //                 }
               }),
+            providesTags: ['address','favorite'],
+              
+        }),
+        /** Address */ 
+        deleteAddress: builder.mutation<IProfile, {addressId:number}>({
+            query: ({addressId}) => ({
+                url: `address/${addressId}`,
+                method: "DELETE"
+              }),
+             invalidatesTags: ['address'],
+              
+        }),
+           /** Address */ 
+        updateAddress: builder.mutation<IProfile, {addressId:number,body:FormData}>({
+            query: ({addressId,body}) => ({
+                url: `address/${addressId}`,
+                method: "PUT",
+                body
+              }),
+             invalidatesTags: ['address'],
               
         }),
     }),
 });
 
 // Export hooks for usage in components
-export const { useGetRestaurantsQuery,useDashboardQuery,useProfileQuery } = apiSlice;
+export const { 
+    useGetRestaurantsQuery,
+    useDashboardQuery,
+    useProfileQuery,
+    useLazyGetRestaurantsQuery,
+    useDeleteAddressMutation,
+    useUpdateAddressMutation,
+    useFavUnFavMutation
+ } = apiSlice;
