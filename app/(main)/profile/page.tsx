@@ -16,10 +16,13 @@ import { skip } from "node:test"
 import { useGlobalState } from "@/hooks/useGlobalState"
 import { Slide, toast } from "react-toastify"
 import { useEndpointProfile } from "./useEndpointProfile"
+import {useRouter} from "next/navigation";
 
 export default function ProfilePage() {
   const {method:{onDeleteAddress,onUnFavorite,onUpdateCurrentUsageAddress},trigger:{resultDeleteAddress}}=useEndpointProfile();
   const getProfile = useProfileQuery();
+  const router = useRouter();
+
 
   const [addresses, setAddresses] = useState<IAddress[]|[]>([]);
 
@@ -34,7 +37,10 @@ export default function ProfilePage() {
       setAddresses(getProfile?.currentData?.addresses);
       setFavorites(getProfile?.currentData?.favourites);
     }
-  },[getProfile.currentData]);
+    if(getProfile.isError){
+      router.push('/auth/login')
+    }
+  },[getProfile.currentData,getProfile.isError]);
 
   const profile = getProfile?.currentData;
   

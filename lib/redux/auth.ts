@@ -18,10 +18,7 @@ export const authSlice = createApi({
             query: (body) => ({
                 url: '/sign-in',
                 method: "Post",
-                body,
-                responseHandler:async(res)=>{
-                    const data=await res.json();
-                }
+                body
               }),
         }),
     }),

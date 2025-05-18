@@ -1,22 +1,24 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
+import {useState} from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {useRouter} from "next/navigation";
+import {Eye, EyeOff} from "lucide-react";
+import {useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { LoginFormData, loginSchema } from "@/lib/redux/type";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
+import {LoginFormData, loginSchema} from "@/lib/redux/type";
 
-import { Slide, toast, ToastContainer } from "react-toastify";
-import { useLoginMutation } from "@/lib/redux/auth";
-import { Role } from "@/lib/redux/counterSlice";
+import {Slide, toast} from "react-toastify";
+import {useLoginMutation} from "@/lib/redux/auth";
+import {Role, setLogin} from "@/lib/redux/counterSlice";
+import {store} from "@/lib/redux/store";
+import Cookies from 'js-cookie'
 
 export default function LoginPage() {
   const router = useRouter();
@@ -42,7 +44,12 @@ export default function LoginPage() {
         transition: Slide,
         }
       );
-      res?.role===Role.ADMIN?router.push('/admin'):router.push("/")
+      if(res){
+        store.dispatch(setLogin(res));
+        Cookies.set('token', res.accessToken, { secure: true })
+        Cookies.set('role', res.role, { secure: true })
+        res?.role===Role.ADMIN?router.push('/admin'):router.push("/");
+      }
     }catch(e:any){
       return toast.error(e?.data?.message, 
         {
