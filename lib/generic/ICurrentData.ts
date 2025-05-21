@@ -1,0 +1,1 @@
+export interface ICurrentData<T extends any>{currentData:T}

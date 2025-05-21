@@ -9,7 +9,7 @@ interface Restaurant {
     name: string;
     // Add other fields as needed
 }
-interface IDashboard{
+export interface IDashboard{
     total_users:number;
     total_orders:number;
     total_categories:number
@@ -23,6 +23,8 @@ export interface IProfile {
     role:       string;
     addresses:  Array<IAddress>;
     favourites: Array<IFavorite>;
+    createdAt : string;
+    updatedAt : string;
 }
 export interface IFavorite {
     id:           number;
@@ -41,7 +43,15 @@ export interface IAddress {
     zip:          string;
     currentUsage: boolean;
 }
-
+export interface IPagination<T> {
+  contents: T[];
+  page: number;
+  pageSize?: number;
+  totalPages?: number;
+  total?: number;
+  hasNext?: boolean;
+  totalInvalid?: number;
+}
 
 export const customBaseQuery = (url: string) => {
     const rawBaseQuery = fetchBaseQuery({
@@ -61,7 +71,7 @@ export const customBaseQuery = (url: string) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
-    tagTypes:['address','favorite'],
+    tagTypes:['address','favorite','users'],
     endpoints: (builder) => ({
         /** Restaurants */ 
         getRestaurants: builder.query<RestauratsReponse, void>({
@@ -71,11 +81,6 @@ export const apiSlice = createApi({
             query: ({restaurantId}) => ({
                 url:  `restaurants/${restaurantId}/favorites`,
                 method: "PUT",
-                //   responseHandler:async(res)=>{
-                //                     const data=await res.json();
-                //                     await store.dispatch(setFavorite(data));
-                //                     return data;
-                //                 }
               }),
             invalidatesTags: ['favorite'],
         }),
@@ -91,11 +96,6 @@ export const apiSlice = createApi({
             query: () => ({
                 url: 'users/profile',
                 method: "GET",
-                //   responseHandler:async(res)=>{
-                //                     const data=await res.json();
-                //                     store.dispatch(setProfile(data));
-                //                     return data;
-                //                 }
               }),
             providesTags: ['address','favorite'],
               
@@ -109,7 +109,7 @@ export const apiSlice = createApi({
              invalidatesTags: ['address'],
               
         }),
-           /** Address */ 
+        /** Address */ 
         updateAddress: builder.mutation<IProfile, {addressId:number,body:FormData}>({
             query: ({addressId,body}) => ({
                 url: `address/${addressId}`,
@@ -117,6 +117,15 @@ export const apiSlice = createApi({
                 body
               }),
              invalidatesTags: ['address'],
+              
+        }),
+        /** users */ 
+        getUsers: builder.query<IPagination<IProfile>,void>({
+            query: () => ({
+                url: `users`,
+                method: "GET"
+              }),
+             providesTags: ['users'],
               
         }),
     }),
@@ -130,5 +139,6 @@ export const {
     useLazyGetRestaurantsQuery,
     useDeleteAddressMutation,
     useUpdateAddressMutation,
-    useFavUnFavMutation
+    useFavUnFavMutation,
+    useGetUsersQuery
  } = apiSlice;
