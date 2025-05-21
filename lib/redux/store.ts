@@ -32,6 +32,7 @@ export const store = configureStore({
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
     }).concat(apiSlice.middleware, authSlice.middleware),
+  devTools: typeof window !== 'undefined',
 });
 
 setupListeners(store.dispatch);
