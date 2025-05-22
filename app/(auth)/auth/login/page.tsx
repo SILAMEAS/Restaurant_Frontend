@@ -19,6 +19,8 @@ import {useLoginMutation} from "@/lib/redux/auth";
 import {Role, setLogin} from "@/lib/redux/counterSlice";
 import {store} from "@/lib/redux/store";
 import Cookies from 'js-cookie'
+import {handleApiCall} from "@/lib/handleApiCall";
+import {COOKIES} from "@/constant/COOKIES";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -35,29 +37,24 @@ export default function LoginPage() {
   });
   // Handle form submission
   const onSubmit = async (data: LoginFormData) => {
-    try{
-     const res =  await login(data).unwrap();
+    await handleApiCall({
+      apiFn: () => login(data).unwrap(),
+      onSuccess: (res) => {
+        toast.success("Login success!", {
+          theme: "dark",
+          transition: Slide,
+        });
 
-      toast.success("login success !", 
-        {
-        theme: "dark",
-        transition: Slide,
-        }
-      );
-      if(res){
         store.dispatch(setLogin(res));
-        Cookies.set('token', res.accessToken, { secure: true })
-        Cookies.set('role', res.role, { secure: true })
-        res?.role===Role.ADMIN?router.push('/admin'):router.push("/");
+        Cookies.set(COOKIES.TOKEN, res.accessToken, { secure: true });
+        Cookies.set(COOKIES.ROLE, res.role, { secure: true });
+
+
+        res?.role===Role.ADMIN?router.push('/admin'):router.push("/")
+
+
       }
-    }catch(e:any){
-      return toast.error(e?.data?.message, 
-        {
-        theme: "dark",
-        transition: Slide,
-        }
-      );
-    }
+    });
   };
 
   return (

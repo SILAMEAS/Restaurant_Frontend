@@ -1,0 +1,33 @@
+
+export const Route={
+    ROOT:"/",
+    PUBLIC:{
+        AUTH:{
+            LOGIN:"/auth/login",
+            REGISTER:"/auth/register",
+            REDIRECT:"/auth/redirect"
+        },
+        MAIN:{
+            HOME:"/main",
+            ALL_PATH:"/main/:path*",
+        },
+        UNAUTHORIZED:{
+            HOME:"/unauthorized"
+        }
+    },
+    END_UER:{
+        HOME:"/"
+    },
+    ADMIN:{
+        HOME:"/admin",
+        ALL_PATH:"/admin/:path*"
+    },
+    OWNER:{
+        HOME:"/owner",
+        ALL_PATH:"/owner/:path*"
+    },
+    RESTAURANT:{
+        HOME:"/restaurant",
+        ALL_PATH:"/restaurant/:path*"
+    }
+}
