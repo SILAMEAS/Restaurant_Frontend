@@ -32,9 +32,9 @@ import { useToast } from "@/components/ui/use-toast"
 import { IDashboard, useDashboardQuery } from "@/lib/redux/api"
 import CartDashboard from "../(components)/CartDashboard"
 import { ICurrentData } from "@/lib/generic/ICurrentData"
-import UserTab from "../(components)/(tab)/UserTab"
-import OrderTab from "../(components)/(tab)/OrderTab"
-import CategoryTab from "../(components)/(tab)/CategoryTab"
+import AdminUser from "../(components)/(tab)/AdminUser"
+import AdminOrder from "../(components)/(tab)/AdminOrder"
+import AdminCategory from "../(components)/(tab)/AdminCategory"
 
 
 
@@ -55,17 +55,17 @@ export default function AdminDashboardPage() {
 
         {/* Users Tab */}
         <TabsContent value="users">
-          <UserTab/>
+          <AdminUser/>
         </TabsContent>
 
         {/* Orders Tab */}
         <TabsContent value="orders">
-          <OrderTab/>
+          <AdminOrder/>
         </TabsContent>
 
         {/* Categories Tab */}
         <TabsContent value="categories">
-          <CategoryTab/>
+          <AdminCategory/>
         </TabsContent>
       </Tabs>
     </div>

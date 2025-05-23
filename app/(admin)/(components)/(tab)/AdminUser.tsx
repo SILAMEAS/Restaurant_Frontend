@@ -1,20 +1,9 @@
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import {useState} from "react"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Badge} from "@/components/ui/badge"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,53 +12,10 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Package, Users, Tag } from "lucide-react"
-import { useGetUsersQuery } from "@/lib/redux/api"
+import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
+import {useGetUsersQuery} from "@/lib/redux/api"
 
-// Sample users data
-const usersData = [
-  {
-    id: 1,
-    name: "John Doe",
-    email: "john.doe@example.com",
-    role: "Customer",
-    orders: 5,
-    joined: "2023-01-15T10:30:00Z",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    role: "Restaurant Owner",
-    orders: 0,
-    joined: "2023-02-20T14:45:00Z",
-  },
-  {
-    id: 3,
-    name: "Bob Johnson",
-    email: "bob.johnson@example.com",
-    role: "Customer",
-    orders: 12,
-    joined: "2023-01-05T09:15:00Z",
-  },
-  {
-    id: 4,
-    name: "Alice Williams",
-    email: "alice.williams@example.com",
-    role: "Admin",
-    orders: 0,
-    joined: "2022-12-10T11:20:00Z",
-  },
-  {
-    id: 5,
-    name: "Charlie Brown",
-    email: "charlie.brown@example.com",
-    role: "Customer",
-    orders: 8,
-    joined: "2023-03-01T16:30:00Z",
-  },
-]
-const UserTab=()=>{
+const AdminUser=()=>{
     const [searchQuery, setSearchQuery] = useState("");
     const getUsers= useGetUsersQuery();
     const users=getUsers?.currentData?.contents;
@@ -152,4 +98,4 @@ const UserTab=()=>{
           </Card>
 }
 
-export default UserTab;
+export default AdminUser;

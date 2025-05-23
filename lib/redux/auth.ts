@@ -1,8 +1,7 @@
 // features/api/apiSlice.ts
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import {LoginFormData, RestauratsReponse} from "@/lib/redux/type";
-import { setLogin, UserInfo } from './counterSlice';
-import { store } from './store';
+import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
+import {LoginFormData} from "@/lib/redux/type";
+import {UserInfo} from './counterSlice';
 
 interface Restaurant {
     id: number;
@@ -18,7 +17,7 @@ export const authSlice = createApi({
             query: (body) => ({
                 url: '/sign-in',
                 method: "Post",
-                body
+                body,
               }),
         }),
     }),

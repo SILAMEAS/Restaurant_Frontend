@@ -1,6 +1,6 @@
 // features/api/apiSlice.ts
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import {LoginFormData, RestauratsReponse} from "@/lib/redux/type";
+import {addressFormData, LoginFormData, RestauratsReponse} from "@/lib/redux/type";
 import { store } from './store';
 import { setFavorite, setProfile } from './counterSlice';
 
@@ -100,7 +100,19 @@ export const apiSlice = createApi({
             providesTags: ['address','favorite'],
               
         }),
-        /** Address */ 
+        /** Address */
+        addAddress: builder.mutation<IProfile,addressFormData>({
+            query: (body) => ({
+                url: `address`,
+                method: "POST",
+                body,
+                headers:{
+                    'Content-Type': 'multipart/form-data',
+                }
+            }),
+            invalidatesTags: ['address'],
+
+        }),
         deleteAddress: builder.mutation<IProfile, {addressId:number}>({
             query: ({addressId}) => ({
                 url: `address/${addressId}`,
@@ -140,5 +152,6 @@ export const {
     useDeleteAddressMutation,
     useUpdateAddressMutation,
     useFavUnFavMutation,
-    useGetUsersQuery
+    useGetUsersQuery,
+    useAddAddressMutation
  } = apiSlice;

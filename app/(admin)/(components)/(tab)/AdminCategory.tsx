@@ -72,7 +72,7 @@ const categoriesData = [
     items: 60,
   },
 ]
-const CategoryTab=()=>{
+const AdminCategory=()=>{
     const [categories, setCategories] = useState(categoriesData);
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingCategory, setIsAddingCategory] = useState(false)
@@ -241,4 +241,4 @@ const CategoryTab=()=>{
           </Card>
 }
 
-export default CategoryTab;
+export default AdminCategory;

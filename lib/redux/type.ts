@@ -41,5 +41,16 @@ export const loginSchema = z.object({
     email: z.string().email("Please enter a valid email address"),
     password: z.string().min(3, "Password must be at least 3 characters long"),
   });
+
+export const addressSchema = z.object({
+    street: z.string().min(3,"Street must be at least 3 characters long"),
+    country: z.string().min(3, "Country must be at least 3 characters long"),
+    zip: z.string().min(3, "Zip must be at least 3 characters long"),
+    city: z.string().min(3, "City must be at least 3 characters long"),
+    state: z.string().min(3, "State must be at least 3 characters long"),
+    name: z.string().min(3, "Name must be at least 3 characters long"),
+    currentUsage: z.boolean(),
+});
   
 export type LoginFormData = z.infer<typeof loginSchema>;
+export type addressFormData = z.infer<typeof addressSchema>;

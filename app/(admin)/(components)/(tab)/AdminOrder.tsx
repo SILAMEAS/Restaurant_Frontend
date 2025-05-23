@@ -1,29 +1,17 @@
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
+import {useState} from "react"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Badge} from "@/components/ui/badge"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Package, Users, Tag } from "lucide-react"
+import {Edit, Eye, MoreVertical, Search} from "lucide-react"
 // Sample orders data
 const ordersData = [
   {
@@ -68,9 +56,9 @@ const ordersData = [
   },
 ]
 
-const OrderTab=()=>{
-        const [orders, setOrders] = useState(ordersData)
-         const [searchQuery, setSearchQuery] = useState("")
+const AdminOrder=()=>{
+    const [orders, setOrders] = useState(ordersData)
+    const [searchQuery, setSearchQuery] = useState("")
     return  <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -158,4 +146,4 @@ const OrderTab=()=>{
             </CardContent>
           </Card>
 }
-export default OrderTab;
+export default AdminOrder;
