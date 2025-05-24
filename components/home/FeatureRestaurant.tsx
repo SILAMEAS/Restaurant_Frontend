@@ -5,24 +5,25 @@ import {useGetRestaurantsQuery, useProfileQuery} from "@/lib/redux/api";
 import { Button } from "@/components/ui/button"
 import { Heart, Loader2 } from 'lucide-react';
 import { useEndpointProfile } from '@/app/(main)/profile/useEndpointProfile';
-import { ContentRestaurant } from '@/lib/redux/type';
+import {IPagination, RestaurantResponse} from "@/lib/redux/type";
 
 
 const FeatureRestaurant = () => {
     const {currentData} = useGetRestaurantsQuery();
     const getProfile = useProfileQuery();
     const {method:{onUnFavorite},trigger:{resultFavUnFavMutation}}=useEndpointProfile();
-    const [clickItem,setClickItem]=useState<ContentRestaurant|undefined>();
+    const [clickItem,setClickItem]=useState<RestaurantResponse|undefined>();
     return <section className="container px-4 md:px-6 py-8">
         <h2 className="text-3xl font-bold tracking-tight mb-6">Featured Restaurants</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {currentData?.contents?.map((i) => (<Card key={i.id} className="overflow-hidden">
                 <div className="relative h-48">
                     <Image
-                        src={`/placeholder.svg?height=200&width=300`}
+                        // src={`/placeholder.svg?height=200&width=300`}
+                        src={`${i.imageUrls[0].url}?height=200&width=300`}
                         alt={`Restaurant ${i}`}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                     />
                 </div>
                 <CardContent className="p-4">

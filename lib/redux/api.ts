@@ -1,57 +1,12 @@
-// features/api/apiSlice.ts
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
-import {addressFormData, LoginFormData, RestauratsReponse} from "@/lib/redux/type";
-import { store } from './store';
-import { setFavorite, setProfile } from './counterSlice';
+import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
+import {
+    addressFormData, CategoryResponse,
+    IDashboard,
+    IPagination,
+    IProfile,
+    RestaurantResponse,
+} from "@/lib/redux/type";
 
-interface Restaurant {
-    id: number;
-    name: string;
-    // Add other fields as needed
-}
-export interface IDashboard{
-    total_users:number;
-    total_orders:number;
-    total_categories:number
-
-}
-export interface IProfile {
-    id:         number;
-    profile?:    string;
-    fullName:   string;
-    email:      string;
-    role:       string;
-    addresses:  Array<IAddress>;
-    favourites: Array<IFavorite>;
-    createdAt : string;
-    updatedAt : string;
-}
-export interface IFavorite {
-    id:           number;
-    name:         string;
-    description:  string;
-    userId:       number;
-    restaurantId: number;
-}
-export interface IAddress {
-    name:         string;
-    id:           number;
-    street:       string;
-    city:         string;
-    country:      string;
-    state:        string;
-    zip:          string;
-    currentUsage: boolean;
-}
-export interface IPagination<T> {
-  contents: T[];
-  page: number;
-  pageSize?: number;
-  totalPages?: number;
-  total?: number;
-  hasNext?: boolean;
-  totalInvalid?: number;
-}
 
 export const customBaseQuery = (url: string) => {
     const rawBaseQuery = fetchBaseQuery({
@@ -71,27 +26,43 @@ export const customBaseQuery = (url: string) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
-    tagTypes:['address','favorite','users'],
+    tagTypes:['address','favorite','user',"category","restaurant"],
     endpoints: (builder) => ({
-        /** Restaurants */ 
-        getRestaurants: builder.query<RestauratsReponse, void>({
+        /** ========================================== Restaurants */
+        getRestaurants: builder.query<IPagination<RestaurantResponse>, void>({
             query: () => 'restaurants', // This will call /api/restaurants
         }),
-        favUnFav: builder.mutation<RestauratsReponse,  {restaurantId:number}>({
+        favUnFav: builder.mutation<IPagination<RestaurantResponse>, {restaurantId:number}>({
             query: ({restaurantId}) => ({
                 url:  `restaurants/${restaurantId}/favorites`,
                 method: "PUT",
               }),
             invalidatesTags: ['favorite'],
         }),
-        /** Dashboard */ 
+        getRestaurantOwner: builder.query<RestaurantResponse,void>({
+            query: () => ({
+                url: `restaurants/owner`,
+                method: "GET"
+            }),
+            providesTags: ['restaurant'],
+
+        }),
+        /** ========================================== Dashboard */
         dashboard: builder.query<IDashboard, void>({
             query: () => ({
                 url: '/dashboard',
                 method: "GET"
               }),
         }),
-        /** Profile */ 
+        /**  ==========================================  User */
+        getUsers: builder.query<IPagination<IProfile>,void>({
+            query: () => ({
+                url: `users`,
+                method: "GET"
+            }),
+            providesTags: ['user'],
+
+        }),
         profile: builder.query<IProfile, void>({
             query: () => ({
                 url: 'users/profile',
@@ -100,15 +71,12 @@ export const apiSlice = createApi({
             providesTags: ['address','favorite'],
               
         }),
-        /** Address */
-        addAddress: builder.mutation<IProfile,addressFormData>({
-            query: (body) => ({
+        /**  ==========================================  Address */
+        addAddress: builder.mutation<IProfile,FormData>({
+            query: (formData) => ({
                 url: `address`,
                 method: "POST",
-                body,
-                headers:{
-                    'Content-Type': 'multipart/form-data',
-                }
+                body: formData,
             }),
             invalidatesTags: ['address'],
 
@@ -121,7 +89,6 @@ export const apiSlice = createApi({
              invalidatesTags: ['address'],
               
         }),
-        /** Address */ 
         updateAddress: builder.mutation<IProfile, {addressId:number,body:FormData}>({
             query: ({addressId,body}) => ({
                 url: `address/${addressId}`,
@@ -131,27 +98,30 @@ export const apiSlice = createApi({
              invalidatesTags: ['address'],
               
         }),
-        /** users */ 
-        getUsers: builder.query<IPagination<IProfile>,void>({
+        /**  ==========================================  Category */
+        getCategories: builder.query<IPagination<CategoryResponse>,void>({
             query: () => ({
-                url: `users`,
+                url: `categories`,
                 method: "GET"
-              }),
-             providesTags: ['users'],
-              
+            }),
+            providesTags: ['category'],
+
         }),
+
+
     }),
 });
 
-// Export hooks for usage in components
+/** Export hooks for usage in components  */
 export const { 
     useGetRestaurantsQuery,
     useDashboardQuery,
     useProfileQuery,
-    useLazyGetRestaurantsQuery,
     useDeleteAddressMutation,
     useUpdateAddressMutation,
     useFavUnFavMutation,
     useGetUsersQuery,
-    useAddAddressMutation
+    useAddAddressMutation,
+    useGetCategoriesQuery,
+    useGetRestaurantOwnerQuery,
  } = apiSlice;

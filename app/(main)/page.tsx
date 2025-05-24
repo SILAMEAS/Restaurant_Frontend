@@ -5,9 +5,10 @@ import FeatureCategories from "@/components/home/FeatureCategories";
 
 export default function Home() {
 
+
     return (<div className="container ">
         {/* Hero Section */}
-        <HeroSection/>
+        <HeroSection />
         {/* Featured Restaurants */}
         <FeatureRestaurant/>
         {/* Featured Categories */}

@@ -1,42 +1,113 @@
 import { z } from "zod";
 
-export interface RestauratsReponse {
-    contents:   ContentRestaurant[];
-    page:       number;
-    pageSize:   number;
-    totalPages: number;
-    total:      number;
-    hasNext:    boolean;
+
+interface Restaurant {
+    id: number;
+    name: string;
+    // Add other fields as needed
+}
+export interface IDashboard{
+    total_users:number;
+    total_orders:number;
+    total_categories:number
+
+}
+export interface IProfile {
+    id:         number;
+    profile?:    string;
+    fullName:   string;
+    email:      string;
+    role:       string;
+    addresses:  Array<IAddress>;
+    favourites: Array<IFavorite>;
+    createdAt : string;
+    updatedAt : string;
+}
+export interface IFavorite {
+    id:           number;
+    name:         string;
+    description:  string;
+    userId:       number;
+    restaurantId: number;
+}
+export interface IAddress {
+    name:         string;
+    id:           number;
+    street:       string;
+    city:         string;
+    country:      string;
+    state:        string;
+    zip:          string;
+    currentUsage: boolean;
+}
+export interface IPagination<T> {
+    contents: T[];
+    page: number;
+    pageSize?: number;
+    totalPages?: number;
+    total?: number;
+    hasNext?: boolean;
+    totalInvalid?: number;
 }
 
-export interface ContentRestaurant {
-    id:                 number;
-    name:               string;
-    description:        string;
-    cuisineType:        string;
-    open:               boolean;
-    openingHours:       string;
-    registrationDate:   Date;
-    address:            Address;
-    contactInformation: ContactInformation;
-    imageUrls:          string[];
-    rating :             number;
+
+
+export interface RestaurantResponse {
+    id: number
+    name: string
+    description: string
+    cuisineType: string
+    open: boolean
+    openingHours: string
+    registrationDate: string
+    address: Address
+    contactInformation: ContactInformation
+    imageUrls: ImageUrl[]
+    rating: number
+    ownerName: string
 }
+export interface CategoryResponse {
+    id: number
+    name: string
+}
+
+export interface ImageUrl {
+    url: string
+    publicId: string
+}
+
 
 export interface Address {
-    streetAddress: string;
-    city:          string;
-    country:       string;
-    stateProvince: string;
-    postalCode:    string;
+    name: string
+    id: number
+    street: string
+    city: string
+    country: string
+    state: string
+    zip: string
+    currentUsage: boolean
 }
 
 export interface ContactInformation {
     phone: string;
     email: string;
 }
+export interface PaginationRequest{
+    pageSize:number;
+    sortBy:string;
+    pageNo:number;
+    sortOrder:SORT;
+}
 
-// Define the schema for form validation using Zod
+export const PaginationRequestDefault:PaginationRequest={
+    pageSize :10,
+    sortBy:"id",
+    pageNo:1,
+    sortOrder:'desc'
+}
+export type SORT='asc'|'desc';
+
+/** Define the schema for form validation using Zod   */
 export const loginSchema = z.object({
     email: z.string().email("Please enter a valid email address"),
     password: z.string().min(3, "Password must be at least 3 characters long"),

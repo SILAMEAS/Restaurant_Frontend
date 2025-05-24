@@ -3,8 +3,11 @@ import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {ArrowRight} from "lucide-react";
 import Image from "next/image";
+import {useGetRestaurantOwnerQuery} from "@/lib/redux/api";
 
 const HeroSection = () => {
+    const getRestaurantOwner=useGetRestaurantOwnerQuery();
+    console.log(getRestaurantOwner?.currentData);
     return   <section className="container py-12 md:py-24 lg:py-32 flex-col items-center justify-center">
         <div className=" px-4 md:px-6 ">
             <div className="grid gap-6 lg:grid-cols-2 lg:gap-12 items-center">
@@ -37,7 +40,7 @@ const HeroSection = () => {
                         className="mx-auto aspect-video overflow-hidden rounded-xl object-cover sm:w-full lg:order-last"
                         height={550}
                         width={550}
-                        src="/placeholder.svg?height=550&width=550"
+                        src={'/images/home_res.webp'}
                     />
                 </div>
             </div>

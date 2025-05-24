@@ -5,11 +5,10 @@ import {Button} from "@/components/ui/button";
 import {Loader, MapPin, Pencil, Plus, Trash2} from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
-import {Textarea} from "@/components/ui/textarea";
 import {useEndpointProfile} from "@/app/(main)/profile/useEndpointProfile";
-import {IAddress, useAddAddressMutation} from "@/lib/redux/api";
+import {useAddAddressMutation, useUpdateAddressMutation} from "@/lib/redux/api";
 import {useForm} from "react-hook-form";
-import {addressFormData, addressSchema} from "@/lib/redux/type";
+import {addressFormData, addressSchema, IAddress} from "@/lib/redux/type";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
@@ -18,19 +17,32 @@ const MainAddresses = ({addresses}:{addresses: [] | IAddress[]}) => {
     const {method:{onDeleteAddress,onUpdateCurrentUsageAddress},trigger:{resultDeleteAddress}}=useEndpointProfile();
     const [isAddingAddress, setIsAddingAddress] = useState(false);
     const [editingAddress, setEditingAddress] = useState<number | null>(null);
-    const [addAddress,resultAddress]=useAddAddressMutation();
+    const [addAddress]=useAddAddressMutation();
+    const [updateAddress]=useUpdateAddressMutation();
     const {
         register,
         handleSubmit,
+        reset,
+        setValue,
         formState: { errors },
     } = useForm<addressFormData>({
         resolver: zodResolver(addressSchema),
     });
     const onSubmit = async (data: addressFormData) => {
-        console.log(data)
+        const formData = new FormData();
+        formData.append("name", data.name);
+        formData.append("country", data.country);
+        formData.append("city", data.city);
+        formData.append("state", data.state);
+        formData.append("zip", data.zip);
+        formData.append("street", data.street);
+        formData.append("currentUsage", data.currentUsage.toString());
         await handleApiCall({
-            apiFn: () => addAddress(data).unwrap(),
+            apiFn: () => editingAddress? updateAddress({addressId:editingAddress,body:formData}).unwrap():addAddress(formData).unwrap(),
             onSuccess: (res) => {
+                reset();
+                setIsAddingAddress(false)
+                setEditingAddress(null)
                 toast.success("create address success!", {
                     theme: "dark",
                     transition: Slide,
@@ -39,6 +51,21 @@ const MainAddresses = ({addresses}:{addresses: [] | IAddress[]}) => {
             }
         });
     };
+    React.useEffect(()=>{
+        if(editingAddress){
+            const addressSelected = addresses?.find((a) => a.id === editingAddress);
+            if(addressSelected){
+                setValue('zip',addressSelected.zip);
+                setValue('city',addressSelected.city);
+                setValue('street',addressSelected.street);
+                setValue('name',addressSelected.name);
+                setValue('currentUsage',addressSelected.currentUsage);
+                setValue('state',addressSelected.state);
+                setValue('country',addressSelected.zip);
+            }
+        }
+
+    },[editingAddress])
     return   <TabsContent value="addresses">
         <Card>
 
@@ -92,7 +119,7 @@ const MainAddresses = ({addresses}:{addresses: [] | IAddress[]}) => {
                                 placeholder="city"
                                 {...register("city")}
                             />
-                            {errors.country && <p className="text-sm text-red-500">{errors.country.message}</p>}
+                            {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="fullAddress">State</Label>
