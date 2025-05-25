@@ -12,9 +12,10 @@ const FeatureCategories = () => {
             {getCategories?.currentData?.contents?.map((category) => (
                 <Card key={category.id} className="overflow-hidden">
                     <Link href={`/menu?category=${category.name.toLowerCase()}`}>
-                        <div className="relative h-24 sm:h-32">
-                            <Image src={`/placeholder.svg?height=150&width=150`} alt={category.name+category.id} fill
-                                   className="object-cover"/>
+                        <div className="relative h-24 sm:h-32 ">
+                            <Image src={`${category.url}?height=150&width=150`} alt={category.name+category.id} fill
+                                   className="object-contain"/>
+
                         </div>
                         <CardContent className="p-2 text-center">
                             <h3 className="font-medium">{category.name}</h3>

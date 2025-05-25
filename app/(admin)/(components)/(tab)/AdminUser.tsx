@@ -13,11 +13,18 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
-import {useGetUsersQuery} from "@/lib/redux/api"
+import {useGetRestaurantOwnerQuery, useGetUsersHasOrderInRestaurantQuery, useGetUsersQuery} from "@/lib/redux/api"
+import {useGlobalState} from "@/hooks/useGlobalState";
+import Cookies from "js-cookie";
+import {COOKIES} from "@/constant/COOKIES";
+import {Role} from "@/lib/redux/counterSlice";
 
 const AdminUser=()=>{
     const [searchQuery, setSearchQuery] = useState("");
-    const getUsers= useGetUsersQuery();
+    const restaurant= useGetRestaurantOwnerQuery();
+    const getUsers=Cookies.get(COOKIES.ROLE)===Role.ADMIN ?
+        useGetUsersQuery():
+        useGetUsersHasOrderInRestaurantQuery({restaurantId:`${restaurant.currentData?.id}`},{skip:!restaurant.currentData?.id});
     const users=getUsers?.currentData?.contents;
     return  <Card>
             <CardHeader>

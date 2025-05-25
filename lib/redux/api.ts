@@ -63,6 +63,14 @@ export const apiSlice = createApi({
             providesTags: ['user'],
 
         }),
+        getUsersHasOrderInRestaurant: builder.query<IPagination<IProfile>,{restaurantId:number|string}>({
+            query: ({restaurantId}) => ({
+                url: `users/${restaurantId}/orders`,
+                method: "GET"
+            }),
+            providesTags: ['user'],
+
+        }),
         profile: builder.query<IProfile, void>({
             query: () => ({
                 url: 'users/profile',
@@ -124,4 +132,5 @@ export const {
     useAddAddressMutation,
     useGetCategoriesQuery,
     useGetRestaurantOwnerQuery,
+    useGetUsersHasOrderInRestaurantQuery
  } = apiSlice;

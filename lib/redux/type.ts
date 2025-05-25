@@ -67,8 +67,9 @@ export interface RestaurantResponse {
     ownerName: string
 }
 export interface CategoryResponse {
-    id: number
-    name: string
+    id: number;
+    name: string;
+    url : string;
 }
 
 export interface ImageUrl {

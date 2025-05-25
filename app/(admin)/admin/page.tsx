@@ -1,42 +1,14 @@
 "use client"
 
 import type React from "react"
-
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Package, Users, Tag } from "lucide-react"
-import { useToast } from "@/components/ui/use-toast"
-import { IDashboard, useDashboardQuery } from "@/lib/redux/api"
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import { useDashboardQuery} from "@/lib/redux/api"
 import CartDashboard from "../(components)/CartDashboard"
-import { ICurrentData } from "@/lib/generic/ICurrentData"
+import {ICurrentData} from "@/lib/generic/ICurrentData"
 import AdminUser from "../(components)/(tab)/AdminUser"
 import AdminOrder from "../(components)/(tab)/AdminOrder"
 import AdminCategory from "../(components)/(tab)/AdminCategory"
-
-
+import {IDashboard} from "@/lib/redux/type";
 
 
 export default function AdminDashboardPage() {
