@@ -5,10 +5,12 @@ import Image from "next/image";
 import {Button} from "@/components/ui/button";
 import {Heart} from "lucide-react";
 import {useEndpointProfile} from "@/app/(main)/profile/useEndpointProfile";
-import {IFavorite} from "@/lib/redux/api";
+import { useMyFavQuery} from "@/lib/redux/api";
 
-const MainFavorite = ({favorites}:{favorites: IFavorite[]|[]}) => {
+const MainFavorite = () => {
     const {method:{onUnFavorite}}=useEndpointProfile();
+    const getFav = useMyFavQuery();
+    const favorites = getFav?.currentData??[];
     return    <TabsContent value="favorites">
         <Card>
             <CardHeader>
@@ -16,9 +18,9 @@ const MainFavorite = ({favorites}:{favorites: IFavorite[]|[]}) => {
                 <CardDescription>Restaurants you've marked as favorites</CardDescription>
             </CardHeader>
             <CardContent>
-                {favorites.length > 0 ? (
+                {favorites?.length > 0 ? (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {favorites.map((favorite) => (
+                        {favorites?.map((favorite) => (
                             <div key={favorite.id} className="flex items-center gap-4 p-3 border rounded-lg">
                                 <div className="relative h-16 w-16 rounded-md overflow-hidden">
                                     <Image

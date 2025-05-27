@@ -6,17 +6,19 @@ import {Loader, MapPin, Pencil, Plus, Trash2} from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {useEndpointProfile} from "@/app/(main)/profile/useEndpointProfile";
-import {useAddAddressMutation, useUpdateAddressMutation} from "@/lib/redux/api";
+import {useAddAddressMutation, useMyAddressQuery, useUpdateAddressMutation} from "@/lib/redux/api";
 import {useForm} from "react-hook-form";
-import {addressFormData, addressSchema, IAddress} from "@/lib/redux/type";
+import {addressFormData, addressSchema} from "@/lib/redux/type";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
 
-const MainAddresses = ({addresses}:{addresses: [] | IAddress[]}) => {
+const MainAddresses = () => {
     const {method:{onDeleteAddress,onUpdateCurrentUsageAddress},trigger:{resultDeleteAddress}}=useEndpointProfile();
     const [isAddingAddress, setIsAddingAddress] = useState(false);
     const [editingAddress, setEditingAddress] = useState<number | null>(null);
+    const getAddress = useMyAddressQuery();
+    const addresses =getAddress?.currentData;
     const [addAddress]=useAddAddressMutation();
     const [updateAddress]=useUpdateAddressMutation();
     const {
@@ -169,7 +171,7 @@ const MainAddresses = ({addresses}:{addresses: [] | IAddress[]}) => {
                             </Button>
                         </div>
                     </form>
-                ) : addresses?.length > 0 ? (
+                ) : (addresses&&addresses?.length > 0) ? (
                     <div className="space-y-4">
                         {addresses?.map((address) => (
                             <div key={address.id} className="flex items-start gap-4 p-4 border rounded-lg">

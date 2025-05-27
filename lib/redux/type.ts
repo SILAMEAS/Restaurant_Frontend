@@ -18,8 +18,8 @@ export interface IProfile {
     fullName:   string;
     email:      string;
     role:       string;
-    addresses:  Array<IAddress>;
-    favourites: Array<IFavorite>;
+    // addresses:  Array<IAddress>;
+    // favourites: Array<IFavorite>;
     createdAt : string;
     updatedAt : string;
 }
@@ -70,6 +70,25 @@ export interface CategoryResponse {
     id: number;
     name: string;
     url : string;
+    publicId:string;
+    restaurant:string;
+    items:number;
+}
+export interface FoodResponse {
+    id: number;
+    name: string;
+    description:string;
+    price:number;
+    images : Array<string>;
+    restaurantId:number;
+    restaurantName:string;
+    available:boolean;
+    vegetarian:number;
+    seasonal:number;
+    category:{
+        id:number;
+        name:string
+    }
 }
 
 export interface ImageUrl {

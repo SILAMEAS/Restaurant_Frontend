@@ -1,21 +1,11 @@
 "use client"
 
-import React, { useState } from "react"
-import Image from "next/image"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { MapPin, Heart, Plus, Pencil, Trash2, Loader } from "lucide-react"
-import { IAddress, IFavorite, useDeleteAddressMutation, useFavUnFavMutation, useProfileQuery, useUpdateAddressMutation } from "@/lib/redux/api"
-import { useAppSelector } from "@/lib/redux/hooks"
-import { skip } from "node:test"
-import { useGlobalState } from "@/hooks/useGlobalState"
-import { Slide, toast } from "react-toastify"
-import { useEndpointProfile } from "./useEndpointProfile"
+import React, {useState} from "react"
+import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs"
+import {Button} from "@/components/ui/button"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
+import { useProfileQuery} from "@/lib/redux/api"
 import {useRouter} from "next/navigation";
 import MainProfile from "@/app/(main)/profile/(tab)/MainProfile";
 import MainFavorite from "@/app/(main)/profile/(tab)/MainFavorite";
@@ -26,18 +16,7 @@ export default function ProfilePage() {
   const router = useRouter();
   const [isEditing, setIsEditing] = useState(false);
 
-  const [addresses, setAddresses] = useState<IAddress[]|[]>([]);
-
-  const [favorites, setFavorites] = useState<IFavorite[]|[]>([]);
-
-
-
-
   React.useEffect(()=>{
-    if(getProfile?.currentData){
-      setAddresses(getProfile?.currentData?.addresses);
-      setFavorites(getProfile?.currentData?.favourites);
-    }
     if(getProfile.isError){
       router.push('/auth/login')
     }
@@ -84,10 +63,10 @@ export default function ProfilePage() {
             <MainProfile profile={profile} setIsEditing={setIsEditing} isEditing={isEditing}/>
 
             {/* Favorites Tab */}
-            <MainFavorite favorites={favorites}/>
+            <MainFavorite/>
 
             {/* Addresses Tab */}
-            <MainAddresses addresses={addresses}/>
+            <MainAddresses/>
 
           </Tabs>
         </div>

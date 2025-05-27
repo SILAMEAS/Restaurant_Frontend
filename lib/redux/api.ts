@@ -1,7 +1,9 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import {
-    addressFormData, CategoryResponse,
-    IDashboard,
+    CategoryResponse,
+    FoodResponse,
+    IAddress,
+    IDashboard, IFavorite,
     IPagination,
     IProfile,
     RestaurantResponse,
@@ -65,7 +67,7 @@ export const apiSlice = createApi({
         }),
         getUsersHasOrderInRestaurant: builder.query<IPagination<IProfile>,{restaurantId:number|string}>({
             query: ({restaurantId}) => ({
-                url: `users/${restaurantId}/orders`,
+                url: `users/${restaurantId}/user-orders`,
                 method: "GET"
             }),
             providesTags: ['user'],
@@ -78,6 +80,22 @@ export const apiSlice = createApi({
               }),
             providesTags: ['address','favorite'],
               
+        }),
+        myAddress: builder.query<Array<IAddress>, void>({
+            query: () => ({
+                url: 'users/address',
+                method: "GET",
+            }),
+            providesTags: ['address'],
+
+        }),
+        myFav: builder.query<Array<IFavorite>, void>({
+            query: () => ({
+                url: 'users/favorite',
+                method: "GET",
+            }),
+            providesTags: ['favorite'],
+
         }),
         /**  ==========================================  Address */
         addAddress: builder.mutation<IProfile,FormData>({
@@ -107,9 +125,26 @@ export const apiSlice = createApi({
               
         }),
         /**  ==========================================  Category */
+        addCategory: builder.mutation<IPagination<CategoryResponse>,void>({
+            query: () => ({
+                url: `categories`,
+                method: "POST"
+            }),
+            invalidatesTags: ['category'],
+
+        }),
         getCategories: builder.query<IPagination<CategoryResponse>,void>({
             query: () => ({
                 url: `categories`,
+                method: "GET"
+            }),
+            providesTags: ['category'],
+
+        }),
+        /**  ==========================================  Category */
+        getFoods: builder.query<IPagination<FoodResponse>,void>({
+            query: () => ({
+                url: `foods`,
                 method: "GET"
             }),
             providesTags: ['category'],
@@ -132,5 +167,9 @@ export const {
     useAddAddressMutation,
     useGetCategoriesQuery,
     useGetRestaurantOwnerQuery,
-    useGetUsersHasOrderInRestaurantQuery
+    useGetUsersHasOrderInRestaurantQuery,
+    useGetFoodsQuery,
+    useAddCategoryMutation,
+    useMyAddressQuery,
+    useMyFavQuery
  } = apiSlice;

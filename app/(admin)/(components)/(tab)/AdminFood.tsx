@@ -1,9 +1,13 @@
-import React, {useState} from "react"
-import {Button} from "@/components/ui/button"
-import {Input} from "@/components/ui/input"
-import {Label} from "@/components/ui/label"
-import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+
+
+import { useState } from "react"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import {
   Dialog,
   DialogContent,
@@ -21,9 +25,9 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {Edit, MoreVertical, Plus, Search, Trash2} from "lucide-react"
-import {useToast} from "@/hooks/use-toast"
-import {useAddCategoryMutation, useGetCategoriesQuery} from "@/lib/redux/api";
+import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Package, Users, Tag } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import {useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
 // Sample categories data
 const categoriesData = [
   {
@@ -69,14 +73,13 @@ const categoriesData = [
     items: 60,
   },
 ]
-const AdminCategory=()=>{
-    const [addCategory,resultAddCategory]=useAddCategoryMutation();
-    const getCategories= useGetCategoriesQuery();
+const AdminFood=()=>{
+    const getFoods= useGetFoodsQuery();
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingCategory, setIsAddingCategory] = useState(false)
     const [editingCategory, setEditingCategory] = useState<number | null>(null)
     const { toast } = useToast();
-    const categories = getCategories?.currentData?.contents
+    const categories = getFoods?.currentData?.contents
         
   const handleDeleteCategory = (id: number) => {
     // setCategories(categories.filter((category) => category.id !== id))
@@ -109,14 +112,14 @@ const AdminCategory=()=>{
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle>Categories</CardTitle>
-                  <CardDescription>Manage food categories for the platform</CardDescription>
+                  <CardTitle>Foods</CardTitle>
+                  <CardDescription>Manage foods for the platform</CardDescription>
                 </div>
                 <div className="flex gap-4">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                     <Input
-                      placeholder="Search categories..."
+                      placeholder="Search foods..."
                       className="pl-10 w-full sm:w-[250px]"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -134,25 +137,25 @@ const AdminCategory=()=>{
                     <DialogTrigger asChild>
                       <Button onClick={() => setIsAddingCategory(true)}>
                         <Plus className="h-4 w-4 mr-2" />
-                        Add Category
+                        Add Food
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>{editingCategory !== null ? "Edit Category" : "Add New Category"}</DialogTitle>
+                        <DialogTitle>{editingCategory !== null ? "Edit Food" : "Add New Food"}</DialogTitle>
                         <DialogDescription>
                           {editingCategory !== null
-                            ? "Update the details of this category"
-                            : "Add a new food category to the platform"}
+                            ? "Update the details of this food"
+                            : "Add a new food to the platform"}
                         </DialogDescription>
                       </DialogHeader>
                       <form onSubmit={handleSaveCategory}>
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
-                            <Label htmlFor="categoryName">Category Name</Label>
+                            <Label htmlFor="foodName">Food Name</Label>
                             <Input
-                              id="categoryName"
-                              placeholder="e.g., Pizza, Burgers, Sushi"
+                              id="foodName"
+                              placeholder="e.g., Coca, Pessi"
                               defaultValue={
                                 editingCategory !== null ? categories?.find((c) => c.id === editingCategory)?.name : ""
                               }
@@ -175,7 +178,7 @@ const AdminCategory=()=>{
                           {/*</div>*/}
                         </div>
                         <DialogFooter>
-                          <Button type="submit">{editingCategory !== null ? "Update Category" : "Add Category"}</Button>
+                          <Button type="submit">{editingCategory !== null ? "Update Food" : "Add Food"}</Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
@@ -189,8 +192,9 @@ const AdminCategory=()=>{
                   <TableRow>
                     <TableHead>#ID</TableHead>
                     <TableHead>Name</TableHead>
+                    <TableHead>Category</TableHead>
                     <TableHead>Restaurants</TableHead>
-                    <TableHead>Items</TableHead>
+                    <TableHead>Available</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -205,8 +209,18 @@ const AdminCategory=()=>{
                       <TableRow key={c.id}>
                         <TableCell  className="font-medium">{c.id}</TableCell>
                         <TableCell >{c.name}</TableCell>
-                        <TableCell>{c.restaurant}</TableCell>
-                        <TableCell>{c.items}</TableCell>
+                        <TableCell>{c.category.name}</TableCell>
+                        <TableCell>{c.restaurantName}</TableCell>
+                        <TableCell> <Badge
+                            variant={
+                              !c.available
+                                  ? "outline"
+                                      : "default"
+                            }
+                        >
+                          {c.available?"In Stock":"Out of Stock"}
+                        </Badge></TableCell>
+
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -240,4 +254,4 @@ const AdminCategory=()=>{
           </Card>
 }
 
-export default AdminCategory;
+export default AdminFood;

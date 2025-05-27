@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 import {Card, CardContent} from "@/components/ui/card";
 import Image from "next/image";
-import {useGetRestaurantsQuery, useProfileQuery} from "@/lib/redux/api";
-import { Button } from "@/components/ui/button"
-import { Heart, Loader2 } from 'lucide-react';
-import { useEndpointProfile } from '@/app/(main)/profile/useEndpointProfile';
-import {IPagination, RestaurantResponse} from "@/lib/redux/type";
+import {useGetRestaurantsQuery, useMyFavQuery} from "@/lib/redux/api";
+import {Button} from "@/components/ui/button"
+import {Heart, Loader2} from 'lucide-react';
+import {useEndpointProfile} from '@/app/(main)/profile/useEndpointProfile';
+import {RestaurantResponse} from "@/lib/redux/type";
 
 
 const FeatureRestaurant = () => {
     const {currentData} = useGetRestaurantsQuery();
-    const getProfile = useProfileQuery();
+    const getMyFav = useMyFavQuery();
     const {method:{onUnFavorite},trigger:{resultFavUnFavMutation}}=useEndpointProfile();
     const [clickItem,setClickItem]=useState<RestaurantResponse|undefined>();
     return <section className="container px-4 md:px-6 py-8">
@@ -35,12 +35,12 @@ const FeatureRestaurant = () => {
                         <span className="ml-2 text-muted-foreground">30-45 min</span>
                         <Button variant="ghost" size="icon" onClick={()=>{
                             setClickItem(i);
-                            onUnFavorite(i.id)
+                            onUnFavorite(i.id).then(r => r)
                         }}>
                             {
                                     resultFavUnFavMutation?.isLoading&&clickItem?.id===i.id?
                                     <Loader2 className='rotate-center'/>:
-                                    <Heart className={`h-5 w-5 ${getProfile?.currentData?.favourites?.find(it=>it.restaurantId==i.id)?'fill-red-800':"fill-primary"} text-primary`} />
+                                    <Heart className={`h-5 w-5 ${getMyFav?.currentData?.find(it=>it.restaurantId==i.id)?'fill-red-800':"fill-primary"} text-primary`} />
                             }
                         
                           </Button>
