@@ -28,7 +28,7 @@ export const customBaseQuery = (url: string) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
-    tagTypes:['address','favorite','user',"category","restaurant"],
+    tagTypes:['address','favorite','user',"category","restaurant",'order'],
     endpoints: (builder) => ({
         /** ========================================== Restaurants */
         getRestaurants: builder.query<IPagination<RestaurantResponse>, void>({
@@ -55,6 +55,7 @@ export const apiSlice = createApi({
                 url: '/dashboard',
                 method: "GET"
               }),
+            providesTags:['category','user','order']
         }),
         /**  ==========================================  User */
         getUsers: builder.query<IPagination<IProfile>,void>({
@@ -125,10 +126,11 @@ export const apiSlice = createApi({
               
         }),
         /**  ==========================================  Category */
-        addCategory: builder.mutation<IPagination<CategoryResponse>,void>({
-            query: () => ({
+        addCategory: builder.mutation<IPagination<CategoryResponse>,FormData>({
+            query: (body) => ({
                 url: `categories`,
-                method: "POST"
+                method: "POST",
+                body
             }),
             invalidatesTags: ['category'],
 

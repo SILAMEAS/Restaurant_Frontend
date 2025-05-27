@@ -142,6 +142,11 @@ export const addressSchema = z.object({
     name: z.string().min(3, "Name must be at least 3 characters long"),
     currentUsage: z.boolean(),
 });
+
+export const categorySchema = z.object({
+    name: z.string().min(3, "Password must be at least 3 characters long"),
+});
   
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type addressFormData = z.infer<typeof addressSchema>;
+export type categoryFormData = z.infer<typeof categorySchema>;

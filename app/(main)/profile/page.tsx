@@ -54,7 +54,7 @@ export default function ProfilePage() {
         <div className="w-full md:w-2/3">
           <Tabs defaultValue="profile">
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="profile">Profile</TabsTrigger>
+              <TabsTrigger value="profile">My Profile</TabsTrigger>
               <TabsTrigger value="favorites">My Favorites</TabsTrigger>
               <TabsTrigger value="addresses">My Addresses</TabsTrigger>
             </TabsList>

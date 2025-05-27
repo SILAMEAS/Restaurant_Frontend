@@ -1,27 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import {useState} from "react"
 import Image from "next/image"
-import { Search, Filter, Leaf, Star } from "lucide-react"
+import {Filter, Leaf, Search, Star} from "lucide-react"
 
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent, CardFooter } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Card, CardContent, CardFooter} from "@/components/ui/card"
+import {Badge} from "@/components/ui/badge"
+import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {
   Sheet,
   SheetContent,
   SheetDescription,
+  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
-  SheetFooter,
 } from "@/components/ui/sheet"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Label } from "@/components/ui/label"
-import { Slider } from "@/components/ui/slider"
-import { useToast } from "@/components/ui/use-toast"
+import {Checkbox} from "@/components/ui/checkbox"
+import {Label} from "@/components/ui/label"
+import {Slider} from "@/components/ui/slider"
+import {useToast} from "@/components/ui/use-toast"
 
 // Sample food data
 const foodItems = [

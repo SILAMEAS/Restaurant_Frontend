@@ -22,8 +22,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Edit, MoreVertical, Plus, Search, Trash2} from "lucide-react"
-import {useToast} from "@/hooks/use-toast"
 import {useAddCategoryMutation, useGetCategoriesQuery} from "@/lib/redux/api";
+import {useForm} from "react-hook-form";
+import {categoryFormData, categorySchema} from "@/lib/redux/type";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {handleApiCall} from "@/lib/handleApiCall";
+import {Slide, toast} from "react-toastify";
+import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 // Sample categories data
 const categoriesData = [
   {
@@ -75,36 +80,47 @@ const AdminCategory=()=>{
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingCategory, setIsAddingCategory] = useState(false)
     const [editingCategory, setEditingCategory] = useState<number | null>(null)
-    const { toast } = useToast();
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+
+    const handleImageDrop = (file: File) => {
+      setImageFile(file);
+      setImagePreviewUrl(URL.createObjectURL(file));
+    };
     const categories = getCategories?.currentData?.contents
-        
-  const handleDeleteCategory = (id: number) => {
-    // setCategories(categories.filter((category) => category.id !== id))
-
-    toast({
-      title: "Category Deleted",
-      description: "The category has been successfully deleted.",
-    })
-  }
-
-  const handleSaveCategory = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (editingCategory !== null) {
-      toast({
-        title: "Category Updated",
-        description: "The category has been successfully updated.",
-      })
-    } else {
-      toast({
-        title: "Category Added",
-        description: "The new category has been successfully added.",
-      })
+    const {
+      register,
+      handleSubmit,
+      reset,
+      formState: { errors },
+    } = useForm<categoryFormData>({
+      resolver: zodResolver(categorySchema),
+    });
+  const onSubmit = async (data: categoryFormData) => {
+    if (!imageFile) {
+      toast.error("Please upload a category image.");
+      return;
     }
 
-    setIsAddingCategory(false)
-    setEditingCategory(null)
-  }
+    const formData = new FormData();
+    formData.append("name", data.name);
+    formData.append("image", imageFile); // 👈 correct typing
+
+    await handleApiCall({
+      apiFn: () => addCategory(formData).unwrap(),
+      onSuccess: () => {
+        reset();
+        setImageFile(null);
+        setImagePreviewUrl(null);
+        toast.success("Category added successfully!", {
+          theme: "dark",
+          transition: Slide,
+        });
+        setIsAddingCategory(false);
+      },
+    });
+  };
+
     return  <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -128,6 +144,8 @@ const AdminCategory=()=>{
                       if (!open) {
                         setIsAddingCategory(false)
                         setEditingCategory(null)
+                        reset();
+                        setImagePreviewUrl(null);
                       }
                     }}
                   >
@@ -146,36 +164,30 @@ const AdminCategory=()=>{
                             : "Add a new food category to the platform"}
                         </DialogDescription>
                       </DialogHeader>
-                      <form onSubmit={handleSaveCategory}>
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="space-y-2">
+                          <Label>Category Image</Label>
+                          <ImageDropzone onDrop={handleImageDrop} previewUrl={imagePreviewUrl ?? undefined} />
+                        </div>
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
                             <Label htmlFor="categoryName">Category Name</Label>
                             <Input
                               id="categoryName"
+                              {...register("name")}
                               placeholder="e.g., Pizza, Burgers, Sushi"
                               defaultValue={
                                 editingCategory !== null ? categories?.find((c) => c.id === editingCategory)?.name : ""
                               }
                               required
                             />
+                            {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                           </div>
-                          {/*<div className="space-y-2">*/}
-                          {/*  <Label htmlFor="categorySlug">Slug</Label>*/}
-                          {/*  <Input*/}
-                          {/*    id="categorySlug"*/}
-                          {/*    placeholder="e.g., pizza, burgers, sushi"*/}
-                          {/*    defaultValue={*/}
-                          {/*      editingCategory !== null ? categories?.find((c) => c.id === editingCategory)?.slug : ""*/}
-                          {/*    }*/}
-                          {/*    required*/}
-                          {/*  />*/}
-                          {/*  <p className="text-xs text-muted-foreground">*/}
-                          {/*    Used in URLs. Use lowercase letters, numbers, and hyphens only.*/}
-                          {/*  </p>*/}
-                          {/*</div>*/}
                         </div>
                         <DialogFooter>
-                          <Button type="submit">{editingCategory !== null ? "Update Category" : "Add Category"}</Button>
+                          <Button type="submit">{
+                            resultAddCategory.isLoading?"loading...":
+                                editingCategory !== null ? "Update Category" : "Add Category"} </Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
@@ -217,14 +229,17 @@ const AdminCategory=()=>{
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => setEditingCategory(c.id)}>
+                              <DropdownMenuItem onClick={() => {
+                                setEditingCategory(c.id);
+                                setImagePreviewUrl(c.url)
+                              }}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Category
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive"
-                                onClick={() => handleDeleteCategory(c.id)}
+                                // onClick={() => handleDeleteCategory(c.id)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Delete Category
