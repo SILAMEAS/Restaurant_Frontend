@@ -22,13 +22,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Edit, MoreVertical, Plus, Search, Trash2} from "lucide-react"
-import {useAddCategoryMutation, useGetCategoriesQuery} from "@/lib/redux/api";
+import {useAddCategoryMutation, useDeleteCategoriesMutation, useGetCategoriesQuery} from "@/lib/redux/api";
 import {useForm} from "react-hook-form";
 import {categoryFormData, categorySchema} from "@/lib/redux/type";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
 import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
+import useDropzoneCustom from "@/app/(main)/profile/(component)/useDropzoneCustom";
 // Sample categories data
 const categoriesData = [
   {
@@ -75,18 +76,13 @@ const categoriesData = [
   },
 ]
 const AdminCategory=()=>{
+    const [deleteCategory,resultDeleteCategory]=useDeleteCategoriesMutation();
     const [addCategory,resultAddCategory]=useAddCategoryMutation();
     const getCategories= useGetCategoriesQuery();
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingCategory, setIsAddingCategory] = useState(false)
     const [editingCategory, setEditingCategory] = useState<number | null>(null)
-    const [imageFile, setImageFile] = useState<File | null>(null);
-    const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
-
-    const handleImageDrop = (file: File) => {
-      setImageFile(file);
-      setImagePreviewUrl(URL.createObjectURL(file));
-    };
+    const {handleImageDrop,imageFile,setImageFile,setImagePreviewUrl,imagePreviewUrl}=useDropzoneCustom();
     const categories = getCategories?.currentData?.contents
     const {
       register,
@@ -96,30 +92,42 @@ const AdminCategory=()=>{
     } = useForm<categoryFormData>({
       resolver: zodResolver(categorySchema),
     });
-  const onSubmit = async (data: categoryFormData) => {
-    if (!imageFile) {
-      toast.error("Please upload a category image.");
-      return;
+    const onSubmit = async (data: categoryFormData) => {
+      if (!imageFile) {
+        toast.error("Please upload a category image.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("image", imageFile); // 👈 correct typing
+
+      await handleApiCall({
+        apiFn: () => addCategory(formData).unwrap(),
+        onSuccess: () => {
+          reset();
+          setImageFile(null);
+          setImagePreviewUrl(null);
+          toast.success("Category added successfully!", {
+            theme: "dark",
+            transition: Slide,
+          });
+          setIsAddingCategory(false);
+        },
+      });
+    };
+    const handleDeleteCategory =async (categoryId:string|number)=>{
+      await handleApiCall({
+        apiFn: () => deleteCategory({categoryId}).unwrap(),
+        onSuccess: () => {
+          toast.success("Category delete successfully!", {
+            theme: "dark",
+            transition: Slide,
+          });
+        },
+      });
+
     }
-
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("image", imageFile); // 👈 correct typing
-
-    await handleApiCall({
-      apiFn: () => addCategory(formData).unwrap(),
-      onSuccess: () => {
-        reset();
-        setImageFile(null);
-        setImagePreviewUrl(null);
-        toast.success("Category added successfully!", {
-          theme: "dark",
-          transition: Slide,
-        });
-        setIsAddingCategory(false);
-      },
-    });
-  };
 
     return  <Card>
             <CardHeader>
@@ -239,7 +247,7 @@ const AdminCategory=()=>{
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive"
-                                // onClick={() => handleDeleteCategory(c.id)}
+                                onClick={() => handleDeleteCategory(c.id)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Delete Category

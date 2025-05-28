@@ -1,13 +1,10 @@
-
-
-import { useState } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import React, {useState} from "react"
+import {Button} from "@/components/ui/button"
+import {Input} from "@/components/ui/input"
+import {Label} from "@/components/ui/label"
+import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
+import {Badge} from "@/components/ui/badge"
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {
   Dialog,
   DialogContent,
@@ -25,10 +22,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Search, Plus, MoreVertical, Edit, Trash2, Eye, Package, Users, Tag } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
-import {useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
-// Sample categories data
+import {Edit, MoreVertical, Plus, Search, Trash2} from "lucide-react"
+import {
+  useAddFoodMutation,
+  useDeleteFoodMutation,
+  useGetCategoriesQuery,
+  useGetFoodsQuery,
+  useGetRestaurantOwnerQuery, useUpdateFoodMutation
+} from "@/lib/redux/api";
+import {useForm} from "react-hook-form";
+import {foodFormData, foodSchema} from "@/lib/redux/type";
+import {zodResolver} from "@hookform/resolvers/zod";
+import useDropzoneCustom from "@/app/(main)/profile/(component)/useDropzoneCustom";
+import {Slide, toast} from "react-toastify";
+import {handleApiCall} from "@/lib/handleApiCall";
+import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 const categoriesData = [
   {
     id: 1,
@@ -74,40 +82,94 @@ const categoriesData = [
   },
 ]
 const AdminFood=()=>{
-    const getFoods= useGetFoodsQuery();
+    const getFoodsQuery= useGetFoodsQuery();
+    const getRestaurantOwnerQuery= useGetRestaurantOwnerQuery();
+    const getCategoriesQuery= useGetCategoriesQuery();
     const [searchQuery, setSearchQuery] = useState("")
-    const [isAddingCategory, setIsAddingCategory] = useState(false)
-    const [editingCategory, setEditingCategory] = useState<number | null>(null)
-    const { toast } = useToast();
-    const categories = getFoods?.currentData?.contents
-        
-  const handleDeleteCategory = (id: number) => {
-    // setCategories(categories.filter((category) => category.id !== id))
+    const [isAddingFood, setIsAddingFood] = useState(false)
+    const [editingFood, setEditingFood] = useState<number | null>(null);
+    const [addFood,resultAddFood]=useAddFoodMutation();
+    const [updateFood,resultUpdateFood]=useUpdateFoodMutation();
+    const [deleteFood,resultDeleteFood]=useDeleteFoodMutation();
 
-    toast({
-      title: "Category Deleted",
-      description: "The category has been successfully deleted.",
-    })
-  }
+    const categories = getCategoriesQuery?.currentData?.contents;
+    const foods = getFoodsQuery?.currentData?.contents;
+    const ownerRestaurant= getRestaurantOwnerQuery?.currentData;
+    const {handleImageDrop,imageFile,setImageFile,setImagePreviewUrl,imagePreviewUrl}=useDropzoneCustom();
+    const {
+      register,
+      handleSubmit,
+      reset,
+      setValue,
+      formState: { errors },
+    } = useForm<foodFormData>({
+      resolver: zodResolver(foodSchema),
+    });
 
-  const handleSaveCategory = (e: React.FormEvent) => {
-    e.preventDefault()
-
-    if (editingCategory !== null) {
-      toast({
-        title: "Category Updated",
-        description: "The category has been successfully updated.",
-      })
-    } else {
-      toast({
-        title: "Category Added",
-        description: "The new category has been successfully added.",
-      })
+    if(ownerRestaurant){
+      setValue('restaurantId',`${ownerRestaurant.id}`)
     }
 
-    setIsAddingCategory(false)
-    setEditingCategory(null)
-  }
+
+    const closePopUp=()=>{
+      reset();
+      setImageFile(null);
+      setImagePreviewUrl(null);
+      setIsAddingFood(false);
+      setEditingFood(null);
+    }
+
+
+    const onSubmit = async (data: foodFormData) => {
+
+      console.log("data",data)
+
+
+      if (!imageFile && editingFood==null) {
+        toast.error("Please upload a Food image.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("description", data.description);
+      formData.append("categoryId", data.categoryId);
+      formData.append("vegetarin", `${data.vegetarin}`);
+      formData.append("price", data.price);
+      formData.append("seasonal", `${data.seasonal}`);
+      formData.append("available", `${data.available}`);
+      formData.append("restaurantId", data.restaurantId);
+     if(imageFile){
+       formData.append("images", imageFile); // 👈 correct typing
+     }
+
+
+      await handleApiCall({
+        apiFn: () =>editingFood?updateFood({foodId:editingFood, body:formData}).unwrap(): addFood(formData).unwrap(),
+        onSuccess: () => {
+          closePopUp()
+          toast.success(`Food ${editingFood?"added":"updated"} successfully!`, {
+            theme: "dark",
+            transition: Slide,
+          });
+        },
+      });
+    };
+
+
+    const handleDeleteCategory =async (foodId:string|number)=>{
+      await handleApiCall({
+        apiFn: () => deleteFood({foodId}).unwrap(),
+        onSuccess: () => {
+          toast.success("Category delete successfully!", {
+            theme: "dark",
+            transition: Slide,
+          });
+        },
+      });
+
+    }
+
     return  <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -126,59 +188,178 @@ const AdminFood=()=>{
                     />
                   </div>
                   <Dialog
-                    open={isAddingCategory || editingCategory !== null}
+                    open={isAddingFood || editingFood !== null}
                     onOpenChange={(open) => {
                       if (!open) {
-                        setIsAddingCategory(false)
-                        setEditingCategory(null)
+                       closePopUp();
                       }
                     }}
                   >
                     <DialogTrigger asChild>
-                      <Button onClick={() => setIsAddingCategory(true)}>
+                      <Button onClick={() => setIsAddingFood(true)}>
                         <Plus className="h-4 w-4 mr-2" />
                         Add Food
                       </Button>
                     </DialogTrigger>
                     <DialogContent>
                       <DialogHeader>
-                        <DialogTitle>{editingCategory !== null ? "Edit Food" : "Add New Food"}</DialogTitle>
+                        <DialogTitle>{editingFood !== null ? "Edit Food" : "Add New Food"}</DialogTitle>
                         <DialogDescription>
-                          {editingCategory !== null
+                          {editingFood !== null
                             ? "Update the details of this food"
                             : "Add a new food to the platform"}
                         </DialogDescription>
                       </DialogHeader>
-                      <form onSubmit={handleSaveCategory}>
+                      <form onSubmit={handleSubmit(onSubmit)}>
+                        <div className="space-y-2">
+                          <Label>Food Image</Label>
+                          <ImageDropzone onDrop={handleImageDrop} previewUrl={imagePreviewUrl ?? undefined} />
+                        </div>
+                        {/** Name **/}
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
-                            <Label htmlFor="foodName">Food Name</Label>
+                            <Label htmlFor="categoryName">Food Name</Label>
                             <Input
-                              id="foodName"
-                              placeholder="e.g., Coca, Pessi"
-                              defaultValue={
-                                editingCategory !== null ? categories?.find((c) => c.id === editingCategory)?.name : ""
-                              }
-                              required
+                                {...register("name")}
+                                placeholder="e.g., ice coffeee, black coffeee"
+                                defaultValue={
+                                  editingFood !== null ? foods?.find((c) => c.id === editingFood)?.name : ""
+                                }
+                                required
                             />
+                            {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                           </div>
-                          {/*<div className="space-y-2">*/}
-                          {/*  <Label htmlFor="categorySlug">Slug</Label>*/}
-                          {/*  <Input*/}
-                          {/*    id="categorySlug"*/}
-                          {/*    placeholder="e.g., pizza, burgers, sushi"*/}
-                          {/*    defaultValue={*/}
-                          {/*      editingCategory !== null ? categories?.find((c) => c.id === editingCategory)?.slug : ""*/}
-                          {/*    }*/}
-                          {/*    required*/}
-                          {/*  />*/}
-                          {/*  <p className="text-xs text-muted-foreground">*/}
-                          {/*    Used in URLs. Use lowercase letters, numbers, and hyphens only.*/}
-                          {/*  </p>*/}
-                          {/*</div>*/}
+                        </div>
+                        {/** Price Field */}
+                        <div className="space-y-2">
+                          <Label htmlFor="price">Price</Label>
+                          <input
+                              type="number"
+                              step="0.01"
+                              id="price"
+                              {...register("price", { required: "Price is required", min: 0 })}
+                              className="w-full border rounded-md px-3 py-2"
+                              defaultValue={
+                                editingFood !== null
+                                    ? foods?.find((c) => c.id === editingFood)?.price ?? 0
+                                    : ""
+                              }
+                          />
+                          {errors.price && (
+                              <p className="text-sm text-red-500">{errors.price.message}</p>
+                          )}
+                        </div>
+                        {/** Description **/}
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="categoryName">Food Description</Label>
+                            <Input
+                                {...register("description")}
+                                placeholder="e.g., COFFEE, CAKE"
+                                defaultValue={
+                                  editingFood !== null ? foods?.find((c) => c.id === editingFood)?.description : ""
+                                }
+                                required
+                            />
+                            {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+                          </div>
+                        </div>
+                        {/** Available **/}
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="available">Available</Label>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                  type="checkbox"
+                                  id="available"
+                                  {...register("available")}
+                                  defaultChecked={
+                                    editingFood !== null
+                                        ? foods?.find((c) => c.id === editingFood)?.available
+                                        : false
+                                  }
+                              />
+                              <span className="text-sm">Is this food currently available?</span>
+                            </div>
+                            {errors.available && (
+                                <p className="text-sm text-red-500">{errors.available.message}</p>
+                            )}
+                          </div>
+                        </div>
+                        {/** Vegetarin **/}
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="available">Vegetarin</Label>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                  type="checkbox"
+                                  id="vegetarin"
+                                  {...register("vegetarin")}
+                                  defaultChecked={
+                                    editingFood !== null
+                                        ? Boolean(foods?.find((c) => c.id === editingFood)?.vegetarian)
+                                        : false
+                                  }
+                              />
+                              <span className="text-sm">Is this food currently vegetarin?</span>
+                            </div>
+                            {errors.vegetarin && (
+                                <p className="text-sm text-red-500">{errors.vegetarin.message}</p>
+                            )}
+                          </div>
+                        </div>
+                        {/** Available **/}
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="available">Seasonal</Label>
+                            <div className="flex items-center space-x-2">
+                              <input
+                                  type="checkbox"
+                                  id="seasonal"
+                                  {...register("seasonal")}
+                                  defaultChecked={
+                                    editingFood !== null
+                                        ? Boolean(foods?.find((c) => c.id === editingFood)?.seasonal)
+                                        : false
+                                  }
+                              />
+                              <span className="text-sm">Is this food currently seasonal?</span>
+                            </div>
+                            {errors.seasonal && (
+                                <p className="text-sm text-red-500">{errors.seasonal.message}</p>
+                            )}
+                          </div>
+                        </div>
+                        {/** Category **/}
+                        <div className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="categoryId">Category</Label>
+                            <select
+                                id="categoryId"
+                                {...register("categoryId", { required: "Category is required" })}
+                                defaultValue={
+                                  (editingFood !== null)
+                                      ? foods?.find((f) => f.id === editingFood)?.category.id
+                                      : ""
+                                }
+                                className="w-full border rounded-md px-3 py-2"
+                            >
+                              <option value="" disabled>
+                                Select a category
+                              </option>
+                              {categories?.map((c) => {
+                                return <option key={c.id} value={c.id}>
+                                  {c.name}
+                                </option>
+                              })}
+                            </select>
+                            {errors.categoryId && (
+                                <p className="text-sm text-red-500">{errors.categoryId.message}</p>
+                            )}
+                          </div>
                         </div>
                         <DialogFooter>
-                          <Button type="submit">{editingCategory !== null ? "Update Food" : "Add Food"}</Button>
+                          <Button type="submit">{(resultAddFood.isLoading||resultUpdateFood.isLoading)?"loading ...":  editingFood !== null ? "Update Food" : "Add Food"}</Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
@@ -199,26 +380,26 @@ const AdminFood=()=>{
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {categories?.filter(
+                  {foods?.filter(
                       (c) =>
                         c.name.toLowerCase().includes(searchQuery.toLowerCase())
                     // ||
                     //     category.slug.toLowerCase().includes(searchQuery.toLowerCase()),
                     )
-                    .map((c) => (
-                      <TableRow key={c.id}>
-                        <TableCell  className="font-medium">{c.id}</TableCell>
-                        <TableCell >{c.name}</TableCell>
-                        <TableCell>{c.category.name}</TableCell>
-                        <TableCell>{c.restaurantName}</TableCell>
+                    .map((f) => (
+                      <TableRow key={f.id}>
+                        <TableCell  className="font-medium">{f.id}</TableCell>
+                        <TableCell >{f.name}</TableCell>
+                        <TableCell>{f.category.name}</TableCell>
+                        <TableCell>{f.restaurantName}</TableCell>
                         <TableCell> <Badge
                             variant={
-                              !c.available
+                              !f.available
                                   ? "outline"
                                       : "default"
                             }
                         >
-                          {c.available?"In Stock":"Out of Stock"}
+                          {f.available?"In Stock":"Out of Stock"}
                         </Badge></TableCell>
 
                         <TableCell className="text-right">
@@ -231,17 +412,20 @@ const AdminFood=()=>{
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => setEditingCategory(c.id)}>
+                              <DropdownMenuItem onClick={() => {
+                                setEditingFood(f.id);
+                                setImagePreviewUrl(f.images[0])
+                              }}>
                                 <Edit className="h-4 w-4 mr-2" />
-                                Edit Category
+                                Edit Food
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive"
-                                onClick={() => handleDeleteCategory(c.id)}
+                                onClick={() => handleDeleteCategory(f.id)}
                               >
                                 <Trash2 className="h-4 w-4 mr-2" />
-                                Delete Category
+                                Delete Food
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

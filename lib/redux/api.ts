@@ -143,13 +143,47 @@ export const apiSlice = createApi({
             providesTags: ['category'],
 
         }),
-        /**  ==========================================  Category */
+        deleteCategories: builder.mutation<IPagination<CategoryResponse>,{categoryId:string|number}>({
+            query: ({categoryId}) => ({
+                url: `categories/${categoryId}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ['category'],
+
+        }),
+        /**  ==========================================  Food */
         getFoods: builder.query<IPagination<FoodResponse>,void>({
             query: () => ({
                 url: `foods`,
                 method: "GET"
             }),
             providesTags: ['category'],
+
+        }),
+        addFood: builder.mutation<IPagination<FoodResponse>,FormData>({
+            query: (body) => ({
+                url: `foods`,
+                method: "POST",
+                body
+            }),
+            invalidatesTags: ['category'],
+
+        }),
+        updateFood: builder.mutation<IPagination<FoodResponse>, {foodId:string|number, body:FormData }>({
+            query: ({foodId,body}) => ({
+                url: `foods/${foodId}`,
+                method: "PUT",
+                body
+            }),
+            invalidatesTags: ['category'],
+
+        }),
+        deleteFood: builder.mutation<IPagination<FoodResponse>,{foodId:number|string}>({
+            query: ({foodId}) => ({
+                url: `foods/${foodId}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ['category'],
 
         }),
 
@@ -173,5 +207,9 @@ export const {
     useGetFoodsQuery,
     useAddCategoryMutation,
     useMyAddressQuery,
-    useMyFavQuery
+    useMyFavQuery,
+    useDeleteCategoriesMutation,
+    useAddFoodMutation,
+    useDeleteFoodMutation,
+    useUpdateFoodMutation
  } = apiSlice;

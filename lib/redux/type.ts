@@ -10,6 +10,7 @@ export interface IDashboard{
     total_users:number;
     total_orders:number;
     total_categories:number
+    total_foods:number
 
 }
 export interface IProfile {
@@ -146,7 +147,19 @@ export const addressSchema = z.object({
 export const categorySchema = z.object({
     name: z.string().min(3, "Password must be at least 3 characters long"),
 });
+
+export const foodSchema = z.object({
+    name: z.string(),
+    description: z.string().min(3, "description must be at least 3 characters long"),
+    price: z.string(),
+    restaurantId: z.string(),
+    vegetarin: z.boolean(),
+    seasonal: z.boolean(),
+    categoryId:z.string(),
+    available:z.boolean()
+});
   
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type addressFormData = z.infer<typeof addressSchema>;
 export type categoryFormData = z.infer<typeof categorySchema>;
+export type foodFormData = z.infer<typeof foodSchema>;
