@@ -11,6 +11,7 @@ export interface IDashboard{
     total_orders:number;
     total_categories:number
     total_foods:number
+    total_restaurants:number
 
 }
 export interface IProfile {

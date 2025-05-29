@@ -9,6 +9,7 @@ import AdminUser from "../(components)/(tab)/AdminUser"
 import AdminOrder from "../(components)/(tab)/AdminOrder"
 import AdminCategory from "../(components)/(tab)/AdminCategory"
 import {IDashboard} from "@/lib/redux/type";
+import AdminRestaurant from "@/app/(admin)/(components)/(tab)/AdminRestaurant";
 
 
 export default function AdminDashboardPage() {
@@ -19,7 +20,8 @@ export default function AdminDashboardPage() {
       <CartDashboard dashboard={dashboard as ICurrentData<IDashboard>}/>
 
       <Tabs defaultValue="users">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="restaurant">Restaurant</TabsTrigger>
           <TabsTrigger value="users">Users</TabsTrigger>
           <TabsTrigger value="orders">Orders</TabsTrigger>
           <TabsTrigger value="categories">Categories</TabsTrigger>
@@ -39,6 +41,13 @@ export default function AdminDashboardPage() {
         <TabsContent value="categories">
           <AdminCategory/>
         </TabsContent>
+
+        {/* Categories Tab */}
+        <TabsContent value="restaurant">
+          <AdminRestaurant/>
+        </TabsContent>
+
+
       </Tabs>
     </div>
   )

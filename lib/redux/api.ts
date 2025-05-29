@@ -41,7 +41,7 @@ export const apiSlice = createApi({
               }),
             invalidatesTags: ['favorite'],
         }),
-        getRestaurantOwner: builder.query<RestaurantResponse,void>({
+        getRestaurantOwner: builder.query<RestaurantResponse,{}>({
             query: () => ({
                 url: `restaurants/owner`,
                 method: "GET"

@@ -2,15 +2,15 @@
 
 import type React from "react"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
-import { useDashboardQuery} from "@/lib/redux/api"
+import {useDashboardQuery} from "@/lib/redux/api"
 import {ICurrentData} from "@/lib/generic/ICurrentData"
 
 import {IDashboard} from "@/lib/redux/type";
-import CartDashboard from "@/app/(admin)/(components)/CartDashboard";
 import AdminUser from "@/app/(admin)/(components)/(tab)/AdminUser";
 import AdminOrder from "@/app/(admin)/(components)/(tab)/AdminOrder";
 import AdminCategory from "@/app/(admin)/(components)/(tab)/AdminCategory";
 import AdminFood from "@/app/(admin)/(components)/(tab)/AdminFood";
+import CartDashboardOwner from "@/app/(owner)/(component)/CartDashboardOwner";
 
 
 export default function OwnerDashboardPage() {
@@ -18,7 +18,7 @@ export default function OwnerDashboardPage() {
     return (
         <div className="container py-10">
             <h1 className="text-3xl font-bold mb-8">Owner Dashboard</h1>
-            <CartDashboard dashboard={dashboard as ICurrentData<IDashboard>}/>
+            <CartDashboardOwner dashboard={dashboard as ICurrentData<IDashboard>}/>
 
             <Tabs defaultValue="users">
                 <TabsList className="grid w-full grid-cols-4">

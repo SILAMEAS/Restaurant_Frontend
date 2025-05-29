@@ -13,19 +13,19 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
+import {useGetRestaurantsQuery} from "@/lib/redux/api"
 import SkeletonTable from "@/components/skeleton/SkeletonTable";
-import {CheckRole, useUsersByRole} from "@/app/(admin)/(components)/(hooks)/useUsersByRole";
 
-const AdminUser=()=>{
+const AdminRestaurant=()=>{
     const [searchQuery, setSearchQuery] = useState("");
-    const getUsers = useUsersByRole();
-    const users=getUsers?.currentData?.contents;
+    const getRestaruantQuery=useGetRestaurantsQuery();
+    const restaurants=getRestaruantQuery?.currentData?.contents;
     return  <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <CardTitle>Users</CardTitle>
-                  <CardDescription>Manage user accounts and permissions</CardDescription>
+                  <CardTitle>Restaurant</CardTitle>
+                  <CardDescription>Manage restaurant accounts and permissions</CardDescription>
                 </div>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -43,36 +43,28 @@ const AdminUser=()=>{
                 <TableHeader>
                   <TableRow>
                     <TableHead>Name</TableHead>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
-                      {
-                        CheckRole().isOwner&&
-                          <TableHead>Orders</TableHead>
-                      }
+                    <TableHead>Rating</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Cuisine Type</TableHead>
                     <TableHead>Joined</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {!users?<SkeletonTable />:
-                      users?.filter(
-                      (user) =>
-                        user?.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        user.email.toLowerCase().includes(searchQuery.toLowerCase()),
+                  {!restaurants?<SkeletonTable />:
+                      restaurants?.filter(
+                      (res) =>
+                          res?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          res.description.toLowerCase().includes(searchQuery.toLowerCase()),
                     )
-                    .map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user?.fullName}</TableCell>
-                        <TableCell>{user.email}</TableCell>
+                    .map((r) => (
+                      <TableRow key={r.id}>
+                        <TableCell className="font-medium">{r?.name}</TableCell>
+                        <TableCell>{r.rating}</TableCell>
                         <TableCell>
-                          <Badge variant="outline">{user.role}</Badge>
+                          <Badge variant="outline">{r.open?"OPEN":"CLOSE"}</Badge>
                         </TableCell>
-                          {
-                              CheckRole().isOwner&&
-                              <TableCell>{user.orders}</TableCell>
-                          }
-
-                        <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
+                        <TableCell>{r.cuisineType}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
@@ -107,4 +99,4 @@ const AdminUser=()=>{
           </Card>
 }
 
-export default AdminUser;
+export default AdminRestaurant;
