@@ -43,7 +43,6 @@ const counterSlice = createSlice({
             state.profile = action.payload;
         },
         setFavorite: (state, action: PayloadAction<IFavorite>) => {
-            console.log(action.payload)
         if (state.profile&&action.payload) {
             state.profile.favourites = [
             ...(state.profile.favourites || []),

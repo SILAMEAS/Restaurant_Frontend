@@ -32,7 +32,6 @@ export default function RegisterPage() {
     }, 1500)
   }
   React.useEffect(()=>{
-    console.log("reset")
      dispatch(reset())
   },[])
   return (

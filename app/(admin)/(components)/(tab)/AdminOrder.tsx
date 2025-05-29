@@ -12,6 +12,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Edit, Eye, MoreVertical, Search} from "lucide-react"
+import {useGetOrdersQuery} from "@/lib/redux/api";
+import {enumStatus} from "@/lib/redux/type";
+import SkeletonTable from "@/components/skeleton/SkeletonTable";
 // Sample orders data
 const ordersData = [
   {
@@ -57,7 +60,7 @@ const ordersData = [
 ]
 
 const AdminOrder=()=>{
-    const [orders, setOrders] = useState(ordersData)
+    const getOrdersQuery=useGetOrdersQuery();
     const [searchQuery, setSearchQuery] = useState("")
     return  <Card>
             <CardHeader>
@@ -85,31 +88,33 @@ const AdminOrder=()=>{
                     <TableHead>Customer</TableHead>
                     <TableHead>Restaurant</TableHead>
                     <TableHead>Total</TableHead>
+                    <TableHead>Items</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead>Date</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {orders
-                    .filter(
+                  {!getOrdersQuery?.currentData?.contents?<SkeletonTable column={7}/>:
+                    getOrdersQuery?.currentData?.contents?.filter(
                       (order) =>
-                        order.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        order.customer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        order.restaurant.toLowerCase().includes(searchQuery.toLowerCase()),
+                        order.id.toString().includes(searchQuery.toLowerCase()) ||
+                        order.user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                        order.restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()),
                     )
                     .map((order) => (
                       <TableRow key={order.id}>
                         <TableCell className="font-medium">{order.id}</TableCell>
-                        <TableCell>{order.customer}</TableCell>
-                        <TableCell>{order.restaurant}</TableCell>
-                        <TableCell>${order.total.toFixed(2)}</TableCell>
+                        <TableCell>{order.user.fullName}</TableCell>
+                        <TableCell>{order.restaurant.name}</TableCell>
+                        <TableCell>${order.totalAmount}</TableCell>
+                        <TableCell>{order.items?.length??0}</TableCell>
                         <TableCell>
                           <Badge
                             variant={
-                              order.status === "Delivered"
+                              order.status === enumStatus.DELIVERED
                                 ? "outline"
-                                : order.status === "In Progress"
+                                : order.status === enumStatus.PENDING
                                   ? "secondary"
                                   : "default"
                             }
@@ -117,7 +122,7 @@ const AdminOrder=()=>{
                             {order.status}
                           </Badge>
                         </TableCell>
-                        <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
+                        <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>

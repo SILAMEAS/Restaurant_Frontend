@@ -30,6 +30,7 @@ import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
 import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 import useDropzoneCustom from "@/app/(main)/profile/(component)/useDropzoneCustom";
+import SkeletonTable from "@/components/skeleton/SkeletonTable";
 // Sample categories data
 const categoriesData = [
   {
@@ -82,7 +83,7 @@ const AdminCategory=()=>{
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingCategory, setIsAddingCategory] = useState(false)
     const [editingCategory, setEditingCategory] = useState<number | null>(null)
-    const {handleImageDrop,imageFile,setImageFile,setImagePreviewUrl,imagePreviewUrl}=useDropzoneCustom();
+    const dropzoneCustom=useDropzoneCustom();
     const categories = getCategories?.currentData?.contents
     const {
       register,
@@ -93,21 +94,21 @@ const AdminCategory=()=>{
       resolver: zodResolver(categorySchema),
     });
     const onSubmit = async (data: categoryFormData) => {
-      if (!imageFile) {
+      if (!dropzoneCustom.imageFile) {
         toast.error("Please upload a category image.");
         return;
       }
 
       const formData = new FormData();
       formData.append("name", data.name);
-      formData.append("image", imageFile); // 👈 correct typing
+      formData.append("image", dropzoneCustom.imageFile); // 👈 correct typing
 
       await handleApiCall({
         apiFn: () => addCategory(formData).unwrap(),
         onSuccess: () => {
           reset();
-          setImageFile(null);
-          setImagePreviewUrl(null);
+          dropzoneCustom.setImageFile(null);
+          dropzoneCustom.setImagePreviewUrl(null);
           toast.success("Category added successfully!", {
             theme: "dark",
             transition: Slide,
@@ -153,7 +154,7 @@ const AdminCategory=()=>{
                         setIsAddingCategory(false)
                         setEditingCategory(null)
                         reset();
-                        setImagePreviewUrl(null);
+                        dropzoneCustom.setImagePreviewUrl(null);
                       }
                     }}
                   >
@@ -175,7 +176,7 @@ const AdminCategory=()=>{
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="space-y-2">
                           <Label>Category Image</Label>
-                          <ImageDropzone onDrop={handleImageDrop} previewUrl={imagePreviewUrl ?? undefined} />
+                          <ImageDropzone dropzoneCustom={dropzoneCustom} />
                         </div>
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
@@ -215,7 +216,8 @@ const AdminCategory=()=>{
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {categories?.filter(
+                  {!categories?<SkeletonTable column={4} />:
+                    categories?.filter(
                       (c) =>
                         c.name.toLowerCase().includes(searchQuery.toLowerCase())
                     // ||
@@ -239,7 +241,7 @@ const AdminCategory=()=>{
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuItem onClick={() => {
                                 setEditingCategory(c.id);
-                                setImagePreviewUrl(c.url)
+                                dropzoneCustom.setImagePreviewUrl({url:c.url})
                               }}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Category

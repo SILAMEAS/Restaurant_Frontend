@@ -60,7 +60,6 @@ export async function middleware(req: NextRequest) {
   const userRoles: string[] = Array.isArray(roles) ? roles : [roles];
   const userRole:Role = (userRoles[0] || '') as Role;
 
-  console.log(userRole,pathname)
 
 
 

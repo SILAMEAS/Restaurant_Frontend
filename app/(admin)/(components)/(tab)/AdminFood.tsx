@@ -37,6 +37,7 @@ import useDropzoneCustom from "@/app/(main)/profile/(component)/useDropzoneCusto
 import {Slide, toast} from "react-toastify";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
+import SkeletonTable from "@/components/skeleton/SkeletonTable";
 const categoriesData = [
   {
     id: 1,
@@ -95,7 +96,7 @@ const AdminFood=()=>{
     const categories = getCategoriesQuery?.currentData?.contents;
     const foods = getFoodsQuery?.currentData?.contents;
     const ownerRestaurant= getRestaurantOwnerQuery?.currentData;
-    const {handleImageDrop,imageFile,setImageFile,setImagePreviewUrl,imagePreviewUrl}=useDropzoneCustom();
+    const dropzoneCustom=useDropzoneCustom();
     const {
       register,
       handleSubmit,
@@ -110,11 +111,10 @@ const AdminFood=()=>{
       setValue('restaurantId',`${ownerRestaurant.id}`)
     }
 
-
     const closePopUp=()=>{
       reset();
-      setImageFile(null);
-      setImagePreviewUrl(null);
+      dropzoneCustom.setImageFile(null);
+      dropzoneCustom.setImagePreviewUrl(null)
       setIsAddingFood(false);
       setEditingFood(null);
     }
@@ -122,10 +122,9 @@ const AdminFood=()=>{
 
     const onSubmit = async (data: foodFormData) => {
 
-      console.log("data",data)
 
 
-      if (!imageFile && editingFood==null) {
+      if (!dropzoneCustom.imageFile && editingFood==null) {
         toast.error("Please upload a Food image.");
         return;
       }
@@ -139,8 +138,8 @@ const AdminFood=()=>{
       formData.append("seasonal", `${data.seasonal}`);
       formData.append("available", `${data.available}`);
       formData.append("restaurantId", data.restaurantId);
-     if(imageFile){
-       formData.append("images", imageFile); // 👈 correct typing
+     if(dropzoneCustom.imageFile){
+       formData.append("images", dropzoneCustom.imageFile); // 👈 correct typing
      }
 
 
@@ -213,7 +212,7 @@ const AdminFood=()=>{
                       <form onSubmit={handleSubmit(onSubmit)}>
                         <div className="space-y-2">
                           <Label>Food Image</Label>
-                          <ImageDropzone onDrop={handleImageDrop} previewUrl={imagePreviewUrl ?? undefined} />
+                          <ImageDropzone dropzoneCustom={dropzoneCustom} />
                         </div>
                         {/** Name **/}
                         <div className="space-y-4 py-4">
@@ -340,7 +339,7 @@ const AdminFood=()=>{
                                 defaultValue={
                                   (editingFood !== null)
                                       ? foods?.find((f) => f.id === editingFood)?.category.id
-                                      : ""
+                                      : categories?categories[categories.length-1].id:NaN
                                 }
                                 className="w-full border rounded-md px-3 py-2"
                             >
@@ -380,7 +379,8 @@ const AdminFood=()=>{
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {foods?.filter(
+                  {!foods?<SkeletonTable column={5} />:
+                    foods?.filter(
                       (c) =>
                         c.name.toLowerCase().includes(searchQuery.toLowerCase())
                     // ||
@@ -414,7 +414,7 @@ const AdminFood=()=>{
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuItem onClick={() => {
                                 setEditingFood(f.id);
-                                setImagePreviewUrl(f.images[0])
+                                dropzoneCustom.setImagePreviewUrl({url: f.images[0]})
                               }}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Food

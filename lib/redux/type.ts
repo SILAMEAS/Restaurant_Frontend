@@ -23,6 +23,7 @@ export interface IProfile {
     // favourites: Array<IFavorite>;
     createdAt : string;
     updatedAt : string;
+    orders:number;
 }
 export interface IFavorite {
     id:           number;
@@ -50,8 +51,21 @@ export interface IPagination<T> {
     hasNext?: boolean;
     totalInvalid?: number;
 }
-
-
+export enum enumStatus{
+    PENDING="PENDING",
+    CONFIRMED='CONFIRMED',
+    DELIVERED='DELIVERED',
+    CANCELLED='CANCELLED'
+}
+export interface OrderResponse {
+    id: number;
+    user : IProfile,
+    restaurant:RestaurantResponse,
+    totalAmount:number,
+    items:Array<any>,
+    status:enumStatus,
+    createdAt:string
+}
 
 export interface RestaurantResponse {
     id: number
@@ -94,7 +108,7 @@ export interface FoodResponse {
 
 export interface ImageUrl {
     url: string
-    publicId: string
+    publicId?: string
 }
 
 
@@ -158,8 +172,41 @@ export const foodSchema = z.object({
     categoryId:z.string(),
     available:z.boolean()
 });
-  
+
+// Define nested schemas
+const AddressSchema = z.object({
+    zip:z.string().min(1,"Zip is required"),
+    name:z.string().min(1, "Name is required"),
+    street: z.string().min(1, "Street is required"),
+    city: z.string().min(1, "City is required"),
+    state: z.string().min(1, "State is required"),
+    country: z.string().min(1, "Country is required"),
+    currentUsage:z.boolean()
+});
+
+const ContactInformationSchema = z.object({
+    phone: z.string().min(10, "Phone number is required"),
+    email: z.string().email("Invalid email address"),
+});
+
+
+
+// Restaurant schema
+export const restaurantSchema = z.object({
+    ownerName: z.string().min(1, "Owner name is required"),
+    name: z.string().min(1, "Restaurant name is required"),
+    description: z.string().min(10, "Description should be at least 10 characters"),
+    cuisineType: z.string().min(1, "Cuisine type is required"),
+    address: AddressSchema,
+    contactInformation: ContactInformationSchema,
+    openingHours: z.string().min(1, "Opening hours are required"),
+    open: z.boolean(),
+});
+
+
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type addressFormData = z.infer<typeof addressSchema>;
 export type categoryFormData = z.infer<typeof categorySchema>;
 export type foodFormData = z.infer<typeof foodSchema>;
+
+export type RestaurantFormData = z.infer<typeof restaurantSchema>;

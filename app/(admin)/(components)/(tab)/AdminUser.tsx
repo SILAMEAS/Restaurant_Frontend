@@ -5,19 +5,19 @@ import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/compo
 import {Badge} from "@/components/ui/badge"
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
 import {useGetRestaurantOwnerQuery, useGetUsersHasOrderInRestaurantQuery, useGetUsersQuery} from "@/lib/redux/api"
-import {useGlobalState} from "@/hooks/useGlobalState";
 import Cookies from "js-cookie";
 import {COOKIES} from "@/constant/COOKIES";
 import {Role} from "@/lib/redux/counterSlice";
+import SkeletonTable from "@/components/skeleton/SkeletonTable";
 
 const AdminUser=()=>{
     const [searchQuery, setSearchQuery] = useState("");
@@ -57,7 +57,8 @@ const AdminUser=()=>{
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users?.filter(
+                  {!users?<SkeletonTable />:
+                      users?.filter(
                       (user) =>
                         user?.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
                         user.email.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -69,7 +70,7 @@ const AdminUser=()=>{
                         <TableCell>
                           <Badge variant="outline">{user.role}</Badge>
                         </TableCell>
-                        <TableCell>{0}</TableCell>
+                        <TableCell>{user.orders}</TableCell>
                         <TableCell>{new Date(user.createdAt).toLocaleDateString()}</TableCell>
                         <TableCell className="text-right">
                           <DropdownMenu>

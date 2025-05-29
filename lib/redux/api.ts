@@ -5,7 +5,7 @@ import {
     IAddress,
     IDashboard, IFavorite,
     IPagination,
-    IProfile,
+    IProfile, OrderResponse,
     RestaurantResponse,
 } from "@/lib/redux/type";
 
@@ -48,6 +48,14 @@ export const apiSlice = createApi({
             }),
             providesTags: ['restaurant'],
 
+        }),
+        updateRestaurant: builder.mutation<RestaurantResponse, {restaurantId:number,body:FormData}>({
+            query: ({restaurantId,body}) => ({
+                url:  `restaurants/${restaurantId}`,
+                method: "PUT",
+                body
+            }),
+            invalidatesTags: ['restaurant'],
         }),
         /** ========================================== Dashboard */
         dashboard: builder.query<IDashboard, void>({
@@ -186,6 +194,15 @@ export const apiSlice = createApi({
             invalidatesTags: ['category'],
 
         }),
+        /**  ==========================================  Order */
+        getOrders: builder.query<IPagination<OrderResponse>,void>({
+            query: () => ({
+                url: `orders`,
+                method: "GET"
+            }),
+            providesTags: ['order'],
+
+        }),
 
 
     }),
@@ -211,5 +228,7 @@ export const {
     useDeleteCategoriesMutation,
     useAddFoodMutation,
     useDeleteFoodMutation,
-    useUpdateFoodMutation
+    useUpdateFoodMutation,
+    useGetOrdersQuery,
+    useUpdateRestaurantMutation
  } = apiSlice;
