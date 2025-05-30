@@ -28,7 +28,8 @@ import {
   useDeleteFoodMutation,
   useGetCategoriesQuery,
   useGetFoodsQuery,
-  useGetRestaurantOwnerQuery, useUpdateFoodMutation
+  useGetRestaurantOwnerQuery,
+  useUpdateFoodMutation
 } from "@/lib/redux/api";
 import {useForm} from "react-hook-form";
 import {foodFormData, foodSchema} from "@/lib/redux/type";
@@ -38,6 +39,7 @@ import {Slide, toast} from "react-toastify";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 import SkeletonTable from "@/components/skeleton/SkeletonTable";
+
 const categoriesData = [
   {
     id: 1,
@@ -84,7 +86,7 @@ const categoriesData = [
 ]
 const AdminFood=()=>{
     const getFoodsQuery= useGetFoodsQuery();
-    const getRestaurantOwnerQuery= useGetRestaurantOwnerQuery();
+    const getRestaurantOwnerQuery= useGetRestaurantOwnerQuery({});
     const getCategoriesQuery= useGetCategoriesQuery();
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingFood, setIsAddingFood] = useState(false)
@@ -165,6 +167,12 @@ const AdminFood=()=>{
             transition: Slide,
           });
         },
+        onError:(e)=>{
+          toast.error(`${e.data.message}`, {
+            theme: "dark",
+            transition: Slide,
+          });
+        }
       });
 
     }

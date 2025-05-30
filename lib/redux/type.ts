@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-
-interface Restaurant {
-    id: number;
-    name: string;
-    // Add other fields as needed
-}
 export interface IDashboard{
     total_users:number;
     total_orders:number;
@@ -20,8 +14,6 @@ export interface IProfile {
     fullName:   string;
     email:      string;
     role:       string;
-    // addresses:  Array<IAddress>;
-    // favourites: Array<IFavorite>;
     createdAt : string;
     updatedAt : string;
     orders:number;
@@ -52,6 +44,8 @@ export interface IPagination<T> {
     hasNext?: boolean;
     totalInvalid?: number;
 }
+
+
 export enum enumStatus{
     PENDING="PENDING",
     CONFIRMED='CONFIRMED',
@@ -128,20 +122,7 @@ export interface ContactInformation {
     phone: string;
     email: string;
 }
-export interface PaginationRequest{
-    pageSize:number;
-    sortBy:string;
-    pageNo:number;
-    sortOrder:SORT;
-}
 
-export const PaginationRequestDefault:PaginationRequest={
-    pageSize :10,
-    sortBy:"id",
-    pageNo:1,
-    sortOrder:'desc'
-}
-export type SORT='asc'|'desc';
 
 /** Define the schema for form validation using Zod   */
 export const loginSchema = z.object({
@@ -174,7 +155,6 @@ export const foodSchema = z.object({
     available:z.boolean()
 });
 
-// Define nested schemas
 const AddressSchema = z.object({
     zip:z.string().min(1,"Zip is required"),
     name:z.string().min(1, "Name is required"),
@@ -189,10 +169,6 @@ const ContactInformationSchema = z.object({
     phone: z.string().min(10, "Phone number is required"),
     email: z.string().email("Invalid email address"),
 });
-
-
-
-// Restaurant schema
 export const restaurantSchema = z.object({
     ownerName: z.string().min(1, "Owner name is required"),
     name: z.string().min(1, "Restaurant name is required"),
@@ -211,3 +187,24 @@ export type categoryFormData = z.infer<typeof categorySchema>;
 export type foodFormData = z.infer<typeof foodSchema>;
 
 export type RestaurantFormData = z.infer<typeof restaurantSchema>;
+
+
+/** Pagination  */
+export interface PaginationRequest{
+    pageSize:number;
+    sortBy:string;
+    pageNo:number;
+    sortOrder:SORT;
+    search?:string;
+    filterBy?:string
+}
+
+export const PaginationRequestDefault:PaginationRequest={
+    pageSize :10,
+    sortBy:"id",
+    pageNo:1,
+    sortOrder:'desc'
+}
+export type SORT='asc'|'desc';
+
+export interface PaginationRequestWithIngoreCase{params?:PaginationRequest,caseIgnoreFilter: boolean}

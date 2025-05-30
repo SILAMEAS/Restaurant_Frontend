@@ -19,7 +19,6 @@ const FeatureRestaurant = () => {
             {currentData?.contents?.map((i) => (<Card key={i.id} className="overflow-hidden">
                 <div className="relative h-48">
                     <Image
-                        // src={`/placeholder.svg?height=200&width=300`}
                         src={`${i.imageUrls[0].url}?height=200&width=300`}
                         alt={`Restaurant ${i}`}
                         fill
@@ -27,7 +26,7 @@ const FeatureRestaurant = () => {
                     />
                 </div>
                 <CardContent className="p-4">
-                    <h3 className="font-semibold text-lg mb-1">Restaurant {i.name}</h3>
+                    <h3 className="font-semibold text-lg mb-1">{i.name}</h3>
                     <p className="text-sm text-muted-foreground mb-2">{i.cuisineType} • $$</p>
                     <div className="flex items-center text-sm">
                                     <span

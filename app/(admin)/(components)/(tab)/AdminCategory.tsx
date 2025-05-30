@@ -22,7 +22,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {Edit, MoreVertical, Plus, Search, Trash2} from "lucide-react"
-import {useAddCategoryMutation, useDeleteCategoriesMutation, useGetCategoriesQuery} from "@/lib/redux/api";
+import {
+  useAddCategoryMutation,
+  useDeleteCategoriesMutation,
+  useGetCategoriesQuery,
+  useUpdateCategoryMutation
+} from "@/lib/redux/api";
 import {useForm} from "react-hook-form";
 import {categoryFormData, categorySchema} from "@/lib/redux/type";
 import {zodResolver} from "@hookform/resolvers/zod";
@@ -79,6 +84,7 @@ const categoriesData = [
 const AdminCategory=()=>{
     const [deleteCategory,resultDeleteCategory]=useDeleteCategoriesMutation();
     const [addCategory,resultAddCategory]=useAddCategoryMutation();
+    const [updateCategory,resultUpdateCategory] = useUpdateCategoryMutation()
     const getCategories= useGetCategoriesQuery();
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingCategory, setIsAddingCategory] = useState(false)
@@ -94,17 +100,19 @@ const AdminCategory=()=>{
       resolver: zodResolver(categorySchema),
     });
     const onSubmit = async (data: categoryFormData) => {
-      if (!dropzoneCustom.imageFile) {
+      if (!dropzoneCustom.imageFile&&!editingCategory) {
         toast.error("Please upload a category image.");
         return;
       }
 
       const formData = new FormData();
       formData.append("name", data.name);
-      formData.append("image", dropzoneCustom.imageFile); // 👈 correct typing
+      if (dropzoneCustom.imageFile) {
+        formData.append("image", dropzoneCustom.imageFile); // 👈 correct typing
+      }
 
       await handleApiCall({
-        apiFn: () => addCategory(formData).unwrap(),
+        apiFn: () =>editingCategory?updateCategory({body:formData,categoryId:editingCategory}).unwrap(): addCategory(formData).unwrap(),
         onSuccess: () => {
           reset();
           dropzoneCustom.setImageFile(null);
@@ -115,6 +123,12 @@ const AdminCategory=()=>{
           });
           setIsAddingCategory(false);
         },
+        onError:(e)=>{
+          toast.error(`${e.data.message}`, {
+            theme: "dark",
+            transition: Slide,
+          });
+        }
       });
     };
     const handleDeleteCategory =async (categoryId:string|number)=>{
@@ -126,6 +140,12 @@ const AdminCategory=()=>{
             transition: Slide,
           });
         },
+        onError:(e)=>{
+          toast.error(`${e.data.message}`, {
+            theme: "dark",
+            transition: Slide,
+          });
+        }
       });
 
     }

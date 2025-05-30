@@ -22,124 +22,29 @@ import {Checkbox} from "@/components/ui/checkbox"
 import {Label} from "@/components/ui/label"
 import {Slider} from "@/components/ui/slider"
 import {useToast} from "@/components/ui/use-toast"
+import {useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
+import useParamQuery from "@/hooks/useParamQuery";
 
-// Sample food data
-const foodItems = [
-  {
-    id: 1,
-    name: "Margherita Pizza",
-    description: "Classic pizza with tomato sauce, mozzarella, and basil",
-    price: 12.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "pizza",
-    tags: ["vegetarian"],
-    restaurant: "Pizza Palace",
-  },
-  {
-    id: 2,
-    name: "Cheeseburger",
-    description: "Juicy beef patty with cheese, lettuce, tomato, and special sauce",
-    price: 9.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "burgers",
-    tags: [],
-    restaurant: "Burger Joint",
-  },
-  {
-    id: 3,
-    name: "California Roll",
-    description: "Sushi roll with crab, avocado, and cucumber",
-    price: 14.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "sushi",
-    tags: ["seasonal"],
-    restaurant: "Sushi Spot",
-  },
-  {
-    id: 4,
-    name: "Caesar Salad",
-    description: "Romaine lettuce with Caesar dressing, croutons, and parmesan",
-    price: 8.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "salads",
-    tags: ["vegetarian"],
-    restaurant: "Green Eats",
-  },
-  {
-    id: 5,
-    name: "Chocolate Cake",
-    description: "Rich chocolate cake with ganache frosting",
-    price: 6.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "desserts",
-    tags: ["vegetarian"],
-    restaurant: "Sweet Treats",
-  },
-  {
-    id: 6,
-    name: "Iced Coffee",
-    description: "Cold brewed coffee served over ice",
-    price: 4.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "drinks",
-    tags: ["vegetarian"],
-    restaurant: "Coffee House",
-  },
-  {
-    id: 7,
-    name: "Pepperoni Pizza",
-    description: "Classic pizza with tomato sauce, mozzarella, and pepperoni",
-    price: 14.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "pizza",
-    tags: [],
-    restaurant: "Pizza Palace",
-  },
-  {
-    id: 8,
-    name: "Veggie Burger",
-    description: "Plant-based patty with lettuce, tomato, and special sauce",
-    price: 10.99,
-    image: "/placeholder.svg?height=200&width=300",
-    category: "burgers",
-    tags: ["vegetarian"],
-    restaurant: "Burger Joint",
-  },
-]
-
-const categories = ["All", "Pizza", "Burgers", "Sushi", "Salads", "Desserts", "Drinks"]
 
 export default function MenuPage() {
-  const [searchQuery, setSearchQuery] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("All")
+  const {paramQuery,setParamQuery} = useParamQuery();
   const [priceRange, setPriceRange] = useState([0, 20])
+  const getCategoryQuery = useGetCategoriesQuery();
+  const {currentData} = useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
   const [dietaryFilters, setDietaryFilters] = useState({
     vegetarian: false,
     seasonal: false,
   })
   const { toast } = useToast()
+  const foods = currentData?.contents??[];
 
-  // Filter foods based on search, category, and filters
-  const filteredFoods = foodItems.filter((food) => {
-    // Search filter
-    const matchesSearch =
-      food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      food.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      food.restaurant.toLowerCase().includes(searchQuery.toLowerCase())
+  const categories = ["All"]
 
-    // Category filter
-    const matchesCategory = selectedCategory === "All" || food.category.toLowerCase() === selectedCategory.toLowerCase()
+  /** Passing Categories from backend */
+  if(getCategoryQuery.currentData){
+    getCategoryQuery.currentData.contents.map(r=>categories.push(r.name));
+  }
 
-    // Price filter
-    const matchesPrice = food.price >= priceRange[0] && food.price <= priceRange[1]
-
-    // Dietary filters
-    const matchesDietary =
-      (!dietaryFilters.vegetarian || food.tags.includes("vegetarian")) &&
-      (!dietaryFilters.seasonal || food.tags.includes("seasonal"))
-
-    return matchesSearch && matchesCategory && matchesPrice && matchesDietary
-  })
 
   const addToCart = (food: any) => {
     toast({
@@ -157,8 +62,8 @@ export default function MenuPage() {
           <Input
             placeholder="Search for food, restaurants..."
             className="pl-10"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            value={paramQuery.search}
+            onChange={(e) => setParamQuery({...paramQuery,search:e.target.value})}
           />
         </div>
         <Sheet>
@@ -190,9 +95,9 @@ export default function MenuPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="vegetarian"
-                      checked={dietaryFilters.vegetarian}
+                      checked={paramQuery.filterBy==="vegetarian"}
                       onCheckedChange={(checked) =>
-                        setDietaryFilters({ ...dietaryFilters, vegetarian: checked === true })
+                          setParamQuery({...paramQuery,filterBy: checked === true?"vegetarian":"All"})
                       }
                     />
                     <Label htmlFor="vegetarian">Vegetarian</Label>
@@ -200,9 +105,9 @@ export default function MenuPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="seasonal"
-                      checked={dietaryFilters.seasonal}
+                      checked={paramQuery.filterBy==="seasonal"}
                       onCheckedChange={(checked) =>
-                        setDietaryFilters({ ...dietaryFilters, seasonal: checked === true })
+                          setParamQuery({...paramQuery,filterBy: checked === true?"seasonal":"All"})
                       }
                     />
                     <Label htmlFor="seasonal">Seasonal</Label>
@@ -225,7 +130,7 @@ export default function MenuPage() {
       </div>
 
       {/* Category Tabs */}
-      <Tabs defaultValue="All" value={selectedCategory} onValueChange={setSelectedCategory} className="mb-8">
+      <Tabs defaultValue="All" value={paramQuery.filterBy} onValueChange={(e)=>setParamQuery({...paramQuery,filterBy:e})} className="mb-8">
         <TabsList className="w-full overflow-auto">
           {categories.map((category) => (
             <TabsTrigger key={category} value={category} className="min-w-[100px]">
@@ -236,20 +141,20 @@ export default function MenuPage() {
       </Tabs>
 
       {/* Food Items Grid */}
-      {filteredFoods.length > 0 ? (
+      {foods?.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {filteredFoods.map((food) => (
+          {foods?.map((food) => (
             <Card key={food.id} className="overflow-hidden">
               <div className="relative h-48">
-                <Image src={food.image || "/placeholder.svg"} alt={food.name} fill className="object-cover" />
+                <Image src={food.images[0] || "/placeholder.svg"} alt={food.name} fill className="object-cover" />
                 <div className="absolute top-2 right-2 flex gap-1">
-                  {food.tags.includes("vegetarian") && (
+                  {!!food.vegetarian && (
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Leaf className="h-3 w-3" />
                       Veg
                     </Badge>
                   )}
-                  {food.tags.includes("seasonal") && (
+                  {!!food.seasonal && (
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Star className="h-3 w-3" />
                       Seasonal
@@ -258,7 +163,7 @@ export default function MenuPage() {
                 </div>
               </div>
               <CardContent className="p-4">
-                <div className="text-sm text-muted-foreground mb-1">{food.restaurant}</div>
+                <div className="text-sm text-muted-foreground mb-1">{food.restaurantName}</div>
                 <h3 className="font-semibold text-lg mb-1">{food.name}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{food.description}</p>
                 <div className="font-medium">${food.price.toFixed(2)}</div>

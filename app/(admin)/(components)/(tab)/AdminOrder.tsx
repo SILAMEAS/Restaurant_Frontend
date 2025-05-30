@@ -1,4 +1,4 @@
-import {useState} from "react"
+import React, {useState} from "react"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
@@ -8,13 +8,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
+  DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {Edit, Eye, MoreVertical, Search} from "lucide-react"
-import {useGetOrdersQuery} from "@/lib/redux/api";
+import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
+import {useDeleteOrderMutation, useGetOrdersQuery} from "@/lib/redux/api";
 import {enumStatus} from "@/lib/redux/type";
 import SkeletonTable from "@/components/skeleton/SkeletonTable";
+import {handleApiCall} from "@/lib/handleApiCall";
+import {Slide, toast} from "react-toastify";
 // Sample orders data
 const ordersData = [
   {
@@ -61,7 +63,27 @@ const ordersData = [
 
 const AdminOrder=()=>{
     const getOrdersQuery=useGetOrdersQuery();
-    const [searchQuery, setSearchQuery] = useState("")
+    const [searchQuery, setSearchQuery] = useState("");
+    const [deleteOrder,resultDeleteOrder] = useDeleteOrderMutation()
+
+    const handleDeleteOrder =async (orderId:string|number)=>{
+      await handleApiCall({
+        apiFn: () => deleteOrder({orderId}).unwrap(),
+        onSuccess: () => {
+          toast.success("Category delete successfully!", {
+            theme: "dark",
+            transition: Slide,
+          });
+        },
+        onError:(e)=>{
+          e.data.message && toast.error(`${e.data.message}`, {
+            theme: "dark",
+            transition: Slide,
+          });
+        }
+      });
+
+    }
     return  <Card>
             <CardHeader>
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -140,6 +162,14 @@ const AdminOrder=()=>{
                               <DropdownMenuItem>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Update Status
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem
+                                  className="text-destructive"
+                                  onClick={() => handleDeleteOrder(order.id)}
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete Order
                               </DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>

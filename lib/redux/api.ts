@@ -5,7 +5,7 @@ import {
     IAddress,
     IDashboard, IFavorite,
     IPagination,
-    IProfile, OrderResponse,
+    IProfile, OrderResponse, PaginationRequest, PaginationRequestDefault, PaginationRequestWithIngoreCase,
     RestaurantResponse,
 } from "@/lib/redux/type";
 
@@ -134,10 +134,19 @@ export const apiSlice = createApi({
               
         }),
         /**  ==========================================  Category */
-        addCategory: builder.mutation<IPagination<CategoryResponse>,FormData>({
+        addCategory: builder.mutation<IPagination<CategoryResponse>, FormData>({
             query: (body) => ({
                 url: `categories`,
                 method: "POST",
+                body
+            }),
+            invalidatesTags: ['category'],
+
+        }),
+        updateCategory: builder.mutation<IPagination<CategoryResponse>, { body:FormData,categoryId:string|number }>({
+            query: ({body,categoryId}) => ({
+                url: `categories/${categoryId}`,
+                method: "PUT",
                 body
             }),
             invalidatesTags: ['category'],
@@ -160,10 +169,11 @@ export const apiSlice = createApi({
 
         }),
         /**  ==========================================  Food */
-        getFoods: builder.query<IPagination<FoodResponse>,void>({
-            query: () => ({
+        getFoods: builder.query<IPagination<FoodResponse>,PaginationRequestWithIngoreCase>({
+            query: ({params=PaginationRequestDefault,caseIgnoreFilter}) => ({
                 url: `foods`,
-                method: "GET"
+                method: "GET",
+                params:{...params,filterBy:caseIgnoreFilter?undefined:params.filterBy}
             }),
             providesTags: ['category'],
 
@@ -203,6 +213,14 @@ export const apiSlice = createApi({
             providesTags: ['order'],
 
         }),
+        deleteOrder: builder.mutation<IPagination<OrderResponse>,{orderId:string|number}>({
+            query: ({orderId}) => ({
+                url: `orders/${orderId}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ['order'],
+
+        }),
 
 
     }),
@@ -230,5 +248,7 @@ export const {
     useDeleteFoodMutation,
     useUpdateFoodMutation,
     useGetOrdersQuery,
-    useUpdateRestaurantMutation
+    useUpdateRestaurantMutation,
+    useDeleteOrderMutation,
+    useUpdateCategoryMutation
  } = apiSlice;
