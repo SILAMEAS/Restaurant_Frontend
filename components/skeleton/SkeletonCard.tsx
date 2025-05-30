@@ -1,7 +1,7 @@
 import React from 'react';
 import {Skeleton} from "@/components/ui/skeleton";
 
-const SkeletonCard = () => {
+const Cart =()=>{
     return (
         <div className="flex flex-col space-y-3">
             <Skeleton className="h-[125px] w-[250px] rounded-xl" />
@@ -11,6 +11,17 @@ const SkeletonCard = () => {
             </div>
         </div>
     )
+}
+
+const SkeletonCard = ({column}:{column:number}) => {
+
+    return <div className={'flex gap-2'}>
+        {
+            Array.from({ length: column }).map((_, i) => (
+                <Cart key={i}/>
+            ))
+        }
+    </div>
 };
 
 export default SkeletonCard;

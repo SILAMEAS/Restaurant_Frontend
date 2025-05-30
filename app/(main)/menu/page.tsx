@@ -24,17 +24,14 @@ import {Slider} from "@/components/ui/slider"
 import {useToast} from "@/components/ui/use-toast"
 import {useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
 import useParamQuery from "@/hooks/useParamQuery";
+import SkeletonCard from "@/components/skeleton/SkeletonCard";
+import {FoodType} from "@/constant/FoodType";
 
 
 export default function MenuPage() {
   const {paramQuery,setParamQuery} = useParamQuery();
-  const [priceRange, setPriceRange] = useState([0, 20])
   const getCategoryQuery = useGetCategoriesQuery();
-  const {currentData} = useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
-  const [dietaryFilters, setDietaryFilters] = useState({
-    vegetarian: false,
-    seasonal: false,
-  })
+  const {currentData,isLoading,isFetching} = useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
   const { toast } = useToast()
   const foods = currentData?.contents??[];
 
@@ -54,7 +51,7 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="container py-8  mx-auto">
+    <div className="container py-8  w-[100vw]">
       {/* Search and Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-1">
@@ -82,10 +79,13 @@ export default function MenuPage() {
               <div className="space-y-4">
                 <h3 className="font-medium">Price Range</h3>
                 <div className="space-y-2">
-                  <Slider defaultValue={[0, 20]} max={50} step={1} value={priceRange} onValueChange={setPriceRange} />
+                  <Slider defaultValue={[paramQuery.minPrice??0,paramQuery.maxPrice??0]} max={50} step={1} value={[paramQuery.minPrice??0,paramQuery.maxPrice??0]} onValueChange={v=>{
+                    setParamQuery({...paramQuery,minPrice:v[0]});
+                    setParamQuery({...paramQuery,minPrice:v[1]});
+                  }} />
                   <div className="flex justify-between">
-                    <span>${priceRange[0]}</span>
-                    <span>${priceRange[1]}</span>
+                    <span>${paramQuery.minPrice}</span>
+                    <span>${paramQuery.maxPrice}</span>
                   </div>
                 </div>
               </div>
@@ -95,9 +95,9 @@ export default function MenuPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="vegetarian"
-                      checked={paramQuery.filterBy==="vegetarian"}
+                      checked={paramQuery.foodType===FoodType.VEGETARIAN}
                       onCheckedChange={(checked) =>
-                          setParamQuery({...paramQuery,filterBy: checked === true?"vegetarian":"All"})
+                          setParamQuery({...paramQuery,foodType: checked === true?FoodType.VEGETARIAN:undefined})
                       }
                     />
                     <Label htmlFor="vegetarian">Vegetarian</Label>
@@ -105,9 +105,9 @@ export default function MenuPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox
                       id="seasonal"
-                      checked={paramQuery.filterBy==="seasonal"}
+                      checked={paramQuery.foodType===FoodType.SEASONAL}
                       onCheckedChange={(checked) =>
-                          setParamQuery({...paramQuery,filterBy: checked === true?"seasonal":"All"})
+                          setParamQuery({...paramQuery,foodType: checked === true?FoodType.SEASONAL:undefined})
                       }
                     />
                     <Label htmlFor="seasonal">Seasonal</Label>
@@ -118,8 +118,7 @@ export default function MenuPage() {
             <SheetFooter>
               <Button
                 onClick={() => {
-                  setPriceRange([0, 20])
-                  setDietaryFilters({ vegetarian: false, seasonal: false })
+                  setParamQuery({...paramQuery,foodType:undefined,price:undefined,minPrice:undefined,maxPrice:undefined})
                 }}
               >
                 Reset Filters
@@ -177,10 +176,13 @@ export default function MenuPage() {
           ))}
         </div>
       ) : (
-        <div className="text-center py-12">
-          <h3 className="text-xl font-medium mb-2">No items found</h3>
-          <p className="text-muted-foreground">Try adjusting your search or filters to find what you're looking for.</p>
-        </div>
+            (isLoading||isFetching)?
+                <SkeletonCard column={6}/>:
+                <div className="text-center py-12">
+                  <h3 className="text-xl font-medium mb-2">No items found</h3>
+                  <p className="text-muted-foreground">Try adjusting your search or filters to find what you're looking for.</p>
+                </div>
+
       )}
     </div>
   )

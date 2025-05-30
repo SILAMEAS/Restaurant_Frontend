@@ -39,6 +39,7 @@ import {Slide, toast} from "react-toastify";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 import SkeletonTable from "@/components/skeleton/SkeletonTable";
+import useParamQuery from "@/hooks/useParamQuery";
 
 const categoriesData = [
   {
@@ -85,7 +86,8 @@ const categoriesData = [
   },
 ]
 const AdminFood=()=>{
-    const getFoodsQuery= useGetFoodsQuery();
+    const {paramQuery,setParamQuery} =useParamQuery();
+    const getFoodsQuery= useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
     const getRestaurantOwnerQuery= useGetRestaurantOwnerQuery({});
     const getCategoriesQuery= useGetCategoriesQuery();
     const [searchQuery, setSearchQuery] = useState("")

@@ -191,12 +191,20 @@ export type RestaurantFormData = z.infer<typeof restaurantSchema>;
 
 /** Pagination  */
 export interface PaginationRequest{
+
+    search?:string;
+    filterBy?:string;
+
     pageSize:number;
     sortBy:string;
     pageNo:number;
     sortOrder:SORT;
-    search?:string;
-    filterBy?:string
+
+    price?:number;
+    minPrice?:number;  // new field
+    maxPrice?:number;  // new field
+
+    foodType?:string;
 }
 
 export const PaginationRequestDefault:PaginationRequest={
