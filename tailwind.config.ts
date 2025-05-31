@@ -11,7 +11,7 @@ const config: Config = {
   theme: {
   	extend: {
 		backgroundImage: {
-			'restaurant-slide': "url('/images/restaurant_slide.jpeg')"
+			'restaurant-slide': "url('/images/restaurant_slide_2.jpeg')"
 		},
   		colors: {
   			background: 'hsl(var(--background))',

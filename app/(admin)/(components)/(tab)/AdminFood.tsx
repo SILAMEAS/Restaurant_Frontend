@@ -40,51 +40,8 @@ import {handleApiCall} from "@/lib/handleApiCall";
 import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 import SkeletonTable from "@/components/skeleton/SkeletonTable";
 import useParamQuery from "@/hooks/useParamQuery";
+import {foodTypes} from "@/constant/FoodType";
 
-const categoriesData = [
-  {
-    id: 1,
-    name: "Pizza",
-    slug: "pizza",
-    restaurants: 12,
-    items: 48,
-  },
-  {
-    id: 2,
-    name: "Burgers",
-    slug: "burgers",
-    restaurants: 8,
-    items: 32,
-  },
-  {
-    id: 3,
-    name: "Sushi",
-    slug: "sushi",
-    restaurants: 6,
-    items: 45,
-  },
-  {
-    id: 4,
-    name: "Salads",
-    slug: "salads",
-    restaurants: 5,
-    items: 20,
-  },
-  {
-    id: 5,
-    name: "Desserts",
-    slug: "desserts",
-    restaurants: 10,
-    items: 40,
-  },
-  {
-    id: 6,
-    name: "Drinks",
-    slug: "drinks",
-    restaurants: 15,
-    items: 60,
-  },
-]
 const AdminFood=()=>{
     const {paramQuery,setParamQuery} =useParamQuery();
     const getFoodsQuery= useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
@@ -137,9 +94,8 @@ const AdminFood=()=>{
       formData.append("name", data.name);
       formData.append("description", data.description);
       formData.append("categoryId", data.categoryId);
-      formData.append("vegetarin", `${data.vegetarin}`);
+      formData.append("foodType", `${data.foodType}`);
       formData.append("price", data.price);
-      formData.append("seasonal", `${data.seasonal}`);
       formData.append("available", `${data.available}`);
       formData.append("restaurantId", data.restaurantId);
      if(dropzoneCustom.imageFile){
@@ -295,47 +251,31 @@ const AdminFood=()=>{
                             )}
                           </div>
                         </div>
-                        {/** Vegetarin **/}
+                        {/** FoodType **/}
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
-                            <Label htmlFor="available">Vegetarin</Label>
-                            <div className="flex items-center space-x-2">
-                              <input
-                                  type="checkbox"
-                                  id="vegetarin"
-                                  {...register("vegetarin")}
-                                  defaultChecked={
-                                    editingFood !== null
-                                        ? Boolean(foods?.find((c) => c.id === editingFood)?.vegetarian)
-                                        : false
-                                  }
-                              />
-                              <span className="text-sm">Is this food currently vegetarin?</span>
-                            </div>
-                            {errors.vegetarin && (
-                                <p className="text-sm text-red-500">{errors.vegetarin.message}</p>
-                            )}
-                          </div>
-                        </div>
-                        {/** Available **/}
-                        <div className="space-y-4 py-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="available">Seasonal</Label>
-                            <div className="flex items-center space-x-2">
-                              <input
-                                  type="checkbox"
-                                  id="seasonal"
-                                  {...register("seasonal")}
-                                  defaultChecked={
-                                    editingFood !== null
-                                        ? Boolean(foods?.find((c) => c.id === editingFood)?.seasonal)
-                                        : false
-                                  }
-                              />
-                              <span className="text-sm">Is this food currently seasonal?</span>
-                            </div>
-                            {errors.seasonal && (
-                                <p className="text-sm text-red-500">{errors.seasonal.message}</p>
+                            <Label htmlFor="foodType">FoodType</Label>
+                            <select
+                                id="foodType"
+                                {...register("foodType", { required: "Category is required" })}
+                                defaultValue={
+                                  (editingFood !== null)
+                                      ? foods?.find((f) => f.id === editingFood)?.foodType??"NONE"
+                                      : "NONE"
+                                }
+                                className="w-full border rounded-md px-3 py-2"
+                            >
+                              <option value="" disabled>
+                                  Please select food type
+                              </option>
+                              {foodTypes?.map((f) => {
+                                return <option key={f} value={f}>
+                                  {f}
+                                </option>
+                              })}
+                            </select>
+                            {errors.foodType && (
+                                <p className="text-sm text-red-500">{errors.foodType.message}</p>
                             )}
                           </div>
                         </div>

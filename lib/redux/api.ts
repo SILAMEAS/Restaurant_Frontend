@@ -173,7 +173,7 @@ export const apiSlice = createApi({
             query: ({params=PaginationRequestDefault,caseIgnoreFilter}) => ({
                 url: `foods`,
                 method: "GET",
-                params:{...params,filterBy:caseIgnoreFilter?undefined:params.filterBy}
+                params:{...params,filterBy:caseIgnoreFilter?undefined:params.filterBy,foodType:params.foodType===null?undefined:params.foodType}
             }),
             providesTags: ['category'],
 

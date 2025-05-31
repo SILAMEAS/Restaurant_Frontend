@@ -1,6 +1,6 @@
 "use client"
 
-import {useState} from "react"
+import React from "react"
 import Image from "next/image"
 import {Filter, Leaf, Search, Star} from "lucide-react"
 
@@ -9,23 +9,13 @@ import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardFooter} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetFooter,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
-import {Checkbox} from "@/components/ui/checkbox"
-import {Label} from "@/components/ui/label"
-import {Slider} from "@/components/ui/slider"
+import {Sheet, SheetContent, SheetTrigger,} from "@/components/ui/sheet"
 import {useToast} from "@/components/ui/use-toast"
 import {useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
 import useParamQuery from "@/hooks/useParamQuery";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import {FoodType} from "@/constant/FoodType";
+import ModernFilterPanel from "@/app/(main)/menu/ModernFilterPanel";
 
 
 export default function MenuPage() {
@@ -52,7 +42,7 @@ export default function MenuPage() {
 
   return (
     <div className="container py-8  w-[100vw]">
-      {/* Search and Filter Bar */}
+      {/** Search and Filter Bar */}
       <div className="flex flex-col sm:flex-row gap-4 mb-8">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -71,64 +61,12 @@ export default function MenuPage() {
             </Button>
           </SheetTrigger>
           <SheetContent>
-            <SheetHeader>
-              <SheetTitle>Filters</SheetTitle>
-              <SheetDescription>Refine your menu options</SheetDescription>
-            </SheetHeader>
-            <div className="py-6 space-y-6">
-              <div className="space-y-4">
-                <h3 className="font-medium">Price Range</h3>
-                <div className="space-y-2">
-                  <Slider defaultValue={[paramQuery.minPrice??0,paramQuery.maxPrice??0]} max={50} step={1} value={[paramQuery.minPrice??0,paramQuery.maxPrice??0]} onValueChange={v=>{
-                    setParamQuery({...paramQuery,minPrice:v[0]});
-                    setParamQuery({...paramQuery,minPrice:v[1]});
-                  }} />
-                  <div className="flex justify-between">
-                    <span>${paramQuery.minPrice}</span>
-                    <span>${paramQuery.maxPrice}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="space-y-4">
-                <h3 className="font-medium">Dietary Preferences</h3>
-                <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="vegetarian"
-                      checked={paramQuery.foodType===FoodType.VEGETARIAN}
-                      onCheckedChange={(checked) =>
-                          setParamQuery({...paramQuery,foodType: checked === true?FoodType.VEGETARIAN:undefined})
-                      }
-                    />
-                    <Label htmlFor="vegetarian">Vegetarian</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="seasonal"
-                      checked={paramQuery.foodType===FoodType.SEASONAL}
-                      onCheckedChange={(checked) =>
-                          setParamQuery({...paramQuery,foodType: checked === true?FoodType.SEASONAL:undefined})
-                      }
-                    />
-                    <Label htmlFor="seasonal">Seasonal</Label>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <SheetFooter>
-              <Button
-                onClick={() => {
-                  setParamQuery({...paramQuery,foodType:undefined,price:undefined,minPrice:undefined,maxPrice:undefined})
-                }}
-              >
-                Reset Filters
-              </Button>
-            </SheetFooter>
+            <ModernFilterPanel setParamQuery={setParamQuery}/>
           </SheetContent>
         </Sheet>
       </div>
 
-      {/* Category Tabs */}
+      {/** Category Tabs */}
       <Tabs defaultValue="All" value={paramQuery.filterBy} onValueChange={(e)=>setParamQuery({...paramQuery,filterBy:e})} className="mb-8">
         <TabsList className="w-full overflow-auto">
           {categories.map((category) => (
@@ -139,7 +77,7 @@ export default function MenuPage() {
         </TabsList>
       </Tabs>
 
-      {/* Food Items Grid */}
+      {/** Food Items Grid */}
       {foods?.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {foods?.map((food) => (
@@ -147,13 +85,13 @@ export default function MenuPage() {
               <div className="relative h-48">
                 <Image src={food.images[0] || "/placeholder.svg"} alt={food.name} fill className="object-cover" />
                 <div className="absolute top-2 right-2 flex gap-1">
-                  {!!food.vegetarian && (
+                  {food.foodType===FoodType.VEGETARIAN && (
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Leaf className="h-3 w-3" />
                       Veg
                     </Badge>
                   )}
-                  {!!food.seasonal && (
+                  {food.foodType===FoodType.SEASONAL  && (
                     <Badge variant="secondary" className="flex items-center gap-1">
                       <Star className="h-3 w-3" />
                       Seasonal

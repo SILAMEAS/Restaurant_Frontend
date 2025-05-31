@@ -1,4 +1,5 @@
 import { z } from "zod";
+import {FoodType} from "@/constant/FoodType";
 
 export interface IDashboard{
     total_users:number;
@@ -93,8 +94,7 @@ export interface FoodResponse {
     restaurantId:number;
     restaurantName:string;
     available:boolean;
-    vegetarian:number;
-    seasonal:number;
+    foodType:FoodType;
     category:{
         id:number;
         name:string
@@ -149,8 +149,7 @@ export const foodSchema = z.object({
     description: z.string().min(3, "description must be at least 3 characters long"),
     price: z.string(),
     restaurantId: z.string(),
-    vegetarin: z.boolean(),
-    seasonal: z.boolean(),
+    foodType: z.string(),
     categoryId:z.string(),
     available:z.boolean()
 });
