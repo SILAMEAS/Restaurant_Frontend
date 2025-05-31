@@ -1,5 +1,3 @@
-import {Slide, toast} from "react-toastify";
-
 type ApiHandlerOptions<T> = {
     apiFn: () => Promise<T>; // expects a function that returns a promise (already wrapped with data)
     onSuccess?: (res: T) => void;
@@ -17,6 +15,8 @@ export async function handleApiCall<T>({
         const res = await apiFn(); // e.g. () => login(data).unwrap()
         return onSuccess?.(res);
     } catch (e: any) {
-       return onError?.(e);
+        if(e.data.message){
+            return onError?.(e);
+        }
     }
 }

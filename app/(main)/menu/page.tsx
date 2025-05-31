@@ -10,19 +10,20 @@ import {Card, CardContent, CardFooter} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {Sheet, SheetContent, SheetTrigger,} from "@/components/ui/sheet"
-import {useToast} from "@/components/ui/use-toast"
-import {useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
+import {useAddCartMutation, useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
 import useParamQuery from "@/hooks/useParamQuery";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import {FoodType} from "@/constant/FoodType";
 import ModernFilterPanel from "@/app/(main)/menu/ModernFilterPanel";
+import {FoodResponse} from "@/lib/redux/type";
+import {handleApiCall} from "@/lib/handleApiCall";
+import {Slide, toast} from "react-toastify";
 
 
 export default function MenuPage() {
   const {paramQuery,setParamQuery} = useParamQuery();
   const getCategoryQuery = useGetCategoriesQuery();
   const {currentData,isLoading,isFetching} = useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
-  const { toast } = useToast()
   const foods = currentData?.contents??[];
 
   const categories = ["All"]
@@ -31,13 +32,25 @@ export default function MenuPage() {
   if(getCategoryQuery.currentData){
     getCategoryQuery.currentData.contents.map(r=>categories.push(r.name));
   }
+const [addCart,resultAddCart]=useAddCartMutation();
 
-
-  const addToCart = (food: any) => {
-    toast({
-      title: "Added to cart",
-      description: `${food.name} has been added to your cart.`,
-    })
+  const addToCart = async (food:FoodResponse) => {
+    console.log(food)
+    await handleApiCall({
+      apiFn: () => addCart({foodId:food.id,quantity:1}).unwrap(),
+      onSuccess: () => {
+        toast.success(`${food.name} has been added to your cart.`, {
+          theme: "dark",
+          transition: Slide,
+        });
+      },
+      onError:(e)=>{
+        toast.error(`${e.data.message}`, {
+          theme: "dark",
+          transition: Slide,
+        });
+      }
+    });
   }
 
   return (

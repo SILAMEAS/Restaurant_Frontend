@@ -215,3 +215,13 @@ export const PaginationRequestDefault:PaginationRequest={
 export type SORT='asc'|'desc';
 
 export interface PaginationRequestWithIngoreCase{params?:PaginationRequest,caseIgnoreFilter: boolean}
+
+export interface Item {
+    id: number
+    quantity: number
+    food: FoodResponse
+}
+export interface CartResponse {
+    id: number
+    items: Item[]
+}

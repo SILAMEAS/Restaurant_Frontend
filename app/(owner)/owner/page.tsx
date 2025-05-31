@@ -43,7 +43,7 @@ export default function OwnerDashboardPage() {
                     <AdminCategory/>
                 </TabsContent>
 
-                {/* Categories Tab */}
+                {/* FOod Tab */}
                 <TabsContent value="foods">
                     <AdminFood/>
                 </TabsContent>

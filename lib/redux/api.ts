@@ -1,5 +1,6 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import {
+    CartResponse,
     CategoryResponse,
     FoodResponse,
     IAddress,
@@ -28,7 +29,7 @@ export const customBaseQuery = (url: string) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
-    tagTypes:['address','favorite','user',"category","restaurant",'order'],
+    tagTypes:['address','favorite','user',"category","restaurant",'order','cart'],
     endpoints: (builder) => ({
         /** ========================================== Restaurants */
         getRestaurants: builder.query<IPagination<RestaurantResponse>, void>({
@@ -204,6 +205,24 @@ export const apiSlice = createApi({
             invalidatesTags: ['category'],
 
         }),
+        /**  ==========================================  Cart */
+        addCart: builder.mutation<String,{foodId:string |number,quantity:string|number}>({
+            query: (params) => ({
+                url: `carts`,
+                method: "POST",
+                params
+            }),
+            invalidatesTags: ['cart'],
+
+        }),
+        getCart: builder.query<CartResponse,void>({
+            query: (params) => ({
+                url: `carts`,
+                method: "GET",
+            }),
+            providesTags:['cart']
+
+        }),
         /**  ==========================================  Order */
         getOrders: builder.query<IPagination<OrderResponse>,void>({
             query: () => ({
@@ -250,5 +269,7 @@ export const {
     useGetOrdersQuery,
     useUpdateRestaurantMutation,
     useDeleteOrderMutation,
-    useUpdateCategoryMutation
+    useUpdateCategoryMutation,
+    useAddCartMutation,
+    useGetCartQuery
  } = apiSlice;
