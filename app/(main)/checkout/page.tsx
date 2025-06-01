@@ -11,6 +11,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
+import MainAddresses from "@/app/(main)/profile/(tab)/MainAddresses";
 
 // Sample cart data for order summary
 const cartItems = [
@@ -84,43 +85,7 @@ export default function CheckoutPage() {
         {/* Checkout Form */}
         <div className="lg:col-span-2 space-y-6">
           {/* Delivery Address */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle>Delivery Address</CardTitle>
-                <CardDescription>Select where you want your order delivered</CardDescription>
-              </div>
-              <Button variant="outline" size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                Add New
-              </Button>
-            </CardHeader>
-            <CardContent>
-              <RadioGroup
-                value={selectedAddress.toString()}
-                onValueChange={(value) => setSelectedAddress(Number.parseInt(value))}
-                className="space-y-4"
-              >
-                {addresses.map((address) => (
-                  <div key={address.id} className="flex items-start space-x-2">
-                    <RadioGroupItem value={address.id.toString()} id={`address-${address.id}`} className="mt-1" />
-                    <div className="flex-1 border rounded-lg p-4">
-                      <Label htmlFor={`address-${address.id}`} className="flex items-center gap-2">
-                        <span className="font-medium">{address.name}</span>
-                        {address.default && (
-                          <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">Default</span>
-                        )}
-                      </Label>
-                      <div className="flex items-start mt-2">
-                        <MapPin className="h-4 w-4 mt-0.5 mr-2 flex-shrink-0 text-muted-foreground" />
-                        <p className="text-sm text-muted-foreground">{address.address}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </RadioGroup>
-            </CardContent>
-          </Card>
+         <MainAddresses/>
 
           {/* Payment Method */}
           <Card>
@@ -131,7 +96,7 @@ export default function CheckoutPage() {
             <CardContent>
               <RadioGroup value={selectedPayment} onValueChange={setSelectedPayment} className="space-y-4">
                 {paymentMethods.map((method) => (
-                  <div key={method.id} className="flex items-start space-x-2">
+                  <div key={method.id} className="flex items-center space-x-2">
                     <RadioGroupItem value={method.id} id={`payment-${method.id}`} className="mt-1" />
                     <div className="flex-1 border rounded-lg p-4">
                       <Label htmlFor={`payment-${method.id}`} className="flex items-center gap-2">

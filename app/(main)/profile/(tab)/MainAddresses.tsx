@@ -68,8 +68,7 @@ const MainAddresses = () => {
         }
 
     },[editingAddress])
-    return   <TabsContent value="addresses">
-        <Card>
+    return <Card>
 
             <CardHeader className="flex flex-row items-center justify-between">
                 <div>
@@ -228,7 +227,6 @@ const MainAddresses = () => {
                 )}
             </CardContent>
         </Card>
-    </TabsContent>
 };
 
 export default MainAddresses;

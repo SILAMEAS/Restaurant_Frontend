@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react"
+import React, {useState} from "react"
 import Image from "next/image"
 import {Filter, Leaf, Search, Star} from "lucide-react"
 
@@ -25,6 +25,7 @@ export default function MenuPage() {
   const getCategoryQuery = useGetCategoriesQuery();
   const {currentData,isLoading,isFetching} = useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
   const foods = currentData?.contents??[];
+  const [itemClick,setItemClick]= useState<number|null>(null)
 
   const categories = ["All"]
 
@@ -119,8 +120,13 @@ const [addCart,resultAddCart]=useAddCartMutation();
                 <div className="font-medium">${food.price.toFixed(2)}</div>
               </CardContent>
               <CardFooter className="p-4 pt-0">
-                <Button className="w-full" onClick={() => addToCart(food)}>
-                  Add to Cart
+                <Button className="w-full" onClick={async () => {
+                  setItemClick(food.id);
+                  addToCart(food).then(r => r);
+                }}>
+                  {
+                    resultAddCart.isLoading&&food.id===itemClick?"loading ... ":"Add to Cart"
+                  }
                 </Button>
               </CardFooter>
             </Card>

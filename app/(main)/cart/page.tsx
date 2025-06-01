@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import {useEffect, useMemo} from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -9,11 +9,16 @@ import { Minus, Plus, Trash2, ShoppingBag } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { useGetCartQuery } from "@/lib/redux/api"
+import {useGetCartQuery, useRemoveItemFromCartMutation, useUpdateCartItemInCartMutation} from "@/lib/redux/api"
+import {handleApiCall} from "@/lib/handleApiCall";
+import {Slide, toast} from "react-toastify";
 
 export default function CartPage() {
   const router = useRouter()
-  const { data, isLoading, isError } = useGetCartQuery()
+  const { data, isLoading, isError } = useGetCartQuery();
+  const [removeItemFromCart,rsRemoveItem] =useRemoveItemFromCartMutation();
+  const [updateCartItemInCart,rsUpCartItem]= useUpdateCartItemInCartMutation();
+
 
   const cartItems = useMemo(() => {
     if (!data?.items) return []
@@ -28,12 +33,43 @@ export default function CartPage() {
     }))
   }, [data])
 
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity < 1) return
+  const updateQuantity = async (cartItem: number, quantity: number) => {
+    if (quantity < 1) return
     // TODO: call backend mutation to update quantity
+    await handleApiCall({
+      apiFn: () => updateCartItemInCart({cartItem,quantity}).unwrap(),
+      onSuccess: () => {
+        toast.success("updateQuantity successfully!", {
+          theme: "dark",
+          transition: Slide,
+        });
+      },
+      onError: (e) => {
+        console.log(e)
+        toast.error(`${e.data.message}`, {
+          theme: "dark",
+          transition: Slide,
+        });
+      }
+    });
   }
 
-  const removeItem = (id: number) => {
+  const removeItem = async (id: number) => {
+    await handleApiCall({
+      apiFn: () => removeItemFromCart({cartItem:id}).unwrap(),
+      onSuccess: () => {
+        toast.success("removeItem successfully!", {
+          theme: "dark",
+          transition: Slide,
+        });
+      },
+      onError: (e) => {
+        toast.error(`${e.data.message}`, {
+          theme: "dark",
+          transition: Slide,
+        });
+      }
+    });
     // TODO: call backend mutation to remove item
   }
 
@@ -41,6 +77,7 @@ export default function CartPage() {
   const deliveryFee = 2.99
   const tax = subtotal * 0.08
   const total = subtotal + deliveryFee + tax
+  const isLoadingProcess =rsUpCartItem.isLoading||rsRemoveItem.isLoading;
 
   if (isLoading) {
     return <div className="text-center py-10">Loading cart...</div>
@@ -49,7 +86,6 @@ export default function CartPage() {
   if (isError) {
     return <div className="text-center py-10 text-red-500">Failed to load cart data.</div>
   }
-
   return (
       <div className="container py-10">
         <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
@@ -129,8 +165,12 @@ export default function CartPage() {
                     </div>
                   </CardContent>
                   <CardFooter>
-                    <Button className="w-full" size="lg" onClick={() => router.push("/checkout")}>
-                      Proceed to Checkout
+                    <Button disabled={isLoadingProcess} className="w-full" size="lg" onClick={() => router.push("/checkout")}>
+
+                      {
+                        isLoadingProcess?"Loading ... ":"Proceed to Checkout"
+                      }
+
                     </Button>
                   </CardFooter>
                 </Card>

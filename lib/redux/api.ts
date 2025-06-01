@@ -205,6 +205,25 @@ export const apiSlice = createApi({
             invalidatesTags: ['category'],
 
         }),
+
+        /**  ==========================================  Cart Item */
+        removeItemFromCart: builder.mutation<String,{cartItem:string|number}>({
+            query: ({cartItem}) => ({
+                url: `carts/cartItems/${cartItem}`,
+                method: "DELETE"
+            }),
+            invalidatesTags: ['cart'],
+
+        }),
+        updateCartItemInCart: builder.mutation<String,{cartItem:string|number,quantity:string|number}>({
+            query: ({cartItem,quantity}) => ({
+                url: `carts/cartItems/${cartItem}`,
+                method: "PUT",
+                params:{quantity}
+            }),
+            invalidatesTags: ['cart'],
+
+        }),
         /**  ==========================================  Cart */
         addCart: builder.mutation<String,{foodId:string |number,quantity:string|number}>({
             query: (params) => ({
@@ -216,7 +235,7 @@ export const apiSlice = createApi({
 
         }),
         getCart: builder.query<CartResponse,void>({
-            query: (params) => ({
+            query: () => ({
                 url: `carts`,
                 method: "GET",
             }),
@@ -271,5 +290,7 @@ export const {
     useDeleteOrderMutation,
     useUpdateCategoryMutation,
     useAddCartMutation,
-    useGetCartQuery
+    useGetCartQuery,
+    useRemoveItemFromCartMutation,
+    useUpdateCartItemInCartMutation
  } = apiSlice;
