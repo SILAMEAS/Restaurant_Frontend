@@ -207,17 +207,17 @@ export const apiSlice = createApi({
         }),
 
         /**  ==========================================  Cart Item */
-        removeItemFromCart: builder.mutation<String,{cartItem:string|number}>({
-            query: ({cartItem}) => ({
-                url: `carts/cartItems/${cartItem}`,
+        removeItemFromCart: builder.mutation<String,{cartId:string|number,cartItemId:string|number}>({
+            query: ({cartItemId,cartId}) => ({
+                url: `carts/${cartId}/cartItems/${cartItemId}`,
                 method: "DELETE"
             }),
             invalidatesTags: ['cart'],
 
         }),
-        updateCartItemInCart: builder.mutation<String,{cartItem:string|number,quantity:string|number}>({
-            query: ({cartItem,quantity}) => ({
-                url: `carts/cartItems/${cartItem}`,
+        updateCartItemInCart: builder.mutation<String,{cartId:string|number,cartItemId:string|number,quantity:string|number}>({
+            query: ({cartId,cartItemId,quantity}) => ({
+                url: `carts/${cartId}/cartItems/${cartItemId}`,
                 method: "PUT",
                 params:{quantity}
             }),
@@ -234,7 +234,7 @@ export const apiSlice = createApi({
             invalidatesTags: ['cart'],
 
         }),
-        getCart: builder.query<CartResponse,void>({
+        getCart: builder.query<Array<CartResponse>,void>({
             query: () => ({
                 url: `carts`,
                 method: "GET",

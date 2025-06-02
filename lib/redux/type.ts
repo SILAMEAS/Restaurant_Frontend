@@ -229,6 +229,8 @@ export interface Item {
     food: FoodResponse
 }
 export interface CartResponse {
-    id: number
+    restaurantName:string;
+    totalItems:number;
+    id: number;
     items: Item[]
 }
