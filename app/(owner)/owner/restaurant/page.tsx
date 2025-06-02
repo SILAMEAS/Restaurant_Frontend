@@ -71,7 +71,7 @@ const cuisineTypes = [
 const addressNames = ["HOME", "WORK", "OTHER"]
 
 export default function RestaurantViewEdit() {
-    const getRestaurantOwnerQuery = useGetRestaurantOwnerQuery();
+    const getRestaurantOwnerQuery = useGetRestaurantOwnerQuery({});
     const [restaurant, setRestaurant] = useState<RestaurantResponse>(mockRestaurant)
     const [isEditing, setIsEditing] = useState(false)
     const [updateRestaurant] = useUpdateRestaurantMutation();
@@ -93,6 +93,8 @@ export default function RestaurantViewEdit() {
             contactInformation: restaurant.contactInformation,
             openingHours: restaurant.openingHours,
             open: restaurant.open,
+            discount: restaurant.discount,
+            deliveryFee: restaurant.deliveryFee
         },
         mode: "onChange",
     })
@@ -101,7 +103,7 @@ export default function RestaurantViewEdit() {
             const rest = getRestaurantOwnerQuery.currentData;
             setRestaurant(rest);
             if(rest){
-                const {ownerName,name,description,cuisineType,address,contactInformation,open,imageUrls,openingHours}=rest;
+                const {ownerName,name,description,cuisineType,address,contactInformation,open,imageUrls,openingHours,discount,deliveryFee}=rest;
 
 
                 setValue('ownerName',ownerName);
@@ -112,6 +114,8 @@ export default function RestaurantViewEdit() {
                 setValue('contactInformation',contactInformation);
                 setValue('open',open);
                 setValue('openingHours',`${openingHours}`);
+                setValue('discount',`${discount}`);
+                setValue('deliveryFee',`${deliveryFee}`);
                 dropzoneCustom.setImagePreviewUrls(imageUrls);
 
             }
@@ -130,6 +134,8 @@ export default function RestaurantViewEdit() {
             body.append("open",`${data.open}`);
             body.append("cuisineType",`${data.cuisineType}`);
             body.append("openingHours",data.openingHours);
+            body.append("discount",`${data.discount}`);
+            body.append("deliveryFee",`${data.deliveryFee}`);
 
             /** Address  **/
             body.append("address.name",data.address.name);
@@ -171,6 +177,8 @@ export default function RestaurantViewEdit() {
             contactInformation: restaurant.contactInformation,
             openingHours: restaurant.openingHours,
             open: restaurant.open,
+            discount: restaurant.discount,
+            deliveryFee: restaurant.deliveryFee
         })
         setIsEditing(false)
     }
@@ -475,7 +483,7 @@ export default function RestaurantViewEdit() {
                     {/* Opening Hours */}
                     <Card>
                         <CardHeader>
-                            <CardTitle>Opening Hours</CardTitle>
+                            <CardTitle>Detail Information</CardTitle>
                         </CardHeader>
                         <CardContent>
                             <div className="space-y-2">
@@ -498,8 +506,49 @@ export default function RestaurantViewEdit() {
                                 />
                                 {errors.openingHours && <p className="text-sm text-red-500">{errors.openingHours.message}</p>}
                             </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="Discount">Discount (%)</Label>
+                                <Controller
+                                    name="discount"
+                                    control={control}
+                                    rules={{
+                                        required: "Opening hours is required",
+                                        minLength: { value: 1, message: "Opening hours cannot be empty" },
+                                    }}
+                                    render={({ field }) => (
+                                        <Input
+                                            {...field}
+                                            id="discount"
+                                            placeholder="e.g., Mon-Thu: 11:00 AM - 10:00 PM, Fri-Sat: 11:00 AM - 11:00 PM"
+                                            className={errors.discount ? "border-red-500" : ""}
+                                        />
+                                    )}
+                                />
+                                {errors.discount && <p className="text-sm text-red-500">{errors.discount.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="DeliveryFee">DeliveryFee ($)</Label>
+                                <Controller
+                                    name="deliveryFee"
+                                    control={control}
+                                    rules={{
+                                        required: "Opening hours is required",
+                                        minLength: { value: 1, message: "Opening hours cannot be empty" },
+                                    }}
+                                    render={({ field }) => (
+                                        <Input
+                                            {...field}
+                                            id="deliveryFee"
+                                            placeholder="e.g., Mon-Thu: 11:00 AM - 10:00 PM, Fri-Sat: 11:00 AM - 11:00 PM"
+                                            className={errors.deliveryFee ? "border-red-500" : ""}
+                                        />
+                                    )}
+                                />
+                                {errors.deliveryFee && <p className="text-sm text-red-500">{errors.deliveryFee.message}</p>}
+                            </div>
                         </CardContent>
                     </Card>
+
 
                     {/* Images */}
                     <Card>
@@ -666,17 +715,22 @@ export default function RestaurantViewEdit() {
                 </div>
 
                 {/* Opening Hours */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Clock className="w-5 h-5" />
-                            Opening Hours
-                        </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="whitespace-pre-line">{restaurant.openingHours}</p>
+                <Card className="bg-background text-foreground shadow-md rounded-2xl">
+                    <CardContent className="p-6 space-y-4">
+                        <div className="flex items-center space-x-3">
+                            <Clock className="w-5 h-5 text-muted-foreground" />
+                            <h3 className="text-lg font-semibold">Detail Information</h3>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                            <span className="block">{restaurant.openingHours}</span>
+                        </p>
+                        <div className="space-y-1 text-sm">
+                            <p className="text-muted-foreground">{`discount = ${restaurant.discount} (%)`}</p>
+                            <p className="text-muted-foreground">{`deliveryFee = ${restaurant.deliveryFee} ($)`}</p>
+                        </div>
                     </CardContent>
                 </Card>
+
             </div>
         </div>
     )

@@ -76,6 +76,8 @@ export interface RestaurantResponse {
     imageUrls: ImageUrl[]
     rating: number
     ownerName: string
+    deliveryFee:number
+    discount : number
 }
 export interface CategoryResponse {
     id: number;
@@ -90,6 +92,7 @@ export interface FoodResponse {
     name: string;
     description:string;
     price:number;
+    priceDiscount:number;
     images : Array<string>;
     restaurantId:number;
     restaurantName:string;
@@ -98,7 +101,9 @@ export interface FoodResponse {
     category:{
         id:number;
         name:string
-    }
+    };
+    tax:number;
+    deliverFee:number;
 }
 
 export interface ImageUrl {
@@ -177,6 +182,8 @@ export const restaurantSchema = z.object({
     contactInformation: ContactInformationSchema,
     openingHours: z.string().min(1, "Opening hours are required"),
     open: z.boolean(),
+    deliveryFee:z.number(),
+    discount:z.number()
 });
 
 

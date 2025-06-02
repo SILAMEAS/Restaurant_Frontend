@@ -117,7 +117,17 @@ const [addCart,resultAddCart]=useAddCartMutation();
                 <div className="text-sm text-muted-foreground mb-1">{food.restaurantName}</div>
                 <h3 className="font-semibold text-lg mb-1">{food.name}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{food.description}</p>
-                <div className="font-medium">${food.price.toFixed(2)}</div>
+                <div className="font-medium">
+                  {
+                      food.price.toFixed(2)===food.priceDiscount.toFixed(2)?
+                          <p>${food.price.toFixed(2)}</p>:
+                          <div>
+                            <p className={'line-through'}>${food.price.toFixed(2)}</p>
+                            <p>${food.priceDiscount.toFixed(2)}</p>
+                          </div>
+                  }
+
+                </div>
               </CardContent>
               <CardFooter className="p-4 pt-0">
                 <Button className="w-full" onClick={async () => {

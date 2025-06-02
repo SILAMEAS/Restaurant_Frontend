@@ -322,6 +322,7 @@ const AdminFood=()=>{
                   <TableRow>
                     <TableHead>#ID</TableHead>
                     <TableHead>Name</TableHead>
+                      <TableHead>Price</TableHead>
                     <TableHead>Category</TableHead>
                     <TableHead>Restaurants</TableHead>
                     <TableHead>Available</TableHead>
@@ -340,6 +341,10 @@ const AdminFood=()=>{
                       <TableRow key={f.id}>
                         <TableCell  className="font-medium">{f.id}</TableCell>
                         <TableCell >{f.name}</TableCell>
+                          <TableCell >
+                              <p  className={'line-through'}>{f.price}$</p>
+                              <p >{f.priceDiscount}$</p>
+                          </TableCell>
                         <TableCell>{f.category.name}</TableCell>
                         <TableCell>{f.restaurantName}</TableCell>
                         <TableCell> <Badge

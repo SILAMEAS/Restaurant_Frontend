@@ -12,6 +12,7 @@ import { Separator } from "@/components/ui/separator"
 import {useGetCartQuery, useRemoveItemFromCartMutation, useUpdateCartItemInCartMutation} from "@/lib/redux/api"
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
+import MainAddresses from "@/app/(main)/profile/(tab)/MainAddresses";
 
 export default function CartPage() {
   const router = useRouter()
@@ -30,6 +31,8 @@ export default function CartPage() {
       image: item.food.images[0] || "/placeholder.svg",
       restaurant: item.food.restaurantName,
       foodId: item.food.id,
+      tax : item.food.tax,
+      deliveryFee : item.food.deliveryFee
     }))
   }, [data])
 
@@ -74,8 +77,8 @@ export default function CartPage() {
   }
 
   const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const deliveryFee = 2.99
-  const tax = subtotal * 0.08
+  const deliveryFee = cartItems[0]?.deliveryFee ?? 0;
+  const tax = cartItems.reduce((sum, item) => sum + item.tax * item.quantity, 0)
   const total = subtotal + deliveryFee + tax
   const isLoadingProcess =rsUpCartItem.isLoading||rsRemoveItem.isLoading;
 
@@ -87,12 +90,12 @@ export default function CartPage() {
     return <div className="text-center py-10 text-red-500">Failed to load cart data.</div>
   }
   return (
-      <div className="container py-10">
+      <div className="container py-10 w-[100vw]">
         <h1 className="text-3xl font-bold mb-8">Your Cart</h1>
 
         {cartItems.length > 0 ? (
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              {/* Cart Items */}
+              {/** Cart Items */}
               <div className="lg:col-span-2">
                 <Card>
                   <CardHeader>
@@ -139,8 +142,10 @@ export default function CartPage() {
                 </Card>
               </div>
 
-              {/* Order Summary */}
+
+              {/** Order Summary */}
               <div>
+                <MainAddresses/>
                 <Card>
                   <CardHeader>
                     <CardTitle>Order Summary</CardTitle>
@@ -166,11 +171,9 @@ export default function CartPage() {
                   </CardContent>
                   <CardFooter>
                     <Button disabled={isLoadingProcess} className="w-full" size="lg" onClick={() => router.push("/checkout")}>
-
                       {
-                        isLoadingProcess?"Loading ... ":"Proceed to Checkout"
+                        isLoadingProcess?"Loading ... ":"Place order"
                       }
-
                     </Button>
                   </CardFooter>
                 </Card>

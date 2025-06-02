@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import {TabsContent} from "@/components/ui/tabs";
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
 import {Loader, MapPin, Pencil, Plus, Trash2} from "lucide-react";
@@ -14,13 +13,14 @@ import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
 
 const MainAddresses = () => {
-    const {method:{onDeleteAddress,onUpdateCurrentUsageAddress},trigger:{resultDeleteAddress}}=useEndpointProfile();
+    const {method:{onDeleteAddress,onUpdateCurrentUsageAddress},trigger:{resultDeleteAddress,resultUpdateAddress}}=useEndpointProfile();
     const [isAddingAddress, setIsAddingAddress] = useState(false);
     const [editingAddress, setEditingAddress] = useState<number | null>(null);
     const getAddress = useMyAddressQuery();
     const addresses =getAddress?.currentData;
     const [addAddress]=useAddAddressMutation();
     const [updateAddress]=useUpdateAddressMutation();
+    const [click,setClick] = useState<number>(NaN);
     const {
         register,
         handleSubmit,
@@ -201,6 +201,7 @@ const MainAddresses = () => {
                                     <div className={`flex items-center gap- ${address.currentUsage?'cursor-not-allowed':"cursor-pointer"}`}
                                          onClick={()=>{
                                              if(!address.currentUsage){
+                                                 setClick(address.id)
                                                  onUpdateCurrentUsageAddress(address.id)
                                              }
                                          }}
@@ -211,7 +212,9 @@ const MainAddresses = () => {
                                                     address.currentUsage ? 'bg-green-400' : 'bg-red-400'
                                                 }`}
                                             />
-                                            <span>{address.currentUsage ? 'Active' : 'Inactive'}</span>
+                                            <span>{
+                                                resultUpdateAddress.isLoading&&click===address.id?"loading ....":
+                                                address.currentUsage ? 'Active' : 'Inactive'}</span>
                                         </div>
                                     </div>
                                 </div>
