@@ -5,11 +5,12 @@ import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import { useProfileQuery} from "@/lib/redux/api"
-import {useRouter} from "next/navigation";
-import MainProfile from "@/app/(main)/profile/(tab)/MainProfile";
-import MainFavorite from "@/app/(main)/profile/(tab)/MainFavorite";
-import MainAddresses from "@/app/(main)/profile/(tab)/MainAddresses";
+import {useProfileQuery} from "@/lib/redux/api"
+import {useRouter} from "next/navigation"
+import MainProfile from "./(tab)/MainProfile"
+import MainFavorite from "./(tab)/MainFavorite"
+import MainAddresses from "./(tab)/MainAddresses"
+import { toast } from "react-toastify"
 
 export default function ProfilePage() {
   const getProfile = useProfileQuery();
@@ -23,6 +24,23 @@ export default function ProfilePage() {
   },[getProfile.currentData,getProfile.isError]);
 
   const profile = getProfile?.currentData;
+
+  const handleUpdateProfile = async (formData: FormData) => {
+    try {
+      // You can handle the form data submission here
+      // This is where you'll make your API call
+      console.log('Form data to submit:', Object.fromEntries(formData.entries()));
+      
+      // Example success notification
+      toast.success("Profile updated successfully!", {
+        theme: "dark",
+      });
+    } catch (error) {
+      toast.error("Failed to update profile. Please try again.", {
+        theme: "dark",
+      });
+    }
+  };
   
   return (
     <div className="container py-10">
@@ -33,8 +51,11 @@ export default function ProfilePage() {
             <CardHeader className="text-center">
               <div className="flex justify-center mb-4">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src="/placeholder.svg?height=96&width=96" alt="User" />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarImage 
+                    src={profile?.profileImage || "/placeholder.svg?height=96&width=96"} 
+                    alt={profile?.fullName || "User"} 
+                  />
+                  <AvatarFallback>{profile?.fullName?.charAt(0) || "U"}</AvatarFallback>
                 </Avatar>
               </div>
               <CardTitle>{profile?.fullName}</CardTitle>
@@ -52,7 +73,7 @@ export default function ProfilePage() {
 
         {/* Profile Content */}
         <div className="w-full md:w-2/3">
-          <Tabs defaultValue="profile">
+          <Tabs defaultValue="profile" className="space-y-4">
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="profile">My Profile</TabsTrigger>
               <TabsTrigger value="favorites">My Favorites</TabsTrigger>
@@ -60,14 +81,23 @@ export default function ProfilePage() {
             </TabsList>
 
             {/* Profile Tab */}
-            <MainProfile profile={profile} setIsEditing={setIsEditing} isEditing={isEditing}/>
+            <TabsContent value="profile">
+              <MainProfile 
+                profile={profile} 
+                setIsEditing={setIsEditing} 
+                isEditing={isEditing}
+                onUpdateProfile={handleUpdateProfile}
+              />
+            </TabsContent>
 
             {/* Favorites Tab */}
-            <MainFavorite/>
+            <TabsContent value="favorites">
+              <MainFavorite/>
+            </TabsContent>
 
             {/* Addresses Tab */}
             <TabsContent value="addresses">
-            <MainAddresses/>
+              <MainAddresses/>
             </TabsContent>
 
           </Tabs>

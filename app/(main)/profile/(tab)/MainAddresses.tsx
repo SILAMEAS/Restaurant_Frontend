@@ -81,10 +81,10 @@ const MainAddresses = () => {
     },[editingAddress, addresses, setValue])
 
     return (
-        <Card className="border-none shadow-none">
-            <CardHeader className="flex flex-row items-center justify-between px-0">
+        <Card>
+            <CardHeader className="flex flex-row items-center justify-between px-6">
                 <div>
-                    <CardTitle className="text-xl">My Addresses</CardTitle>
+                    <CardTitle>My Addresses</CardTitle>
                     <CardDescription>Manage your delivery addresses</CardDescription>
                 </div>
                 {!isAddingAddress && editingAddress === null && (
@@ -101,9 +101,9 @@ const MainAddresses = () => {
                     </Button>
                 )}
             </CardHeader>
-            <CardContent className="px-0">
+            <CardContent className="px-6">
                 {isAddingAddress || editingAddress !== null ? (
-                    <form className="space-y-4 border rounded-lg p-6 bg-card"  onSubmit={handleSubmit(onSubmit)}>
+                    <form className="space-y-4 border rounded-lg p-6 bg-card" onSubmit={handleSubmit(onSubmit)}>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                                 <Label htmlFor="addressName">Address Name</Label>
@@ -111,9 +111,6 @@ const MainAddresses = () => {
                                     id="addressName"
                                     placeholder="Home, Work, etc."
                                     {...register("name")}
-                                    defaultValue={
-                                        editingAddress !== null ? addresses?.find((a) => a.id === editingAddress)?.name : "HOME"
-                                    }
                                 />
                                 {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
                             </div>
@@ -168,7 +165,7 @@ const MainAddresses = () => {
                                 {errors.street && <p className="text-sm text-destructive">{errors.street.message}</p>}
                             </div>
                         </div>
-                        <div className="flex items-center space-x-2 mt-4">
+                        <div className="flex items-center space-x-2">
                             <input 
                                 type="checkbox" 
                                 id="defaultAddress"  
@@ -178,7 +175,7 @@ const MainAddresses = () => {
                             <Label htmlFor="defaultAddress">Set as default address</Label>
                             {errors.currentUsage && <p className="text-sm text-destructive">{errors.currentUsage.message}</p>}
                         </div>
-                        <div className="flex gap-2 mt-6">
+                        <div className="flex gap-2">
                             <Button type="submit" className="bg-primary hover:bg-primary/90">
                                 {editingAddress !== null ? "Update" : "Add"} Address
                             </Button>
@@ -187,19 +184,20 @@ const MainAddresses = () => {
                                 onClick={() => {
                                     setIsAddingAddress(false)
                                     setEditingAddress(null)
+                                    reset()
                                 }}
                             >
                                 Cancel
                             </Button>
                         </div>
                     </form>
-                ) : (addresses && addresses?.length > 0) ? (
+                ) : addresses && addresses?.length > 0 ? (
                     <div className="grid gap-4">
                         {addresses?.map((address) => (
                             <div 
                                 key={address.id} 
                                 className={cn(
-                                    "flex items-start gap-4 p-4 border rounded-lg transition-colors cursor-pointer select-none",
+                                    "flex items-start justify-between p-4 border rounded-lg transition-colors cursor-pointer select-none",
                                     address.currentUsage && "bg-primary/5 border-primary/20",
                                     !address.currentUsage && "hover:bg-accent/50",
                                     updatingUsageId === address.id && "opacity-70"
@@ -210,40 +208,45 @@ const MainAddresses = () => {
                                     }
                                 }}
                             >
-                                <MapPin className={cn(
-                                    "h-5 w-5 mt-1 flex-shrink-0",
-                                    address.currentUsage && "text-primary"
-                                )} />
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2">
-                                        <h3 className="font-medium">{address.street}</h3>
-                                        <Badge variant={address.currentUsage ? "default" : "secondary"} className="text-xs">
-                                            {address.name}
-                                        </Badge>
-                                        {address.currentUsage ? (
-                                            <Badge variant="outline" className="text-xs">
-                                                Default
-                                            </Badge>
-                                        ) : updatingUsageId === address.id ? (
-                                            <Badge variant="outline" className="text-xs">
-                                                <Loader className="h-3 w-3 animate-spin mr-1" />
-                                                Setting as default...
-                                            </Badge>
-                                        ) : (
-                                            <Badge variant="outline" className="text-xs text-muted-foreground">
-                                                Click to set as default
-                                            </Badge>
-                                        )}
+                                <div className="flex items-start gap-4">
+                                    <MapPin className={cn(
+                                        "h-5 w-5 mt-1 flex-shrink-0",
+                                        address.currentUsage && "text-primary"
+                                    )} />
+                                    <div>
+                                        <div className="flex items-center gap-2">
+                                            <h3 className="font-medium">{address.name}</h3>
+                                            {address.currentUsage ? (
+                                                <Badge variant="default" className="text-xs">
+                                                    Default
+                                                </Badge>
+                                            ) : updatingUsageId === address.id ? (
+                                                <Badge variant="outline" className="text-xs">
+                                                    <Loader className="h-3 w-3 animate-spin mr-1" />
+                                                    Setting as default...
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="outline" className="text-xs text-muted-foreground">
+                                                    Click to set as default
+                                                </Badge>
+                                            )}
+                                        </div>
+                                        <p className="text-sm text-muted-foreground mt-1">
+                                            {address.street}
+                                        </p>
+                                        <p className="text-sm text-muted-foreground">
+                                            {[address.city, address.state, address.zip].filter(Boolean).join(", ")}
+                                        </p>
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                        {[address.city, address.state, address.zip].filter(Boolean).join(", ")}
-                                    </p>
                                 </div>
-                                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                                <div className="flex items-start gap-2">
                                     <Button 
                                         variant="ghost" 
                                         size="icon" 
-                                        onClick={() => setEditingAddress(address.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setEditingAddress(address.id);
+                                        }}
                                         className="hover:bg-primary/10"
                                     >
                                         <Pencil className="h-4 w-4" />
@@ -251,7 +254,10 @@ const MainAddresses = () => {
                                     <Button 
                                         variant="ghost" 
                                         size="icon" 
-                                        onClick={() => onDeleteAddress(address.id)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDeleteAddress(address.id);
+                                        }}
                                         className="hover:bg-destructive/10"
                                         disabled={address.currentUsage}
                                     >
@@ -266,17 +272,8 @@ const MainAddresses = () => {
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-8 border rounded-lg">
-                        <MapPin className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                        <h3 className="text-lg font-medium mb-2">No addresses yet</h3>
-                        <p className="text-sm text-muted-foreground mb-4">Add your first delivery address to get started</p>
-                        <Button
-                            onClick={() => setIsAddingAddress(true)}
-                            className="bg-primary hover:bg-primary/90"
-                        >
-                            <Plus className="h-4 w-4 mr-2" />
-                            Add Address
-                        </Button>
+                    <div className="text-center py-6">
+                        <p className="text-muted-foreground">No addresses added yet</p>
                     </div>
                 )}
             </CardContent>

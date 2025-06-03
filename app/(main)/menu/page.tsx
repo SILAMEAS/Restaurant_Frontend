@@ -2,7 +2,8 @@
 
 import React, {useState} from "react"
 import Image from "next/image"
-import {Filter, Leaf, Search, Star} from "lucide-react"
+import {Filter, Leaf, Search, Star, Minus, Plus} from "lucide-react"
+import Link from "next/link"
 
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
@@ -114,38 +115,74 @@ const [addCart,resultAddCart]=useAddCartMutation();
                 </div>
               </div>
               <CardContent className="p-4">
-                <div className="text-sm text-muted-foreground mb-1">{food.restaurantName}</div>
+                <Link 
+                    href={`/restaurants/${food.restaurantId}`}
+                    className="text-sm text-muted-foreground mb-1 hover:text-primary transition-colors"
+                >
+                    {food.restaurantName}
+                </Link>
                 <h3 className="font-semibold text-lg mb-1">{food.name}</h3>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{food.description}</p>
-                <div className="font-medium">
+                <div className="font-medium mb-4">
                   {
                       food.price.toFixed(2)===food.priceDiscount.toFixed(2)?
-                          <p>${food.price.toFixed(2)}</p>:
+                          <p className="text-lg">${food.price.toFixed(2)}</p>:
                           <div>
-                            <p className={'line-through'}>${food.price.toFixed(2)}</p>
-                            <p>${food.priceDiscount.toFixed(2)}</p>
+                            <p className="text-sm line-through text-muted-foreground">${food.price.toFixed(2)}</p>
+                            <p className="text-lg text-primary">${food.priceDiscount.toFixed(2)}</p>
                           </div>
                   }
-
                 </div>
-              </CardContent>
-              <CardFooter className="p-4 pt-0">
-                <div className="flex gap-2 w-full items-center">
-                  <Input
-                    type="number"
-                    min="1"
-                    value={quantities[food.id] || 1}
-                    onChange={(e) => setQuantities({...quantities, [food.id]: parseInt(e.target.value) || 1})}
-                    className="w-20"
-                  />
-                  <Button className="flex-1" onClick={async () => {
-                    setItemClick(food.id);
-                    addToCart(food, quantities[food.id] || 1).then(r => r);
-                  }}>
-                    {resultAddCart.isLoading && food.id === itemClick ? "loading ... " : "Add to Cart"}
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-between bg-secondary rounded-md">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-l-md hover:bg-primary/20"
+                      onClick={() => {
+                        const currentQty = quantities[food.id] || 1;
+                        if (currentQty > 1) {
+                          setQuantities({...quantities, [food.id]: currentQty - 1});
+                        }
+                      }}
+                    >
+                      <Minus className="h-4 w-4" />
+                    </Button>
+                    <span className="w-12 text-center font-medium">
+                      {quantities[food.id] || 1}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 rounded-r-md hover:bg-primary/20"
+                      onClick={() => {
+                        const currentQty = quantities[food.id] || 1;
+                        setQuantities({...quantities, [food.id]: currentQty + 1});
+                      }}
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button 
+                    disabled={!food.open} 
+                    variant="default"
+                    className="flex-1 h-9 font-medium" 
+                    onClick={async () => {
+                      setItemClick(food.id);
+                      addToCart(food, quantities[food.id] || 1).then(r => r);
+                    }}
+                  >
+                    {resultAddCart.isLoading && food.id === itemClick ? 
+                      "Adding..." : "Add to Cart"
+                    }
                   </Button>
                 </div>
-              </CardFooter>
+                {!food.open && (
+                  <p className="text-sm text-red-500 mt-2">
+                    Currently restaurant is closed
+                  </p>
+                )}
+              </CardContent>
             </Card>
           ))}
         </div>

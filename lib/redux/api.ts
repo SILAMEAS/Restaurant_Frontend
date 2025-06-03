@@ -179,6 +179,14 @@ export const apiSlice = createApi({
             providesTags: ['category'],
 
         }),
+        getFoodsByRestaurantId: builder.query<IPagination<FoodResponse>, {params?: PaginationRequest, restaurantId: number}>({
+            query: ({params=PaginationRequestDefault, restaurantId}) => ({
+                url: `foods/restaurant/${restaurantId}`,
+                method: "GET",
+                params: params
+            }),
+            providesTags: ['category'],
+        }),
         addFood: builder.mutation<IPagination<FoodResponse>,FormData>({
             query: (body) => ({
                 url: `foods`,
@@ -267,7 +275,9 @@ export const apiSlice = createApi({
             invalidatesTags: ['order'],
 
         }),
-
+        getRestaurantById: builder.query<RestaurantResponse, number>({
+            query: (id) => `/restaurants/${id}`,
+        }),
 
     }),
 });
@@ -301,5 +311,7 @@ export const {
     useGetCartQuery,
     useRemoveItemFromCartMutation,
     useUpdateCartItemInCartMutation,
-    useRemoveCartMutation
+    useRemoveCartMutation,
+    useGetRestaurantByIdQuery,
+    useGetFoodsByRestaurantIdQuery
  } = apiSlice;

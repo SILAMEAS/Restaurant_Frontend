@@ -12,9 +12,11 @@ export interface IDashboard{
 export interface IProfile {
     id:         number;
     profile?:    string;
+    profileImage?: string;
     fullName:   string;
     email:      string;
     role:       string;
+    bio?:       string;
     createdAt : string;
     updatedAt : string;
     orders:number;
@@ -25,6 +27,7 @@ export interface IFavorite {
     description:  string;
     userId:       number;
     restaurantId: number;
+    images:Array<ImageUrl>;
 }
 export interface IAddress {
     name:         string;
@@ -104,11 +107,12 @@ export interface FoodResponse {
     };
     tax:number;
     deliverFee:number;
+    open:boolean;
 }
 
 export interface ImageUrl {
-    url: string
-    publicId?: string
+    url: string;
+    publicId: string | null;
 }
 
 
@@ -221,7 +225,11 @@ export const PaginationRequestDefault:PaginationRequest={
 }
 export type SORT='asc'|'desc';
 
-export interface PaginationRequestWithIngoreCase{params?:PaginationRequest,caseIgnoreFilter: boolean}
+export interface PaginationRequestWithIngoreCase {
+    params?: PaginationRequest;
+    caseIgnoreFilter?: boolean;
+    restaurantId?: number;
+}
 
 export interface Item {
     id: number

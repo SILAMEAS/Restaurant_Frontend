@@ -201,15 +201,15 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
                             <CardContent className="p-4">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2 bg-gray-100 rounded-lg">
-                                            <X className="h-4 w-4 text-gray-600" />
+                                        <div className="p-2 bg-gray-100 dark:bg-gray-800 rounded-lg">
+                                            <X className="h-4 w-4 text-gray-600 dark:text-gray-400" />
                                         </div>
                                         <div>
-                                            <p className="font-medium text-gray-900">No Preference</p>
-                                            <p className="text-sm text-gray-500">Show all food types</p>
+                                            <p className="font-medium text-foreground">No Preference</p>
+                                            <p className="text-sm text-muted-foreground">Show all food types</p>
                                         </div>
                                     </div>
-                                    {selectedFoodTypes===null && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
+                                    {selectedFoodTypes===null && <div className="w-2 h-2 bg-primary rounded-full"></div>}
                                 </div>
                             </CardContent>
                         </Card>
@@ -232,15 +232,23 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
                                     <CardContent className="p-4">
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-3">
-                                                <div className={`p-2 rounded-lg ${option.color}`}>
-                                                    <Icon className="h-4 w-4" />
+                                                <div className={`p-2 rounded-lg ${
+                                                    option.value === "SEASONAL" 
+                                                        ? "bg-orange-100 dark:bg-orange-900" 
+                                                        : "bg-green-100 dark:bg-green-900"
+                                                }`}>
+                                                    <Icon className={`h-4 w-4 ${
+                                                        option.value === "SEASONAL"
+                                                            ? "text-orange-600 dark:text-orange-400"
+                                                            : "text-green-600 dark:text-green-400"
+                                                    }`} />
                                                 </div>
                                                 <div>
-                                                    <p className="font-medium text-gray-900">{option.label}</p>
-                                                    <p className="text-sm text-gray-500">{option.description}</p>
+                                                    <p className="font-medium text-foreground">{option.label}</p>
+                                                    <p className="text-sm text-muted-foreground">{option.description}</p>
                                                 </div>
                                             </div>
-                                            {isSelected && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
+                                            {isSelected && <div className="w-2 h-2 bg-primary rounded-full"></div>}
                                         </div>
                                     </CardContent>
                                 </Card>
