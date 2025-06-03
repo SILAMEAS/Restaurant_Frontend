@@ -42,60 +42,62 @@ export function MainNav() {
   ]
 
   return (
-    <div className="flex items-center justify-between py-4 px-4 md:px-6 border-b w-full">
-      <div className="flex items-center">
-        <Link href="/" className="flex items-center">
-          <span className="text-xl font-bold">LaCy</span>
-        </Link>
-      </div>
-
-      {/* Desktop Navigation */}
-      <nav className="hidden md:flex items-center space-x-6">
-        {routes.map((route) => (
-          <Link
-            key={route.href}
-            href={route.href}
-            className={cn(
-              "text-sm font-medium transition-colors hover:text-primary flex items-center gap-1",
-              route.active ? "text-primary" : "text-muted-foreground",
-            )}
-          >
-            <route.icon className="h-4 w-4" />
-            {route.label}
+    <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50 border-b">
+      <div className="container mx-auto flex items-center justify-between py-4 px-4 md:px-6">
+        <div className="flex items-center">
+          <Link href="/" className="flex items-center">
+            <span className="text-xl font-bold">LaCy</span>
           </Link>
-        ))}
-      </nav>
+        </div>
 
-      <div className="flex items-center gap-4">
-        <ThemeToggle />
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex items-center space-x-6">
+          {routes.map((route) => (
+            <Link
+              key={route.href}
+              href={route.href}
+              className={cn(
+                "text-sm font-medium transition-colors hover:text-primary flex items-center gap-1",
+                route.active ? "text-primary" : "text-muted-foreground",
+              )}
+            >
+              <route.icon className="h-4 w-4" />
+              {route.label}
+            </Link>
+          ))}
+        </nav>
 
-        {/* Mobile Navigation */}
-        <Sheet open={open} onOpenChange={setOpen}>
-          <SheetTrigger asChild className="md:hidden">
-            <Button variant="outline" size="icon">
-              <MenuIcon className="h-5 w-5" />
-              <span className="sr-only">Toggle menu</span>
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right">
-            <div className="flex flex-col gap-6 mt-8">
-              {routes.map((route) => (
-                <Link
-                  key={route.href}
-                  href={route.href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    "text-sm font-medium transition-colors hover:text-primary flex items-center gap-2",
-                    route.active ? "text-primary" : "text-muted-foreground",
-                  )}
-                >
-                  <route.icon className="h-5 w-5" />
-                  {route.label}
-                </Link>
-              ))}
-            </div>
-          </SheetContent>
-        </Sheet>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+
+          {/* Mobile Navigation */}
+          <Sheet open={open} onOpenChange={setOpen}>
+            <SheetTrigger asChild className="md:hidden">
+              <Button variant="outline" size="icon">
+                <MenuIcon className="h-5 w-5" />
+                <span className="sr-only">Toggle menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right">
+              <div className="flex flex-col gap-6 mt-8">
+                {routes.map((route) => (
+                  <Link
+                    key={route.href}
+                    href={route.href}
+                    onClick={() => setOpen(false)}
+                    className={cn(
+                      "text-sm font-medium transition-colors hover:text-primary flex items-center gap-2",
+                      route.active ? "text-primary" : "text-muted-foreground",
+                    )}
+                  >
+                    <route.icon className="h-5 w-5" />
+                    {route.label}
+                  </Link>
+                ))}
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </div>
   )

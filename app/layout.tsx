@@ -8,6 +8,7 @@ import ReduxProvider from '../lib/provider/ReduxProvider';
 import {GlobalLoadingProvider} from "@/lib/provider/GlobalLoadingProvider";
 import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Import the new Client Component
 import { ToastContainer } from 'react-toastify';
+import { ThemeProvider } from '@/components/theme-provider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -25,13 +26,20 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
             <body className={inter.className}>
-            <GlobalLoadingProvider>
-                <ReduxProvider>
-                    {children}  
-                    <ToastContainer />
-                    </ReduxProvider>
-                <GlobalLoadingSpinner />
-            </GlobalLoadingProvider>
+                <ThemeProvider
+                    attribute="class"
+                    defaultTheme="system"
+                    enableSystem
+                    disableTransitionOnChange
+                >
+                    <GlobalLoadingProvider>
+                        <ReduxProvider>
+                            {children}  
+                            <ToastContainer />
+                        </ReduxProvider>
+                        <GlobalLoadingSpinner />
+                    </GlobalLoadingProvider>
+                </ThemeProvider>
             </body>
         </html>
     );
