@@ -36,13 +36,12 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
         },
     ]
 
-    const toggleFoodType = (type: FoodType) => {
+    const toggleFoodType = (type: FoodType | "NONE") => {
         if (type === "NONE") {
             setSelectedFoodTypes(null)
             return
         }
         setSelectedFoodTypes(type)
-
     }
 
     const handlePriceRangeChange = (values: number[]) => {
@@ -79,33 +78,33 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
             })
         }
         setParamQuery(prevState => {
-            return {...prevState,foodType:selectedFoodTypes}
+            return {...prevState,foodType:selectedFoodTypes || undefined}
         })
 
     },[priceRange,selectedFoodTypes])
 
     return (
-        <div className="w-[100%] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden">
+        <div className="w-[100%] bg-background rounded-2xl shadow-2xl border border-border overflow-hidden">
             {/* Header */}
-            <div className="relative bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+            <div className="relative bg-gradient-to-r from-blue-50/10 to-purple-50/10 dark:from-blue-950/20 dark:to-purple-950/20 p-6 border-b border-border">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                        <div className="p-2 bg-white rounded-lg shadow-sm">
-                            <Sparkles className="h-5 w-5 text-blue-600" />
+                        <div className="p-2 bg-background rounded-lg shadow-sm">
+                            <Sparkles className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                         </div>
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900">Filters</h2>
-                            <p className="text-sm text-gray-600">Refine your search</p>
+                            <h2 className="text-xl font-bold text-foreground">Filters</h2>
+                            <p className="text-sm text-muted-foreground">Refine your search</p>
                         </div>
                     </div>
-                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-white/50">
+                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
                         <X className="h-4 w-4" />
                     </Button>
                 </div>
 
                 {hasActiveFilters && (
                     <div className="mt-4 flex items-center gap-2">
-                        <Badge variant="secondary" className="bg-white/70">
+                        <Badge variant="secondary" className="bg-background/70">
                             {(priceRange[0] > 0 || priceRange[1] < 50 ? 1 : 0)} active filters
                         </Badge>
                     </div>
@@ -116,8 +115,8 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
                 {/* Price Range Section */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-2">
-                        <DollarSign className="h-5 w-5 text-green-600" />
-                        <Label className="text-lg font-semibold text-gray-900">Price Range</Label>
+                        <DollarSign className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <Label className="text-lg font-semibold text-foreground">Price Range</Label>
                     </div>
 
                     {/* Visual Price Range Slider */}
@@ -133,11 +132,11 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
                             />
                         </div>
 
-                        <div className="flex justify-between text-sm text-gray-500">
+                        <div className="flex justify-between text-sm text-muted-foreground">
                             <span>$0</span>
-                            <span className="font-medium text-gray-700">
-                ${priceRange[0]} - ${priceRange[1]}
-              </span>
+                            <span className="font-medium text-foreground">
+                                ${priceRange[0]} - ${priceRange[1]}
+                            </span>
                             <span>$50+</span>
                         </div>
                     </div>
@@ -145,59 +144,59 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
                     {/* Manual Price Inputs */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <Label htmlFor="min-price" className="text-sm font-medium text-gray-700">
+                            <Label htmlFor="min-price" className="text-sm font-medium text-foreground">
                                 Min Price
                             </Label>
                             <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="min-price"
                                     type="number"
                                     placeholder="0"
                                     value={minPrice}
                                     onChange={(e) => handleMinPriceChange(e.target.value)}
-                                    className="pl-9 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                                    className="pl-9"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label htmlFor="max-price" className="text-sm font-medium text-gray-700">
+                            <Label htmlFor="max-price" className="text-sm font-medium text-foreground">
                                 Max Price
                             </Label>
                             <div className="relative">
-                                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     id="max-price"
                                     type="number"
                                     placeholder="50"
                                     value={maxPrice}
                                     onChange={(e) => handleMaxPriceChange(e.target.value)}
-                                    className="pl-9 bg-gray-50 border-gray-200 focus:bg-white transition-colors"
+                                    className="pl-9"
                                 />
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <Separator className="bg-gray-100" />
+                <Separator className="bg-border" />
 
                 {/* Food Type Section */}
                 <div className="space-y-6">
                     <div className="flex items-center gap-2">
-                        <Leaf className="h-5 w-5 text-green-600" />
-                        <Label className="text-lg font-semibold text-gray-900">Food Type</Label>
+                        <Leaf className="h-5 w-5 text-green-600 dark:text-green-400" />
+                        <Label className="text-lg font-semibold text-foreground">Food Type</Label>
                     </div>
 
                     <div className="space-y-3">
                         {/* None Option */}
                         <Card
                             className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
-                                selectedFoodTypes === FoodType.NONE
-                                    ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200"
-                                    : "border-gray-200 hover:border-gray-300"
+                                selectedFoodTypes === null
+                                    ? "ring-2 ring-primary bg-primary/5 border-primary/20"
+                                    : "border-border hover:border-border/80"
                             }`}
-                            onClick={() => toggleFoodType(FoodType.NONE)}
+                            onClick={() => toggleFoodType("NONE")}
                         >
                             <CardContent className="p-4">
                                 <div className="flex items-center justify-between">
@@ -225,8 +224,8 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
                                     key={option.value}
                                     className={`cursor-pointer transition-all duration-200 hover:shadow-md ${
                                         isSelected
-                                            ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200"
-                                            : "border-gray-200 hover:border-gray-300"
+                                            ? "ring-2 ring-primary bg-primary/5 border-primary/20"
+                                            : "border-border hover:border-border/80"
                                     }`}
                                     onClick={() => toggleFoodType(option.value)}
                                 >
@@ -272,14 +271,14 @@ export default function ModernFilterPanel({setParamQuery}:{ setParamQuery: React
                     )}
                 </div>
 
-                <Separator className="bg-gray-100" />
+                <Separator className="bg-border" />
 
                 {/* Action Buttons */}
                 <div className="flex gap-3 pt-2">
                     <Button
                         onClick={resetFilters}
                         variant="outline"
-                        className="flex-1 border-gray-300 hover:bg-gray-50"
+                        className="flex-1 border-border hover:bg-background"
                         disabled={!hasActiveFilters}
                     >
                         Reset

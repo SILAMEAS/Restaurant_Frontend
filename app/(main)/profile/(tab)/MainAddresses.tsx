@@ -1,6 +1,9 @@
+"use client"
+
 import React, {useState} from 'react';
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card";
 import {Button} from "@/components/ui/button";
+import {Badge} from "@/components/ui/badge";
 import {Loader, MapPin, Pencil, Plus, Trash2} from "lucide-react";
 import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
@@ -11,6 +14,7 @@ import {addressFormData, addressSchema} from "@/lib/redux/type";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
+import {cn} from "@/lib/utils";
 
 const MainAddresses = () => {
     const {method:{onDeleteAddress,onUpdateCurrentUsageAddress},trigger:{resultDeleteAddress,resultUpdateAddress}}=useEndpointProfile();
@@ -20,7 +24,7 @@ const MainAddresses = () => {
     const addresses =getAddress?.currentData;
     const [addAddress]=useAddAddressMutation();
     const [updateAddress]=useUpdateAddressMutation();
-    const [click,setClick] = useState<number>(NaN);
+    const [updatingUsageId, setUpdatingUsageId] = useState<number | null>(null);
     const {
         register,
         handleSubmit,
@@ -30,6 +34,14 @@ const MainAddresses = () => {
     } = useForm<addressFormData>({
         resolver: zodResolver(addressSchema),
     });
+
+    const handleUpdateCurrentUsage = async (addressId: number) => {
+        if (updatingUsageId) return; // Prevent multiple simultaneous updates
+        setUpdatingUsageId(addressId);
+        await onUpdateCurrentUsageAddress(addressId);
+        setUpdatingUsageId(null);
+    };
+
     const onSubmit = async (data: addressFormData) => {
         const formData = new FormData();
         formData.append("name", data.name);
@@ -45,14 +57,14 @@ const MainAddresses = () => {
                 reset();
                 setIsAddingAddress(false)
                 setEditingAddress(null)
-                toast.success("create address success!", {
+                toast.success(editingAddress ? "Address updated successfully!" : "Address added successfully!", {
                     theme: "dark",
                     transition: Slide,
                 });
-
             }
         });
     };
+
     React.useEffect(()=>{
         if(editingAddress){
             const addressSelected = addresses?.find((a) => a.id === editingAddress);
@@ -63,102 +75,113 @@ const MainAddresses = () => {
                 setValue('name',addressSelected.name);
                 setValue('currentUsage',addressSelected.currentUsage);
                 setValue('state',addressSelected.state);
-                setValue('country',addressSelected.zip);
+                setValue('country',addressSelected.country);
             }
         }
+    },[editingAddress, addresses, setValue])
 
-    },[editingAddress])
-    return <Card>
-
-            <CardHeader className="flex flex-row items-center justify-between">
+    return (
+        <Card className="border-none shadow-none">
+            <CardHeader className="flex flex-row items-center justify-between px-0">
                 <div>
-                    <CardTitle>My Addresses</CardTitle>
+                    <CardTitle className="text-xl">My Addresses</CardTitle>
                     <CardDescription>Manage your delivery addresses</CardDescription>
                 </div>
-                <Button
-                    size="sm"
-                    onClick={() => {
-                        setIsAddingAddress(true)
-                        setEditingAddress(null)
-                    }}
-                >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Address
-                </Button>
+                {!isAddingAddress && editingAddress === null && (
+                    <Button
+                        size="sm"
+                        onClick={() => {
+                            setIsAddingAddress(true)
+                            setEditingAddress(null)
+                        }}
+                        className="bg-primary hover:bg-primary/90"
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Address
+                    </Button>
+                )}
             </CardHeader>
-            <CardContent>
+            <CardContent className="px-0">
                 {isAddingAddress || editingAddress !== null ? (
-
-                    <form className="space-y-4 border rounded-lg p-4"  onSubmit={handleSubmit(onSubmit)}>
-                        <div className="space-y-2">
-                            <Label htmlFor="addressName">Address Name</Label>
-                            <Input
-                                id="addressName"
-                                placeholder="Home, Work, etc."
-                                {...register("name")}
-                                defaultValue={
-                                    editingAddress !== null ? addresses?.find((a) => a.id === editingAddress)?.name : "HOME"
-                                }
+                    <form className="space-y-4 border rounded-lg p-6 bg-card"  onSubmit={handleSubmit(onSubmit)}>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="addressName">Address Name</Label>
+                                <Input
+                                    id="addressName"
+                                    placeholder="Home, Work, etc."
+                                    {...register("name")}
+                                    defaultValue={
+                                        editingAddress !== null ? addresses?.find((a) => a.id === editingAddress)?.name : "HOME"
+                                    }
+                                />
+                                {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="country">Country</Label>
+                                <Input
+                                    id="country"
+                                    type="text"
+                                    placeholder="Enter country"
+                                    {...register("country")}
+                                />
+                                {errors.country && <p className="text-sm text-destructive">{errors.country.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="city">City</Label>
+                                <Input
+                                    id="city"
+                                    type="text"
+                                    placeholder="Enter city"
+                                    {...register("city")}
+                                />
+                                {errors.city && <p className="text-sm text-destructive">{errors.city.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="state">State</Label>
+                                <Input
+                                    id="state"
+                                    type="text"
+                                    placeholder="Enter state"
+                                    {...register("state")}
+                                />
+                                {errors.state && <p className="text-sm text-destructive">{errors.state.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="zip">ZIP Code</Label>
+                                <Input
+                                    id="zip"
+                                    type="text"
+                                    placeholder="Enter ZIP code"
+                                    {...register("zip")}
+                                />
+                                {errors.zip && <p className="text-sm text-destructive">{errors.zip.message}</p>}
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="street">Street Address</Label>
+                                <Input
+                                    id="street"
+                                    type="text"
+                                    placeholder="Enter street address"
+                                    {...register("street")}
+                                />
+                                {errors.street && <p className="text-sm text-destructive">{errors.street.message}</p>}
+                            </div>
+                        </div>
+                        <div className="flex items-center space-x-2 mt-4">
+                            <input 
+                                type="checkbox" 
+                                id="defaultAddress"  
+                                {...register("currentUsage")}
+                                className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                             />
-                            {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
+                            <Label htmlFor="defaultAddress">Set as default address</Label>
+                            {errors.currentUsage && <p className="text-sm text-destructive">{errors.currentUsage.message}</p>}
                         </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="fullAddress">Country</Label>
-                            <Input
-                                id="country"
-                                type="text"
-                                placeholder="country"
-                                {...register("country")}
-                            />
-                            {errors.country && <p className="text-sm text-red-500">{errors.country.message}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="fullAddress">City</Label>
-                            <Input
-                                id="city"
-                                type="text"
-                                placeholder="city"
-                                {...register("city")}
-                            />
-                            {errors.city && <p className="text-sm text-red-500">{errors.city.message}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="fullAddress">State</Label>
-                            <Input
-                                id="state"
-                                type="text"
-                                placeholder="state"
-                                {...register("state")}
-                            />
-                            {errors.state && <p className="text-sm text-red-500">{errors.state.message}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="fullAddress">Zip</Label>
-                            <Input
-                                id="zip"
-                                type="text"
-                                placeholder="zip"
-                                {...register("zip")}
-                            />
-                            {errors.zip && <p className="text-sm text-red-500">{errors.zip.message}</p>}
-                        </div>
-                        <div className="space-y-2">
-                            <Label htmlFor="fullAddress">Street</Label>
-                            <Input
-                                id="street"
-                                type="text"
-                                placeholder="street"
-                                {...register("street")}
-                            />
-                            {errors.street && <p className="text-sm text-red-500">{errors.street.message}</p>}
-                        </div>
-                        <div className="flex items-center space-x-2">
-                            <input type="checkbox" id="defaultAddress"  {...register("currentUsage")}/>
-                            <Label htmlFor="defaultAddress">Current Usage</Label>
-                            {errors.currentUsage && <p className="text-sm text-red-500">{errors.currentUsage.message}</p>}
-                        </div>
-                        <div className="flex gap-2">
-                            <Button type="submit">{editingAddress !== null ? "Update" : "Add"} Address</Button>
+                        <div className="flex gap-2 mt-6">
+                            <Button type="submit" className="bg-primary hover:bg-primary/90">
+                                {editingAddress !== null ? "Update" : "Add"} Address
+                            </Button>
                             <Button
                                 variant="outline"
                                 onClick={() => {
@@ -170,66 +193,95 @@ const MainAddresses = () => {
                             </Button>
                         </div>
                     </form>
-                ) : (addresses&&addresses?.length > 0) ? (
-                    <div className="space-y-4">
+                ) : (addresses && addresses?.length > 0) ? (
+                    <div className="grid gap-4">
                         {addresses?.map((address) => (
-                            <div key={address.id} className="flex items-start gap-4 p-4 border rounded-lg">
-                                <MapPin className="h-5 w-5 mt-1 flex-shrink-0" />
+                            <div 
+                                key={address.id} 
+                                className={cn(
+                                    "flex items-start gap-4 p-4 border rounded-lg transition-colors cursor-pointer select-none",
+                                    address.currentUsage && "bg-primary/5 border-primary/20",
+                                    !address.currentUsage && "hover:bg-accent/50",
+                                    updatingUsageId === address.id && "opacity-70"
+                                )}
+                                onClick={() => {
+                                    if (!address.currentUsage) {
+                                        handleUpdateCurrentUsage(address.id);
+                                    }
+                                }}
+                            >
+                                <MapPin className={cn(
+                                    "h-5 w-5 mt-1 flex-shrink-0",
+                                    address.currentUsage && "text-primary"
+                                )} />
                                 <div className="flex-1">
                                     <div className="flex items-center gap-2">
                                         <h3 className="font-medium">{address.street}</h3>
-                                        { (
-                                            <span className="bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
-                                  {address.name}
-                                </span>
+                                        <Badge variant={address.currentUsage ? "default" : "secondary"} className="text-xs">
+                                            {address.name}
+                                        </Badge>
+                                        {address.currentUsage ? (
+                                            <Badge variant="outline" className="text-xs">
+                                                Default
+                                            </Badge>
+                                        ) : updatingUsageId === address.id ? (
+                                            <Badge variant="outline" className="text-xs">
+                                                <Loader className="h-3 w-3 animate-spin mr-1" />
+                                                Setting as default...
+                                            </Badge>
+                                        ) : (
+                                            <Badge variant="outline" className="text-xs text-muted-foreground">
+                                                Click to set as default
+                                            </Badge>
                                         )}
                                     </div>
-                                    <p className="text-sm text-muted-foreground mt-1">{address.state}</p>
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                        {[address.city, address.state, address.zip].filter(Boolean).join(", ")}
+                                    </p>
                                 </div>
-                                <div className="flex gap-1">
-                                    <Button variant="ghost" size="icon" onClick={() => setEditingAddress(address.id)}>
+                                <div className="flex gap-1" onClick={(e) => e.stopPropagation()}>
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        onClick={() => setEditingAddress(address.id)}
+                                        className="hover:bg-primary/10"
+                                    >
                                         <Pencil className="h-4 w-4" />
                                     </Button>
-                                    <Button variant="ghost" size="icon" onClick={()=>onDeleteAddress(address.id)} >
-                                        {
-                                            resultDeleteAddress?.isLoading?
-                                                <Loader />:
-                                                <Trash2 className="h-4 w-4" />
-                                        }
-
-                                    </Button>
-                                    <div className={`flex items-center gap- ${address.currentUsage?'cursor-not-allowed':"cursor-pointer"}`}
-                                         onClick={()=>{
-                                             if(!address.currentUsage){
-                                                 setClick(address.id)
-                                                 onUpdateCurrentUsageAddress(address.id)
-                                             }
-                                         }}
+                                    <Button 
+                                        variant="ghost" 
+                                        size="icon" 
+                                        onClick={() => onDeleteAddress(address.id)}
+                                        className="hover:bg-destructive/10"
+                                        disabled={address.currentUsage}
                                     >
-                                        <div className="flex items-center gap-1 bg-primary/10 text-primary text-xs px-2 py-0.5 rounded-full">
-                                            <div
-                                                className={`w-[5px] h-[5px] rounded-full ${
-                                                    address.currentUsage ? 'bg-green-400' : 'bg-red-400'
-                                                }`}
-                                            />
-                                            <span>{
-                                                resultUpdateAddress.isLoading&&click===address.id?"loading ....":
-                                                address.currentUsage ? 'Active' : 'Inactive'}</span>
-                                        </div>
-                                    </div>
+                                        {resultDeleteAddress?.isLoading ? (
+                                            <Loader className="h-4 w-4 animate-spin" />
+                                        ) : (
+                                            <Trash2 className="h-4 w-4" />
+                                        )}
+                                    </Button>
                                 </div>
                             </div>
                         ))}
                     </div>
                 ) : (
-                    <div className="text-center py-8">
-                        <MapPin className="mx-auto h-12 w-12 text-muted-foreground mb-2" />
-                        <h3 className="font-medium text-lg">No addresses yet</h3>
-                        <p className="text-muted-foreground">Add an address to make checkout faster</p>
+                    <div className="text-center py-8 border rounded-lg">
+                        <MapPin className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                        <h3 className="text-lg font-medium mb-2">No addresses yet</h3>
+                        <p className="text-sm text-muted-foreground mb-4">Add your first delivery address to get started</p>
+                        <Button
+                            onClick={() => setIsAddingAddress(true)}
+                            className="bg-primary hover:bg-primary/90"
+                        >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Add Address
+                        </Button>
                     </div>
                 )}
             </CardContent>
         </Card>
+    );
 };
 
 export default MainAddresses;

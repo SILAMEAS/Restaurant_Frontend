@@ -26,6 +26,7 @@ export default function MenuPage() {
   const {currentData,isLoading,isFetching} = useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
   const foods = currentData?.contents??[];
   const [itemClick,setItemClick]= useState<number|null>(null)
+  const [quantities, setQuantities] = useState<{[key: number]: number}>({});
 
   const categories = ["All"]
 
@@ -35,10 +36,9 @@ export default function MenuPage() {
   }
 const [addCart,resultAddCart]=useAddCartMutation();
 
-  const addToCart = async (food:FoodResponse) => {
-    console.log(food)
+  const addToCart = async (food:FoodResponse,quantity:number) => {
     await handleApiCall({
-      apiFn: () => addCart({foodId:food.id,quantity:1}).unwrap(),
+      apiFn: () => addCart({foodId:food.id,quantity}).unwrap(),
       onSuccess: () => {
         toast.success(`${food.name} has been added to your cart.`, {
           theme: "dark",
@@ -130,14 +130,21 @@ const [addCart,resultAddCart]=useAddCartMutation();
                 </div>
               </CardContent>
               <CardFooter className="p-4 pt-0">
-                <Button className="w-full" onClick={async () => {
-                  setItemClick(food.id);
-                  addToCart(food).then(r => r);
-                }}>
-                  {
-                    resultAddCart.isLoading&&food.id===itemClick?"loading ... ":"Add to Cart"
-                  }
-                </Button>
+                <div className="flex gap-2 w-full items-center">
+                  <Input
+                    type="number"
+                    min="1"
+                    value={quantities[food.id] || 1}
+                    onChange={(e) => setQuantities({...quantities, [food.id]: parseInt(e.target.value) || 1})}
+                    className="w-20"
+                  />
+                  <Button className="flex-1" onClick={async () => {
+                    setItemClick(food.id);
+                    addToCart(food, quantities[food.id] || 1).then(r => r);
+                  }}>
+                    {resultAddCart.isLoading && food.id === itemClick ? "loading ... " : "Add to Cart"}
+                  </Button>
+                </div>
               </CardFooter>
             </Card>
           ))}
