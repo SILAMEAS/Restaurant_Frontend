@@ -16,100 +16,32 @@ import MainAddresses from "@/app/(main)/profile/(tab)/MainAddresses"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
+import OrderSummary from "@/components/(user)/cart/OrderSummary"
+import useCartApi from "../../../components/(user)/cart/(api)/useCartApi"
+import OrderNotes from "@/components/(user)/cart/OrderNotes"
+import PaymentMethod from "@/components/(user)/cart/PaymentMethod"
+
 
 export default function CartPage() {
-  const router = useRouter()
-  const { data, isLoading, isError } = useGetCartQuery()
-  const [removeItemFromCart, rsRemoveItem] = useRemoveItemFromCartMutation()
-  const [removeCart, rsRemoveCart] = useRemoveCartMutation()
-  const [updateCartItemInCart, rsUpCartItem] = useUpdateCartItemInCartMutation()
-  const [selectedCartId, setSelectedCartId] = useState<number | null>(null)
+  const{
+    $removeCart,
+    isLoadingProcess,
+    getCartQuery,
+    rsRemoveCart,
+    removeItem,
+    selectedCartId,
+    selectedCart,
+    cartItems,
+    setSelectedCartId,
+    updateQuantity,
+    notes,
+    setNotes,
+    selectedPayment,
+    setSelectedPayment,
+    carts
+  }=useCartApi();
 
-  const cartItems = data ?? [];
-
-  // Set initial selected cart if not set
-  if (cartItems.length > 0 && !selectedCartId) {
-    setSelectedCartId(cartItems[0].id)
-  }
-
-  const selectedCart = cartItems.find(cart => cart.id === selectedCartId)
-
-  const updateQuantity = async (cartId: number,cartItemId: number, quantity: number) => {
-    if (quantity < 1) return
-    await handleApiCall({
-      apiFn: () => updateCartItemInCart({cartId, cartItemId, quantity }).unwrap(),
-      onSuccess: () => {
-        toast.success("Quantity updated successfully!", {
-          theme: "dark",
-          transition: Slide,
-        })
-      },
-      onError: (e) => {
-        console.log(e)
-        toast.error(`${e.data.message}`, {
-          theme: "dark",
-          transition: Slide,
-        })
-      }
-    })
-  }
-
-  const removeItem = async (cartId: number,cartItemId:number) => {
-    await handleApiCall({
-      apiFn: () => removeItemFromCart({ cartId,cartItemId }).unwrap(),
-      onSuccess: () => {
-        toast.success("Item removed successfully!", {
-          theme: "dark",
-          transition: Slide,
-        })
-      },
-      onError: (e) => {
-        toast.error(`${e.data.message}`, {
-          theme: "dark",
-          transition: Slide,
-        })
-      }
-    })
-  }
-
-  const $removeCart = async (cartId: number) => {
-    await handleApiCall({
-      apiFn: () => removeCart({ cartId }).unwrap(),
-      onSuccess: () => {
-        toast.success("Cart removed successfully!", {
-          theme: "dark",
-          transition: Slide,
-        })
-        if (selectedCartId === cartId) {
-          setSelectedCartId(null)
-        }
-      },
-      onError: (e) => {
-        toast.error(`${e.data.message}`, {
-          theme: "dark",
-          transition: Slide,
-        })
-      }
-    })
-  }
-
-  // Calculate totals based on selected cart
-  const calculateTotals = () => {
-    if (!selectedCart) return { subtotal: 0, subtotalDiscount: 0, deliveryFee: 0, tax: 0, total: 0 }
-    
-    const subtotal = selectedCart.items.reduce((sum, item) => sum + item.food.price * item.quantity, 0)
-    const subtotalDiscount = subtotal // You can modify this based on your discount logic
-    const deliveryFee = 0 // You can set this based on your delivery fee logic
-    const tax = 0 // You can calculate tax based on your business logic
-    const total = subtotalDiscount + deliveryFee + tax
-    
-    return { subtotal, subtotalDiscount, deliveryFee, tax, total }
-  }
-
-  const { subtotal, subtotalDiscount, deliveryFee, tax, total } = calculateTotals()
-  const isLoadingProcess = rsUpCartItem.isLoading || rsRemoveItem.isLoading
-
-  if (isLoading) {
+  if (getCartQuery.isLoading) {
     return (
       <div className="container py-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -125,7 +57,7 @@ export default function CartPage() {
     )
   }
 
-  if (isError) {
+  if (getCartQuery.isError) {
     return (
       <div className="container min-h-[60vh] flex items-center justify-center">
         <div className="text-center">
@@ -142,11 +74,24 @@ export default function CartPage() {
     )
   }
 
+
+
+
+
   return (
-    <div className="container py-6 md:py-10">
+    <div className="container py-6 md:py-10 ">
       <div className="flex flex-col lg:flex-row gap-8">
         <div className="flex-1 space-y-6">
-          {cartItems.length > 0 ? (
+            {/* Payment Method */}
+            {
+              selectedCart&&
+               <PaymentMethod
+            selectedPayment={selectedPayment}
+            onPaymentChange={setSelectedPayment}
+          />
+            }
+           
+          {cartItems?.length > 0 ? (
             <>
               {cartItems.length > 1 && (
                 <Card className="p-4 shadow-md hover:shadow-lg transition-shadow">
@@ -185,7 +130,15 @@ export default function CartPage() {
                     <Button 
                       variant="destructive" 
                       size="sm"
-                      onClick={() => $removeCart(selectedCart.id)}
+                      onClick={() =>{
+                        if(carts.length > 1){
+                        setSelectedCartId(carts.filter(cart => cart !== selectedCart.id)[0]);
+                        $removeCart(selectedCart.id)
+                        }else{
+                          $removeCart(selectedCart.id)
+                        }
+                      
+                      }}
                       disabled={rsRemoveCart.isLoading}
                       className="hover:scale-105 transition-transform"
                     >
@@ -269,56 +222,28 @@ export default function CartPage() {
               </div>
             </div>
           )}
+            {/* Order Notes */}
+            {
+              selectedCart&&
+              <OrderNotes
+              notes={notes}
+              onNotesChange={setNotes}
+            />
+            }
+           
         </div>
 
         {/* Order Summary */}
         {selectedCart && (
           <div className="w-full lg:w-[400px]">
             <div className="lg:sticky lg:top-6 space-y-6">
-              <MainAddresses />
-              <Card className="shadow-md">
-                <CardHeader>
-                  <CardTitle>Order Summary</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Subtotal</span>
-                    <div className="text-right">
-                      <span className="line-through text-sm text-muted-foreground mr-2">${subtotal.toFixed(2)}</span>
-                      <span className="font-medium">${subtotalDiscount.toFixed(2)}</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Delivery Fee</span>
-                    <span className="font-medium">${deliveryFee.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Tax</span>
-                    <span className="font-medium">${tax.toFixed(2)}</span>
-                  </div>
-                  <Separator />
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold text-lg">Total</span>
-                    <span className="font-semibold text-lg">${total.toFixed(2)}</span>
-                  </div>
-                </CardContent>
-                <CardFooter>
-                  <Button
-                    disabled={isLoadingProcess}
-                    className="w-full h-12 text-lg font-medium hover:scale-[1.02] transition-transform"
-                    onClick={() => router.push("/checkout")}
-                  >
-                    {isLoadingProcess ? (
-                      <div className="flex items-center gap-2">
-                        <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        Processing...
-                      </div>
-                    ) : (
-                      "Place order"
-                    )}
-                  </Button>
-                </CardFooter>
-              </Card>
+              <MainAddresses/>
+              <OrderSummary 
+               selectedCartId={selectedCartId}
+               selectedCart={selectedCart}
+               isLoadingProcess={isLoadingProcess}
+               notes={notes}
+              />
             </div>
           </div>
         )}

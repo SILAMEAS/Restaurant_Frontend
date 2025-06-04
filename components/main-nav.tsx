@@ -2,17 +2,22 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, User, ShoppingCart, MenuIcon } from "lucide-react"
+import { Home, User, ShoppingCart, MenuIcon, LogOut } from "lucide-react"
 import { useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useLogout } from "@/lib/hooks/useLogout"
+import Cookies from "js-cookie"
+import { COOKIES } from "@/constant/COOKIES"
 
 export function MainNav() {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
+  const logout = useLogout()
+  const isAuthenticated = !!Cookies.get(COOKIES.TOKEN)
 
   const routes = [
     {
@@ -65,6 +70,17 @@ export function MainNav() {
               {route.label}
             </Link>
           ))}
+          {isAuthenticated && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
+              onClick={logout}
+            >
+              <LogOut className="h-4 w-4" />
+              Logout
+            </Button>
+          )}
         </nav>
 
         <div className="flex items-center gap-2">
@@ -94,6 +110,16 @@ export function MainNav() {
                     {route.label}
                   </Link>
                 ))}
+                {isAuthenticated && (
+                  <Button
+                    variant="ghost"
+                    className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground justify-start"
+                    onClick={logout}
+                  >
+                    <LogOut className="h-5 w-5" />
+                    Logout
+                  </Button>
+                )}
               </div>
             </SheetContent>
           </Sheet>

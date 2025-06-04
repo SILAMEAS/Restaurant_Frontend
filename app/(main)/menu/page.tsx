@@ -1,6 +1,6 @@
 "use client"
 
-import React, {useState} from "react"
+import React, {useEffect, useState} from "react"
 import Image from "next/image"
 import {Filter, Leaf, Search, Star, Minus, Plus} from "lucide-react"
 import Link from "next/link"
@@ -19,9 +19,11 @@ import ModernFilterPanel from "@/app/(main)/menu/ModernFilterPanel";
 import {FoodResponse} from "@/lib/redux/type";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
+import { useSearchParams } from "next/navigation"
 
 
 export default function MenuPage() {
+  const param = useSearchParams();
   const {paramQuery,setParamQuery} = useParamQuery();
   const getCategoryQuery = useGetCategoriesQuery();
   const {currentData,isLoading,isFetching} = useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
@@ -35,7 +37,7 @@ export default function MenuPage() {
   if(getCategoryQuery.currentData){
     getCategoryQuery.currentData.contents.map(r=>categories.push(r.name));
   }
-const [addCart,resultAddCart]=useAddCartMutation();
+  const [addCart,resultAddCart]=useAddCartMutation();
 
   const addToCart = async (food:FoodResponse,quantity:number) => {
     await handleApiCall({
@@ -54,7 +56,14 @@ const [addCart,resultAddCart]=useAddCartMutation();
       }
     });
   }
-
+  useEffect(()=>{
+    const categoryQuery = param.get("category");
+    if(categoryQuery){
+      setParamQuery({...paramQuery,filterBy:categoryQuery.toUpperCase()});
+    }else{
+      setParamQuery({...paramQuery,filterBy:"All"});
+    }
+  },[])
   return (
     <div className="container py-8  w-[100vw]">
       {/** Search and Filter Bar */}
@@ -82,7 +91,7 @@ const [addCart,resultAddCart]=useAddCartMutation();
       </div>
 
       {/** Category Tabs */}
-      <Tabs defaultValue="All" value={paramQuery.filterBy} onValueChange={(e)=>setParamQuery({...paramQuery,filterBy:e})} className="mb-8">
+      <Tabs value={paramQuery.filterBy} onValueChange={(e)=>setParamQuery({...paramQuery,filterBy:e})} className="mb-8">
         <TabsList className="w-full overflow-auto">
           {categories.map((category) => (
             <TabsTrigger key={category} value={category} className="min-w-[100px]">

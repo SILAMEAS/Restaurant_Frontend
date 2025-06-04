@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
 import SkeletonTable from "@/components/skeleton/SkeletonTable";
-import {CheckRole, useUsersByRole} from "@/app/(admin)/(components)/(hooks)/useUsersByRole";
+import {CheckRole, useUsersByRole} from "@/components/(admin)/(hooks)/useUsersByRole";
 
 const AdminUser=()=>{
     const [searchQuery, setSearchQuery] = useState("");

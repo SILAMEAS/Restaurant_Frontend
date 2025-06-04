@@ -3,13 +3,13 @@
 import type React from "react"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import { useDashboardQuery} from "@/lib/redux/api"
-import CartDashboard from "../(components)/CartDashboard"
+import CartDashboard from "../../components/(admin)/CartDashboard"
 import {ICurrentData} from "@/lib/generic/ICurrentData"
-import AdminUser from "../(components)/(tab)/AdminUser"
-import AdminOrder from "../(components)/(tab)/AdminOrder"
-import AdminCategory from "../(components)/(tab)/AdminCategory"
+import AdminUser from "../../components/(admin)/(tab)/AdminUser"
+import AdminOrder from "../../components/(admin)/(tab)/AdminOrder"
+import AdminCategory from "../../components/(admin)/(tab)/AdminCategory"
 import {IDashboard} from "@/lib/redux/type";
-import AdminRestaurant from "@/app/(admin)/(components)/(tab)/AdminRestaurant";
+import AdminRestaurant from "@/components/(admin)/(tab)/AdminRestaurant";
 
 
 export default function AdminDashboardPage() {

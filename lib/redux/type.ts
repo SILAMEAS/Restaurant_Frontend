@@ -108,6 +108,7 @@ export interface FoodResponse {
     tax:number;
     deliverFee:number;
     open:boolean;
+    discount:number;
 }
 
 export interface ImageUrl {
