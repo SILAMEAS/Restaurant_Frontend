@@ -1,12 +1,14 @@
 import React, {PropsWithChildren} from 'react';
+import { AdminNav } from '@/components/admin-nav';
 
 const LayoutAdmin = ({children}:PropsWithChildren) => {
     return (
-        <div className={'flex justify-center'}>
-            {
-                children
-            }
-        </div>
+        <>
+            <AdminNav />
+            <div className={'flex justify-center mt-16'}>
+                {children}
+            </div>
+        </>
     );
 };
 

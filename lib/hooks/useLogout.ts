@@ -16,8 +16,8 @@ export const useLogout = () => {
         // Reset Redux state
         dispatch(reset());
         
-        // Redirect to login page
-        router.push('/auth/login');
+        // Force a clean redirect to login page
+        router.replace('/auth/login');
     };
 
     return handleLogout;

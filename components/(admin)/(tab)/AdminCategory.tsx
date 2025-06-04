@@ -261,7 +261,10 @@ const AdminCategory=()=>{
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
                               <DropdownMenuItem onClick={() => {
                                 setEditingCategory(c.id);
-                                dropzoneCustom.setImagePreviewUrl({url:c.url})
+                                dropzoneCustom.setImagePreviewUrl({
+                                  url: c.url,
+                                  publicId: c.publicId || ''
+                                })
                               }}>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Edit Category

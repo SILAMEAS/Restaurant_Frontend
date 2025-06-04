@@ -49,9 +49,20 @@ export default function LoginPage() {
         Cookies.set(COOKIES.TOKEN, res.accessToken, { secure: true });
         Cookies.set(COOKIES.ROLE, res.role, { secure: true });
 
-
-        res?.role===Role.ADMIN?router.push('/admin'):router.push("/")
-
+        // Update redirection logic based on role
+        switch (res.role) {
+          case Role.ADMIN:
+            router.replace('/admin');
+            break;
+          case Role.OWNER:
+            router.replace('/owner');
+            break;
+          case Role.USER:
+            router.replace('/');
+            break;
+          default:
+            router.replace('/');
+        }
 
       }
     });

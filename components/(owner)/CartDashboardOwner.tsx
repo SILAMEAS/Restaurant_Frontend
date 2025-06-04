@@ -60,10 +60,7 @@ const CartDashboardOwner=({dashboard}:{dashboard:ICurrentData<IDashboard>})=>{
                 <p className="text-xs text-muted-foreground">+1 from last week</p>
             </CardContent>
         </Card>
-    <Card onClick={()=>route.push('/owner/restaurant')} className={'cursor-pointer flex justify-center items-center'}>
-        <CardTitle className="text-sm font-medium">View My Restaurant</CardTitle>
-    </Card>
-      </div>
+    </div>
 }
 
 

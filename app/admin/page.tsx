@@ -16,7 +16,6 @@ export default function AdminDashboardPage() {
   const dashboard = useDashboardQuery()
   return (
     <div className="container py-10">
-      <h1 className="text-3xl font-bold mb-8">Admin Dashboard</h1>
       <CartDashboard dashboard={dashboard as ICurrentData<IDashboard>}/>
 
       <Tabs defaultValue="users">
