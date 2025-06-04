@@ -158,6 +158,8 @@ export const foodSchema = z.object({
     name: z.string(),
     description: z.string().min(3, "description must be at least 3 characters long"),
     price: z.string(),
+    discount: z.string(),
+    price_with_discount: z.string().optional(),
     restaurantId: z.string(),
     foodType: z.string(),
     categoryId:z.string(),

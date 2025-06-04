@@ -63,10 +63,25 @@ const AdminFood=()=>{
       handleSubmit,
       reset,
       setValue,
+      watch,
       formState: { errors },
     } = useForm<foodFormData>({
       resolver: zodResolver(foodSchema),
     });
+
+    // Watch price and discount for auto-calculation
+    const price = watch('price');
+    const discount = watch('discount');
+
+    // Calculate price with discount whenever price or discount changes
+    React.useEffect(() => {
+      if (price && discount) {
+        const basePrice = parseFloat(price);
+        const discountPercent = parseFloat(discount);
+        const priceWithDiscount = basePrice - (basePrice * discountPercent / 100);
+        setValue('price_with_discount', priceWithDiscount.toFixed(2));
+      }
+    }, [price, discount, setValue]);
 
     if(ownerRestaurant){
       setValue('restaurantId',`${ownerRestaurant.id}`)
@@ -96,6 +111,7 @@ const AdminFood=()=>{
       formData.append("categoryId", data.categoryId);
       formData.append("foodType", `${data.foodType}`);
       formData.append("price", data.price);
+      formData.append("discount", data.discount);
       formData.append("available", `${data.available}`);
       formData.append("restaurantId", data.restaurantId);
      if(dropzoneCustom.imageFile){
@@ -196,7 +212,7 @@ const AdminFood=()=>{
                           </div>
                         </div>
                         {/** Price Field */}
-                        <div className="space-y-2">
+                        <div className="space-y-4 py-4">
                           <Label htmlFor="price">Price</Label>
                           <input
                               type="number"
@@ -213,6 +229,50 @@ const AdminFood=()=>{
                           {errors.price && (
                               <p className="text-sm text-red-500">{errors.price.message}</p>
                           )}
+                        </div>
+                        
+                        {/** Discount Field */}
+                        <div className="space-y-4 py-4">
+                          <Label htmlFor="discount">Discount (%)</Label>
+                          <input
+                              type="number"
+                              step="0.01"
+                              id="discount"
+                              min="0"
+                              max="100"
+                              {...register("discount", { 
+                                required: "Discount is required",
+                                min: 0,
+                                max: 100
+                              })}
+                              className="w-full border rounded-md px-3 py-2"
+                              defaultValue={
+                                editingFood !== null
+                                    ? foods?.find((c) => c.id === editingFood)?.discount ?? 0
+                                    : "0"
+                              }
+                          />
+                          {errors.discount && (
+                              <p className="text-sm text-red-500">{errors.discount.message}</p>
+                          )}
+                        </div>
+                        
+                        {/** Price With Discount Field */}
+                        <div className="space-y-4 py-4">
+                          <Label htmlFor="price_with_discount">Price With Discount</Label>
+                          <input
+                              type="number"
+                              step="0.01"
+                              id="price_with_discount"
+                              {...register("price_with_discount")}
+                              className="w-full border rounded-md px-3 py-2 bg-muted text-muted-foreground cursor-not-allowed"
+                              disabled
+                              defaultValue={
+                                editingFood !== null
+                                    ? foods?.find((c) => c.id === editingFood)?.priceDiscount ?? 0
+                                    : ""
+                              }
+                          />
                         </div>
                         {/** Description **/}
                         <div className="space-y-4 py-4">
