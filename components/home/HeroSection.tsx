@@ -25,11 +25,7 @@ const HeroSection = () => {
                                 <ArrowRight className="ml-2 h-4 w-4"/>
                             </Button>
                         </Link>
-                        <Link href="/auth/register">
-                            <Button size="lg" variant="outline">
-                                Sign Up
-                            </Button>
-                        </Link>
+                        
                     </div>
                 </div>
                 <div className="mx-auto lg:ml-auto">
