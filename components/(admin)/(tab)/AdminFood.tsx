@@ -69,19 +69,19 @@ const AdminFood=()=>{
       resolver: zodResolver(foodSchema),
     });
 
-    // Watch price and discount for auto-calculation
+    // Watch price and discount_food for auto-calculation
     const price = watch('price');
-    const discount = watch('discount');
+    const discount_food = watch('discount_food');
 
-    // Calculate price with discount whenever price or discount changes
+    // Calculate price with discount whenever price or discount_food changes
     React.useEffect(() => {
-      if (price && discount) {
+      if (price && discount_food) {
         const basePrice = parseFloat(price);
-        const discountPercent = parseFloat(discount);
+        const discountPercent = parseFloat(discount_food);
         const priceWithDiscount = basePrice - (basePrice * discountPercent / 100);
         setValue('price_with_discount', priceWithDiscount.toFixed(2));
       }
-    }, [price, discount, setValue]);
+    }, [price, discount_food, setValue]);
 
     if(ownerRestaurant){
       setValue('restaurantId',`${ownerRestaurant.id}`)
@@ -225,22 +225,26 @@ const AdminFood=()=>{
                                     ? foods?.find((c) => c.id === editingFood)?.price ?? 0
                                     : ""
                               }
+                              onChange={(e) => {
+                                register("price").onChange(e);
+                                const newPrice = e.target.value;
+                                setValue('price', newPrice);
+                              }}
                           />
                           {errors.price && (
                               <p className="text-sm text-red-500">{errors.price.message}</p>
                           )}
                         </div>
-                        
-                        {/** Discount Field */}
-                        <div className="space-y-4 py-4">
-                          <Label htmlFor="discount">Discount (%)</Label>
+                         {/** Discount Food Field */}
+                         <div className="space-y-4 py-4">
+                          <Label htmlFor="discount_food">Discount Food (%)</Label>
                           <input
                               type="number"
                               step="0.01"
-                              id="discount"
+                              id="discount_food"
                               min="0"
                               max="100"
-                              {...register("discount", { 
+                              {...register("discount_food", { 
                                 required: "Discount is required",
                                 min: 0,
                                 max: 100
@@ -248,13 +252,53 @@ const AdminFood=()=>{
                               className="w-full border rounded-md px-3 py-2"
                               defaultValue={
                                 editingFood !== null
-                                    ? foods?.find((c) => c.id === editingFood)?.discount ?? 0
+                                    ? foods?.find((c) => c.id === editingFood)?.discount.food ?? 0
                                     : "0"
                               }
+                              onChange={(e) => {
+                                register("discount_food").onChange(e);
+                                const newDiscount = e.target.value;
+                                setValue('discount_food', newDiscount);
+                              }}
                           />
-                          {errors.discount && (
-                              <p className="text-sm text-red-500">{errors.discount.message}</p>
+                          {errors.discount_food && (
+                              <p className="text-sm text-red-500">{errors.discount_food.message}</p>
                           )}
+                        </div>
+                        {/** Discount Restaurant Field */}
+                        <div className="space-y-4 py-4">
+                          <Label htmlFor="price_with_discount">Discount Restaurant (%)</Label>
+                          <input
+                              type="number"
+                              step="0.01"
+                              id="discount_restaurant"
+                              {...register("discount_restaurant")}
+                              className="w-full border rounded-md px-3 py-2 bg-muted text-muted-foreground cursor-not-allowed"
+                              disabled
+                              defaultValue={
+                                editingFood !== null
+                                    ? foods?.find((c) => c.id === editingFood)?.discount.restaurant ?? 0
+                                    : ""
+                              }
+                          />
+                        </div>
+                       
+                         {/** Discount Field */}
+                         <div className="space-y-4 py-4">
+                          <Label htmlFor="discount_total">Discount (%)</Label>
+                          <input
+                              type="number"
+                              step="0.01"
+                              id="discount_total"
+                              {...register("discount")}
+                              className="w-full border rounded-md px-3 py-2 bg-muted text-muted-foreground cursor-not-allowed"
+                              disabled
+                              defaultValue={
+                                editingFood !== null
+                                    ? foods?.find((c) => c.id === editingFood)?.discount.total ?? 0
+                                    : ""
+                              }
+                          />
                         </div>
                         
                         {/** Price With Discount Field */}
@@ -381,10 +425,15 @@ const AdminFood=()=>{
                 <TableHeader>
                   <TableRow>
                     <TableHead>#ID</TableHead>
-                    <TableHead>Name</TableHead>
-                      <TableHead>Price</TableHead>
-                    <TableHead>Category</TableHead>
                     <TableHead>Restaurants</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Category</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Food Discount (%)</TableHead>
+                    <TableHead>Restaurant Discount (%) </TableHead>
+                    <TableHead>Total Discount (%)</TableHead>
+                    
+                   
                     <TableHead>Available</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -394,19 +443,24 @@ const AdminFood=()=>{
                     foods?.filter(
                       (c) =>
                         c.name.toLowerCase().includes(searchQuery.toLowerCase())
-                    // ||
-                    //     category.slug.toLowerCase().includes(searchQuery.toLowerCase()),
                     )
                     .map((f) => (
                       <TableRow key={f.id}>
                         <TableCell  className="font-medium">{f.id}</TableCell>
                         <TableCell >{f.name}</TableCell>
-                          <TableCell >
+                        <TableCell>{f.restaurantName}</TableCell>
+                        <TableCell>{f.category.name}</TableCell>
+                        
+                        <TableCell >
                               <p  className={'line-through'}>{f.price}$</p>
                               <p >{f.priceDiscount}$</p>
                           </TableCell>
-                        <TableCell>{f.category.name}</TableCell>
-                        <TableCell>{f.restaurantName}</TableCell>
+                          <TableCell >{f.discount.food}%</TableCell>
+                        <TableCell >{f.discount.restaurant}%</TableCell>
+                        <TableCell >{f.discount.total}%</TableCell>
+                      
+                      
+                      
                         <TableCell> <Badge
                             variant={
                               !f.available

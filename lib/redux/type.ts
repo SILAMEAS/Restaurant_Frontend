@@ -90,6 +90,12 @@ export interface CategoryResponse {
     restaurant:string;
     items:number;
 }
+
+export interface Discount {
+    food:number;
+    total:number;
+    restaurant:number;
+}
 export interface FoodResponse {
     id: number;
     name: string;
@@ -108,7 +114,7 @@ export interface FoodResponse {
     tax:number;
     deliverFee:number;
     open:boolean;
-    discount:number;
+    discount:Discount;
 }
 
 export interface ImageUrl {
@@ -159,6 +165,8 @@ export const foodSchema = z.object({
     description: z.string().min(3, "description must be at least 3 characters long"),
     price: z.string(),
     discount: z.string(),
+    discount_food: z.string(),
+    discount_restaurant: z.string(),
     price_with_discount: z.string().optional(),
     restaurantId: z.string(),
     foodType: z.string(),
