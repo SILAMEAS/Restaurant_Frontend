@@ -32,7 +32,7 @@ import {
   useUpdateFoodMutation
 } from "@/lib/redux/api";
 import {useForm} from "react-hook-form";
-import {foodFormData, foodSchema} from "@/lib/redux/type";
+import {foodFormData, foodSchema, type FoodResponse, type ImageUrl} from "@/lib/redux/type";
 import {zodResolver} from "@hookform/resolvers/zod";
 import useDropzoneCustom from "@/app/(main)/profile/(component)/useDropzoneCustom";
 import {Slide, toast} from "react-toastify";
@@ -41,22 +41,32 @@ import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 import SkeletonTable from "@/components/skeleton/SkeletonTable";
 import useParamQuery from "@/hooks/useParamQuery";
 import {foodTypes} from "@/constant/FoodType";
+import { PaginatedTable, type Column } from "@/components/ui/paginated-table"
+import { usePagination } from "@/lib/hooks/usePagination"
+import { PaginationRequestDefault } from "@/lib/redux/type"
 
 const AdminFood=()=>{
     const {paramQuery,setParamQuery} =useParamQuery();
-    const getFoodsQuery= useGetFoodsQuery({params:paramQuery,caseIgnoreFilter:paramQuery.filterBy==="All"},{refetchOnMountOrArgChange:true});
-    const getRestaurantOwnerQuery= useGetRestaurantOwnerQuery({});
-    const getCategoriesQuery= useGetCategoriesQuery();
     const [searchQuery, setSearchQuery] = useState("")
     const [isAddingFood, setIsAddingFood] = useState(false)
-    const [editingFood, setEditingFood] = useState<number | null>(null);
-    const [addFood,resultAddFood]=useAddFoodMutation();
-    const [updateFood,resultUpdateFood]=useUpdateFoodMutation();
-    const [deleteFood,resultDeleteFood]=useDeleteFoodMutation();
+    const [editingFood, setEditingFood] = useState<number | null>(null)
+    const pagination = usePagination()
+    
+    const { data: foodsData, isLoading } = useGetFoodsQuery({
+        params: {
+            ...PaginationRequestDefault,
+            pageNo: pagination.currentPage,
+            pageSize: pagination.itemsPerPage,
+            search: searchQuery,
+        },
+        caseIgnoreFilter: true,
+    })
 
-    const categories = getCategoriesQuery?.currentData?.contents;
-    const foods = getFoodsQuery?.currentData?.contents;
-    const ownerRestaurant= getRestaurantOwnerQuery?.currentData;
+    const getCategoriesQuery = useGetCategoriesQuery()
+    const getRestaurantOwnerQuery = useGetRestaurantOwnerQuery({})
+    const [addFood, { isLoading: isAddingFoodLoading }] = useAddFoodMutation()
+    const [updateFood, { isLoading: isUpdatingFoodLoading }] = useUpdateFoodMutation()
+    const [deleteFood] = useDeleteFoodMutation()
     const dropzoneCustom=useDropzoneCustom();
     const {
       register,
@@ -83,8 +93,8 @@ const AdminFood=()=>{
       }
     }, [price, discount_food, setValue]);
 
-    if(ownerRestaurant){
-      setValue('restaurantId',`${ownerRestaurant.id}`)
+    if(getRestaurantOwnerQuery?.currentData){
+      setValue('restaurantId',`${getRestaurantOwnerQuery.currentData.id}`)
     }
 
     const closePopUp=()=>{
@@ -95,6 +105,24 @@ const AdminFood=()=>{
       setEditingFood(null);
     }
 
+    const handleEditFood = (food: FoodResponse) => {
+        setEditingFood(food.id)
+        if (food.images && food.images.length > 0) {
+            dropzoneCustom.setImagePreviewUrl({ url: food.images[0], publicId: null })
+        }
+    }
+
+    const handleDeleteFood = async (foodId: number) => {
+        await handleApiCall({
+            apiFn: () => deleteFood({ foodId }).unwrap(),
+            onSuccess: () => {
+                toast.success("Food item deleted successfully", {
+                    theme: "dark",
+                    transition: Slide,
+                })
+            },
+        })
+    }
 
     const onSubmit = async (data: foodFormData) => {
 
@@ -131,25 +159,89 @@ const AdminFood=()=>{
       });
     };
 
-
-    const handleDeleteCategory =async (foodId:string|number)=>{
-      await handleApiCall({
-        apiFn: () => deleteFood({foodId}).unwrap(),
-        onSuccess: () => {
-          toast.success("Category delete successfully!", {
-            theme: "dark",
-            transition: Slide,
-          });
+    const columns: Column[] = [
+        {
+            header: "Name",
+            accessorKey: "name",
         },
-        onError:(e)=>{
-          toast.error(`${e.data.message}`, {
-            theme: "dark",
-            transition: Slide,
-          });
-        }
-      });
-
-    }
+        {
+            header: "Price",
+            accessorKey: "price",
+            cell: (row: FoodResponse) => (
+                <div>
+                    <p className="line-through">${row.price.toFixed(2)}</p>
+                    <p>${row.priceDiscount.toFixed(2)}</p>
+                </div>
+            ),
+        },
+        {
+            header: "Type",
+            accessorKey: "foodType",
+            cell: (row: FoodResponse) => (
+                <Badge variant="outline">{row.foodType}</Badge>
+            ),
+        },
+        {
+            header: "Restaurant",
+            accessorKey: "restaurantName",
+        },
+        {
+            header: "Category",
+            accessorKey: "category",
+            cell: (row: FoodResponse) => row.category.name,
+        },
+        {
+            header: "Discounts",
+            accessorKey: "discount",
+            cell: (row: FoodResponse) => (
+                <div className="text-sm">
+                    <div>Food: {row.discount.food}%</div>
+                    <div>Restaurant: {row.discount.restaurant}%</div>
+                    <div>Total: {row.discount.total}%</div>
+                </div>
+            ),
+        },
+        {
+            header: "Status",
+            accessorKey: "available",
+            cell: (row: FoodResponse) => (
+                <Badge variant={row.available ? "default" : "outline"}>
+                    {row.available ? "In Stock" : "Out of Stock"}
+                </Badge>
+            ),
+        },
+        {
+            header: "Actions",
+            accessorKey: "actions",
+            cell: (row: FoodResponse) => (
+                <div className="text-right">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
+                                <MoreVertical className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleEditFood(row)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit Food Item
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => handleDeleteFood(row.id)}
+                            >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete Food Item
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            ),
+        },
+    ]
 
     return  <Card>
             <CardHeader>
@@ -204,7 +296,7 @@ const AdminFood=()=>{
                                 {...register("name")}
                                 placeholder="e.g., ice coffeee, black coffeee"
                                 defaultValue={
-                                  editingFood !== null ? foods?.find((c) => c.id === editingFood)?.name : ""
+                                  editingFood !== null ? foodsData?.contents?.find((c) => c.id === editingFood)?.name : ""
                                 }
                                 required
                             />
@@ -222,7 +314,7 @@ const AdminFood=()=>{
                               className="w-full border rounded-md px-3 py-2"
                               defaultValue={
                                 editingFood !== null
-                                    ? foods?.find((c) => c.id === editingFood)?.price ?? 0
+                                    ? foodsData?.contents?.find((c) => c.id === editingFood)?.price ?? 0
                                     : ""
                               }
                               onChange={(e) => {
@@ -252,7 +344,7 @@ const AdminFood=()=>{
                               className="w-full border rounded-md px-3 py-2"
                               defaultValue={
                                 editingFood !== null
-                                    ? foods?.find((c) => c.id === editingFood)?.discount.food ?? 0
+                                    ? foodsData?.contents?.find((c) => c.id === editingFood)?.discount.food ?? 0
                                     : "0"
                               }
                               onChange={(e) => {
@@ -277,7 +369,7 @@ const AdminFood=()=>{
                               disabled
                               defaultValue={
                                 editingFood !== null
-                                    ? foods?.find((c) => c.id === editingFood)?.discount.restaurant ?? 0
+                                    ? foodsData?.contents?.find((c) => c.id === editingFood)?.discount.restaurant ?? 0
                                     : ""
                               }
                           />
@@ -295,7 +387,7 @@ const AdminFood=()=>{
                               disabled
                               defaultValue={
                                 editingFood !== null
-                                    ? foods?.find((c) => c.id === editingFood)?.discount.total ?? 0
+                                    ? foodsData?.contents?.find((c) => c.id === editingFood)?.discount.total ?? 0
                                     : ""
                               }
                           />
@@ -313,7 +405,7 @@ const AdminFood=()=>{
                               disabled
                               defaultValue={
                                 editingFood !== null
-                                    ? foods?.find((c) => c.id === editingFood)?.priceDiscount ?? 0
+                                    ? foodsData?.contents?.find((c) => c.id === editingFood)?.priceDiscount ?? 0
                                     : ""
                               }
                           />
@@ -326,7 +418,7 @@ const AdminFood=()=>{
                                 {...register("description")}
                                 placeholder="e.g., COFFEE, CAKE"
                                 defaultValue={
-                                  editingFood !== null ? foods?.find((c) => c.id === editingFood)?.description : ""
+                                  editingFood !== null ? foodsData?.contents?.find((c) => c.id === editingFood)?.description : ""
                                 }
                                 required
                             />
@@ -344,7 +436,7 @@ const AdminFood=()=>{
                                   {...register("available")}
                                   defaultChecked={
                                     editingFood !== null
-                                        ? foods?.find((c) => c.id === editingFood)?.available
+                                        ? foodsData?.contents?.find((c) => c.id === editingFood)?.available
                                         : false
                                   }
                               />
@@ -364,7 +456,7 @@ const AdminFood=()=>{
                                 {...register("foodType", { required: "Category is required" })}
                                 defaultValue={
                                   (editingFood !== null)
-                                      ? foods?.find((f) => f.id === editingFood)?.foodType??"NONE"
+                                      ? foodsData?.contents?.find((f) => f.id === editingFood)?.foodType??"NONE"
                                       : "NONE"
                                 }
                                 className="w-full border rounded-md px-3 py-2"
@@ -392,15 +484,15 @@ const AdminFood=()=>{
                                 {...register("categoryId", { required: "Category is required" })}
                                 defaultValue={
                                   (editingFood !== null)
-                                      ? foods?.find((f) => f.id === editingFood)?.category.id
-                                      : categories?categories[categories.length-1].id:NaN
+                                      ? foodsData?.contents?.find((f) => f.id === editingFood)?.category.id
+                                      : getCategoriesQuery?.currentData?.contents[getCategoriesQuery?.currentData?.contents.length-1].id
                                 }
                                 className="w-full border rounded-md px-3 py-2"
                             >
                               <option value="" disabled>
                                 Select a category
                               </option>
-                              {categories?.map((c) => {
+                              {getCategoriesQuery?.currentData?.contents.map((c) => {
                                 return <option key={c.id} value={c.id}>
                                   {c.name}
                                 </option>
@@ -412,7 +504,7 @@ const AdminFood=()=>{
                           </div>
                         </div>
                         <DialogFooter>
-                          <Button type="submit">{(resultAddFood.isLoading||resultUpdateFood.isLoading)?"loading ...":  editingFood !== null ? "Update Food" : "Add Food"}</Button>
+                          <Button type="submit">{(isAddingFoodLoading||isUpdatingFoodLoading)?"loading ...":  editingFood !== null ? "Update Food" : "Add Food"}</Button>
                         </DialogFooter>
                       </form>
                     </DialogContent>
@@ -421,88 +513,17 @@ const AdminFood=()=>{
               </div>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>#ID</TableHead>
-                    <TableHead>Restaurants</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Price</TableHead>
-                    <TableHead>Food Discount (%)</TableHead>
-                    <TableHead>Restaurant Discount (%) </TableHead>
-                    <TableHead>Total Discount (%)</TableHead>
-                    
-                   
-                    <TableHead>Available</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {!foods?<SkeletonTable column={5} />:
-                    foods?.filter(
-                      (c) =>
-                        c.name.toLowerCase().includes(searchQuery.toLowerCase())
-                    )
-                    .map((f) => (
-                      <TableRow key={f.id}>
-                        <TableCell  className="font-medium">{f.id}</TableCell>
-                        <TableCell >{f.name}</TableCell>
-                        <TableCell>{f.restaurantName}</TableCell>
-                        <TableCell>{f.category.name}</TableCell>
-                        
-                        <TableCell >
-                              <p  className={'line-through'}>{f.price}$</p>
-                              <p >{f.priceDiscount}$</p>
-                          </TableCell>
-                          <TableCell >{f.discount.food}%</TableCell>
-                        <TableCell >{f.discount.restaurant}%</TableCell>
-                        <TableCell >{f.discount.total}%</TableCell>
-                      
-                      
-                      
-                        <TableCell> <Badge
-                            variant={
-                              !f.available
-                                  ? "outline"
-                                      : "default"
-                            }
-                        >
-                          {f.available?"In Stock":"Out of Stock"}
-                        </Badge></TableCell>
-
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
-                                <MoreVertical className="h-4 w-4" />
-                                <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => {
-                                setEditingFood(f.id);
-                                dropzoneCustom.setImagePreviewUrl({url: f.images[0]})
-                              }}>
-                                <Edit className="h-4 w-4 mr-2" />
-                                Edit Food
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                className="text-destructive"
-                                onClick={() => handleDeleteCategory(f.id)}
-                              >
-                                <Trash2 className="h-4 w-4 mr-2" />
-                                Delete Food
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
+              <PaginatedTable
+                columns={columns}
+                data={foodsData?.contents}
+                totalItems={foodsData?.total || 0}
+                currentPage={pagination.currentPage}
+                itemsPerPage={pagination.itemsPerPage}
+                isLoading={isLoading}
+                onPageChange={pagination.setCurrentPage}
+                onItemsPerPageChange={pagination.setItemsPerPage}
+                skeletonColumns={7}
+              />
             </CardContent>
           </Card>
 }

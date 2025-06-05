@@ -32,8 +32,12 @@ export const apiSlice = createApi({
     tagTypes:['address','favorite','user',"category","restaurant",'order','cart'],
     endpoints: (builder) => ({
         /** ========================================== Restaurants */
-        getRestaurants: builder.query<IPagination<RestaurantResponse>, void>({
-            query: () => 'restaurants', // This will call /api/restaurants
+        getRestaurants: builder.query<IPagination<RestaurantResponse>, { offset?: number; limit?: number; search?: string }>({
+            query: (params) => ({
+                url: 'restaurants',
+                method: 'GET',
+                params
+            }),
         }),
         favUnFav: builder.mutation<IPagination<RestaurantResponse>, {restaurantId:number}>({
             query: ({restaurantId}) => ({
@@ -67,13 +71,13 @@ export const apiSlice = createApi({
             providesTags:['category','user','order']
         }),
         /**  ==========================================  User */
-        getUsers: builder.query<IPagination<IProfile>,void>({
-            query: () => ({
+        getUsers: builder.query<IPagination<IProfile>, { offset?: number; limit?: number; search?: string }>({
+            query: (params) => ({
                 url: `users`,
-                method: "GET"
+                method: "GET",
+                params,
             }),
             providesTags: ['user'],
-
         }),
         getUsersHasOrderInRestaurant: builder.query<IPagination<IProfile>,{restaurantId:number|string}>({
             query: ({restaurantId}) => ({
