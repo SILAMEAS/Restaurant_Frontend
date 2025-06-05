@@ -1,6 +1,5 @@
 import type React from "react"
 import { MainNav } from "@/components/main-nav"
-import { ChatButton } from "@/components/chat-button"
 
 export default function MainLayout({
   children,
@@ -16,7 +15,6 @@ export default function MainLayout({
           © {new Date().getFullYear()} LaCy. All rights reserved.
         </div>
       </footer>
-      <ChatButton />
     </div>
   )
 }

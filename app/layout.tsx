@@ -9,6 +9,7 @@ import {GlobalLoadingProvider} from "@/lib/provider/GlobalLoadingProvider";
 import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Import the new Client Component
 import { ToastContainer } from 'react-toastify';
 import { ThemeProvider } from '@/components/theme-provider';
+import { ChatPopover } from "@/components/ChatPopover";
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -36,6 +37,9 @@ export default function RootLayout({
                         <ReduxProvider>
                             {children}  
                             <ToastContainer />
+                            <div className="fixed bottom-4 right-4 z-50">
+                                <ChatPopover />
+                            </div>
                         </ReduxProvider>
                         <GlobalLoadingSpinner />
                     </GlobalLoadingProvider>
