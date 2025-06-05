@@ -57,15 +57,15 @@ const WebSocketPage = () => {
 
     const sendMessage = (e: React.FormEvent) => {
         e.preventDefault();
-        if (client && chatDTO.content) {
+        if (client && chatDTO.content&&chatDTO.senderId&&chatDTO.roomId) {
             client.publish({
                 destination: '/app/chat.send',
                 body: JSON.stringify({ content: chatDTO }),
             });
             setChatDTO({
                 content: '',
-                senderId: 0,
-                roomId: 0
+                senderId: NaN,
+                roomId: NaN
             });
         }
     };
@@ -73,6 +73,24 @@ const WebSocketPage = () => {
     return (
         <div className="p-4 max-w-2xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">WebSocket Chat</h1>
+                <div>
+                    <label htmlFor="senderId">Sender ID</label>
+                    <input type="text" value={chatDTO.senderId} onChange={(e)=>{
+                        setChatDTO({
+                            ...chatDTO,
+                            senderId: parseInt(e.target.value)
+                        })
+                    }}/>
+                </div>
+                <div>
+                    <label htmlFor="senderId">Review ID</label>
+                    <input type="text" value={chatDTO.senderId} onChange={(e)=>{
+                        setChatDTO({
+                            ...chatDTO,
+                            senderId: parseInt(e.target.value)
+                        })
+                    }}/>
+                </div>
             
             <div className="bg-white shadow rounded-lg p-4 mb-4">
                 <div className="h-80 overflow-y-auto mb-4 border rounded p-2">
