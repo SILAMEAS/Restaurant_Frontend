@@ -1,4 +1,4 @@
-import React, {useState} from "react"
+import React, {useState, useEffect} from "react"
 import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
@@ -23,6 +23,16 @@ const AdminOrder = () => {
     const pagination = usePagination();
     const { data: ordersData, isLoading } = useGetOrdersQuery();
     const [deleteOrder, resultDeleteOrder] = useDeleteOrderMutation()
+
+    useEffect(() => {
+        if (ordersData?.contents) {
+            console.log('Orders data:', ordersData.contents);
+            // Log the first order to check its structure
+            if (ordersData.contents.length > 0) {
+                console.log('First order structure:', ordersData.contents[0]);
+            }
+        }
+    }, [ordersData]);
 
     // Filter and paginate data on the client side
     const filteredData = ordersData?.contents?.filter(
@@ -66,10 +76,18 @@ const AdminOrder = () => {
         {
             header: "Customer",
             accessorKey: "user.fullName",
+            cell: (row) => {
+                console.log('Customer row data:', row);
+                return row.user?.fullName || 'N/A';
+            }
         },
         {
             header: "Restaurant",
             accessorKey: "restaurant.name",
+            cell: (row) => {
+                console.log('Restaurant row data:', row);
+                return row.restaurant?.name || 'N/A';
+            }
         },
         {
             header: "Total",
