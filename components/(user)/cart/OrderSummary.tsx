@@ -3,20 +3,29 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { CartResponse } from "@/lib/redux/type"
+import { useAddOrderMutation } from "@/lib/redux/api"
+import { handleApiCall } from "@/lib/handleApiCall"
+import { Slide, toast } from "react-toastify"
+import { Dispatch, SetStateAction } from "react"
 
 interface OrderSummaryProps {
   isLoadingProcess: boolean,
   selectedCartId: number|null,
   selectedCart?: CartResponse,
-  notes: string
+  notes: string,
+  setSelectedCartId:Dispatch<SetStateAction<number | null>>,
+  carts: number[]
 }
 
 export default function OrderSummary({
     selectedCart,
     selectedCartId,
   isLoadingProcess,
-  notes
+  notes,
+  setSelectedCartId,
+  carts
 }: OrderSummaryProps) {
+  const [addOrder] = useAddOrderMutation();
   const router = useRouter();
     // Calculate totals based on selected cart
     const calculateTotals = () => {
@@ -64,7 +73,31 @@ export default function OrderSummary({
         <Button
           disabled={isLoadingProcess}
           className="w-full h-12 text-lg font-medium hover:scale-[1.02] transition-transform"
-          onClick={() => router.push("/checkout")}
+          onClick={async() => {
+            if(!selectedCartId){
+              toast.error(`Select a cart first to order`, {
+                theme: "dark",
+                transition: Slide,
+              });
+              return;
+            }
+            await handleApiCall({
+              apiFn: () => addOrder({cartId:selectedCartId}).unwrap(),
+              onSuccess: () => {
+                setSelectedCartId(carts?.filter(cart => cart !== selectedCart?.id)[0]);
+                toast.success(`${selectedCartId} has been added to your cart.`, {
+                  theme: "dark",
+                  transition: Slide,
+                });
+              },
+              onError:(e)=>{
+                toast.error(`${e.data.message}`, {
+                  theme: "dark",
+                  transition: Slide,
+                });
+              }
+            });
+          }}
         >
           {isLoadingProcess ? (
             <div className="flex items-center gap-2">

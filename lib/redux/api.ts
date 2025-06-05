@@ -271,6 +271,14 @@ export const apiSlice = createApi({
             providesTags: ['order'],
 
         }),
+        addOrder: builder.mutation<IPagination<OrderResponse>,{cartId:number}>({
+            query: ({cartId}) => ({
+                url: `orders/cart/${cartId}`,
+                method: "POST"
+            }),
+            invalidatesTags: ['order','cart'],
+
+        }),
         deleteOrder: builder.mutation<IPagination<OrderResponse>,{orderId:string|number}>({
             query: ({orderId}) => ({
                 url: `orders/${orderId}`,
@@ -317,5 +325,6 @@ export const {
     useUpdateCartItemInCartMutation,
     useRemoveCartMutation,
     useGetRestaurantByIdQuery,
-    useGetFoodsByRestaurantIdQuery
+    useGetFoodsByRestaurantIdQuery,
+    useAddOrderMutation
  } = apiSlice;

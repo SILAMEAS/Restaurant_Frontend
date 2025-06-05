@@ -243,6 +243,8 @@ export default function CartPage() {
                selectedCart={selectedCart}
                isLoadingProcess={isLoadingProcess}
                notes={notes}
+               setSelectedCartId={setSelectedCartId}
+               carts={carts}
               />
             </div>
           </div>
