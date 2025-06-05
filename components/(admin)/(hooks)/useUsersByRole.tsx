@@ -9,18 +9,17 @@ export const CheckRole=()=>{
     return {isAdmin,isOwner}
 }
 
-export const useUsersByRole = () => {
-
-    const restaurant= useGetRestaurantOwnerQuery({},{skip:!CheckRole().isOwner});
+export const useUsersByRole = (params: { offset?: number; limit?: number; search?: string } = {}) => {
+    const restaurant = useGetRestaurantOwnerQuery({}, {skip: !CheckRole().isOwner});
     const restaurantId = restaurant?.currentData?.id;
     const query = CheckRole().isAdmin
-        ? useGetUsersQuery(undefined)
+        ? useGetUsersQuery(params)
         : useGetUsersHasOrderInRestaurantQuery(
             { restaurantId: restaurantId ?? "" },
             { skip: !restaurantId || CheckRole().isAdmin }
         );
 
-    return { ...query, isAdmin:CheckRole().isAdmin };
+    return { ...query, isAdmin: CheckRole().isAdmin };
 };
 
 

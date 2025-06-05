@@ -4,7 +4,6 @@ import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
-import {useGetUsersQuery} from "@/lib/redux/api"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -15,12 +14,12 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { PaginatedTable, type Column } from "@/components/ui/paginated-table"
 import { usePagination } from "@/lib/hooks/usePagination"
-import { PaginationRequestDefault } from "@/lib/redux/type"
+import { useUsersByRole } from "@/components/(admin)/(hooks)/useUsersByRole"
 
 const AdminUser = () => {
     const [searchQuery, setSearchQuery] = useState("")
     const pagination = usePagination()
-    const { data: usersData, isLoading } = useGetUsersQuery({
+    const { data: usersData, isLoading } = useUsersByRole({
         ...pagination.getPaginationParams(),
         search: searchQuery,
     })

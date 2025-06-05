@@ -3,7 +3,7 @@ import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow} from "@/components/ui/table"
+import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,174 +11,172 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
 import {useDeleteOrderMutation, useGetOrdersQuery} from "@/lib/redux/api";
 import {enumStatus} from "@/lib/redux/type";
-import SkeletonTable from "@/components/skeleton/SkeletonTable";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
-// Sample orders data
-const ordersData = [
-  {
-    id: "ORD-001",
-    customer: "John Doe",
-    restaurant: "Pizza Palace",
-    total: 18.98,
-    status: "Delivered",
-    date: "2023-04-10T14:30:00Z",
-  },
-  {
-    id: "ORD-002",
-    customer: "Jane Smith",
-    restaurant: "Burger Joint",
-    total: 29.98,
-    status: "In Progress",
-    date: "2023-04-10T15:45:00Z",
-  },
-  {
-    id: "ORD-003",
-    customer: "Bob Johnson",
-    restaurant: "Sushi Spot",
-    total: 21.98,
-    status: "Pending",
-    date: "2023-04-10T16:15:00Z",
-  },
-  {
-    id: "ORD-004",
-    customer: "Charlie Brown",
-    restaurant: "Pizza Palace",
-    total: 24.99,
-    status: "Delivered",
-    date: "2023-04-09T12:30:00Z",
-  },
-  {
-    id: "ORD-005",
-    customer: "John Doe",
-    restaurant: "Green Eats",
-    total: 15.5,
-    status: "Delivered",
-    date: "2023-04-08T13:45:00Z",
-  },
-]
+import { PaginatedTable, type Column } from "@/components/ui/paginated-table"
+import { usePagination } from "@/lib/hooks/usePagination"
 
-const AdminOrder=()=>{
-    const getOrdersQuery=useGetOrdersQuery();
+const AdminOrder = () => {
     const [searchQuery, setSearchQuery] = useState("");
-    const [deleteOrder,resultDeleteOrder] = useDeleteOrderMutation()
+    const pagination = usePagination();
+    const { data: ordersData, isLoading } = useGetOrdersQuery();
+    const [deleteOrder, resultDeleteOrder] = useDeleteOrderMutation()
 
-    const handleDeleteOrder =async (orderId:string|number)=>{
-      await handleApiCall({
-        apiFn: () => deleteOrder({orderId}).unwrap(),
-        onSuccess: () => {
-          toast.success("Category delete successfully!", {
-            theme: "dark",
-            transition: Slide,
-          });
-        },
-        onError:(e)=>{
-          e.data.message && toast.error(`${e.data.message}`, {
-            theme: "dark",
-            transition: Slide,
-          });
-        }
-      });
+    // Filter and paginate data on the client side
+    const filteredData = ordersData?.contents?.filter(
+        (order) =>
+            order.id.toString().includes(searchQuery.toLowerCase()) ||
+            order.user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.restaurant.name.toLowerCase().includes(searchQuery.toLowerCase())
+    ) || [];
 
+    const paginatedData = {
+        contents: filteredData.slice(
+            (pagination.currentPage - 1) * pagination.itemsPerPage,
+            pagination.currentPage * pagination.itemsPerPage
+        ),
+        total: filteredData.length
+    };
+
+    const handleDeleteOrder = async (orderId: string | number) => {
+        await handleApiCall({
+            apiFn: () => deleteOrder({ orderId }).unwrap(),
+            onSuccess: () => {
+                toast.success("Order deleted successfully!", {
+                    theme: "dark",
+                    transition: Slide,
+                });
+            },
+            onError: (e) => {
+                e.data.message && toast.error(`${e.data.message}`, {
+                    theme: "dark",
+                    transition: Slide,
+                });
+            }
+        });
     }
-    return  <Card>
-            <CardHeader>
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <CardTitle>Orders</CardTitle>
-                  <CardDescription>View and manage all customer orders</CardDescription>
-                </div>
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input
-                    placeholder="Search orders..."
-                    className="pl-10 w-full sm:w-[250px]"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                  />
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Order ID</TableHead>
-                    <TableHead>Customer</TableHead>
-                    <TableHead>Restaurant</TableHead>
-                    <TableHead>Total</TableHead>
-                    <TableHead>Items</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {!getOrdersQuery?.currentData?.contents?<SkeletonTable column={7}/>:
-                    getOrdersQuery?.currentData?.contents?.filter(
-                      (order) =>
-                        order.id.toString().includes(searchQuery.toLowerCase()) ||
-                        order.user.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                        order.restaurant.name.toLowerCase().includes(searchQuery.toLowerCase()),
-                    )
-                    .map((order) => (
-                      <TableRow key={order.id}>
-                        <TableCell className="font-medium">{order.id}</TableCell>
-                        <TableCell>{order.user.fullName}</TableCell>
-                        <TableCell>{order.restaurant.name}</TableCell>
-                        <TableCell>${order.totalAmount}</TableCell>
-                        <TableCell>{order.items?.length??0}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              order.status === enumStatus.DELIVERED
-                                ? "outline"
-                                : order.status === enumStatus.PENDING
-                                  ? "secondary"
-                                  : "default"
-                            }
-                          >
-                            {order.status}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>{new Date(order.createdAt).toLocaleDateString()}</TableCell>
-                        <TableCell className="text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon">
+
+    const columns: Column[] = [
+        {
+            header: "Order ID",
+            accessorKey: "id",
+        },
+        {
+            header: "Customer",
+            accessorKey: "user.fullName",
+        },
+        {
+            header: "Restaurant",
+            accessorKey: "restaurant.name",
+        },
+        {
+            header: "Total",
+            accessorKey: "totalAmount",
+            cell: (row) => `$${row.totalAmount}`,
+        },
+        {
+            header: "Items",
+            accessorKey: "items",
+            cell: (row) => row.items?.length ?? 0,
+        },
+        {
+            header: "Status",
+            accessorKey: "status",
+            cell: (row) => (
+                <Badge
+                    variant={
+                        row.status === enumStatus.DELIVERED
+                            ? "outline"
+                            : row.status === enumStatus.PENDING
+                                ? "secondary"
+                                : "default"
+                    }
+                >
+                    {row.status}
+                </Badge>
+            ),
+        },
+        {
+            header: "Date",
+            accessorKey: "createdAt",
+            cell: (row) => new Date(row.createdAt).toLocaleDateString(),
+        },
+        {
+            header: "",
+            accessorKey: "actions",
+            cell: (row) => (
+                <div className="text-right">
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon">
                                 <MoreVertical className="h-4 w-4" />
                                 <span className="sr-only">Open menu</span>
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem>
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem>
                                 <Eye className="h-4 w-4 mr-2" />
                                 View Details
-                              </DropdownMenuItem>
-                              <DropdownMenuItem>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
                                 <Edit className="h-4 w-4 mr-2" />
                                 Update Status
-                              </DropdownMenuItem>
-                              <DropdownMenuSeparator />
-                              <DropdownMenuItem
-                                  className="text-destructive"
-                                  onClick={() => handleDeleteOrder(order.id)}
-                              >
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem
+                                className="text-destructive"
+                                onClick={() => handleDeleteOrder(row.id)}
+                            >
                                 <Trash2 className="h-4 w-4 mr-2" />
                                 Delete Order
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                </TableBody>
-              </Table>
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+                </div>
+            ),
+        },
+    ];
+
+    return (
+        <Card>
+            <CardHeader>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <CardTitle>Orders</CardTitle>
+                        <CardDescription>
+                            View and manage all customer orders ({ordersData?.total || 0} total orders)
+                            {searchQuery && ` • ${paginatedData.total} matching results`}
+                        </CardDescription>
+                    </div>
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                        <Input
+                            placeholder="Search orders..."
+                            className="pl-10 w-full sm:w-[250px]"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
+                </div>
+            </CardHeader>
+            <CardContent>
+                <PaginatedTable
+                    columns={columns}
+                    data={paginatedData.contents}
+                    totalItems={paginatedData.total}
+                    currentPage={pagination.currentPage}
+                    itemsPerPage={pagination.itemsPerPage}
+                    isLoading={isLoading}
+                    onPageChange={pagination.setCurrentPage}
+                    onItemsPerPageChange={pagination.setItemsPerPage}
+                    skeletonColumns={8}
+                />
             </CardContent>
-          </Card>
+        </Card>
+    );
 }
+
 export default AdminOrder;
