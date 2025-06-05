@@ -69,32 +69,40 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <Link href="/" className="absolute left-4 top-4 md:left-8 md:top-8 text-lg font-bold">
-        LaCy
+    <div className="min-h-screen w-full bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 flex items-center justify-center p-4 sm:p-8">
+      <Link 
+        href="/" 
+        className="absolute left-4 top-4 md:left-8 md:top-8 text-xl font-bold text-white hover:text-primary transition-colors duration-200 flex items-center gap-2"
+      >
+        <span className="text-primary">La</span>Cy
       </Link>
-      <Card className="w-full max-w-md bg-transparent border-2">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Login</CardTitle>
-          <CardDescription>Enter your email and password to login to your account</CardDescription>
+      
+      <Card className="w-full max-w-md bg-black/30 backdrop-blur-xl border border-gray-800 shadow-2xl transition-all duration-300 hover:shadow-primary/10">
+        <CardHeader className="space-y-2">
+          <CardTitle className="text-3xl font-bold bg-gradient-to-r from-primary to-purple-500 bg-clip-text text-transparent">Login</CardTitle>
+          <CardDescription className="text-gray-400">Enter your credentials to access your account</CardDescription>
         </CardHeader>
-        <form onSubmit={handleSubmit(onSubmit)} >
-          <CardContent className="space-y-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+          <CardContent className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-white">Email</Label>
+              <Label htmlFor="email" className="text-sm font-medium text-gray-200">Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="m@example.com"
                 {...register("email")}
+                className="bg-gray-900/50 border-gray-800 focus:border-primary transition-all duration-200 placeholder:text-gray-500"
                 aria-invalid={errors.email ? "true" : "false"}
               />
-              {errors.email && <p className="text-sm text-red-500">{errors.email.message}</p>}
+              {errors.email && <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="/auth/forgot-password" className="text-sm text-primary underline-offset-4 hover:underline">
+                <Label htmlFor="password" className="text-sm font-medium text-gray-200">Password</Label>
+                <Link 
+                  href="/auth/forgot-password" 
+                  className="text-sm text-primary hover:text-primary/80 transition-colors duration-200"
+                >
                   Forgot password?
                 </Link>
               </div>
@@ -104,29 +112,44 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   placeholder="••••••••"
                   {...register("password")}
+                  className="bg-gray-900/50 border-gray-800 focus:border-primary transition-all duration-200 pr-10 placeholder:text-gray-500"
                   aria-invalid={errors.password ? "true" : "false"}
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="icon"
-                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                  className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-gray-400 hover:text-primary transition-colors duration-200"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
                 </Button>
               </div>
-              {errors.password && <p className="text-sm text-red-500">{errors.password.message}</p>}
+              {errors.password && <p className="text-sm text-red-500 mt-1">{errors.password.message}</p>}
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col">
-            <Button className="w-full" type="submit" disabled={loginResult.isLoading}>
-              {loginResult.isLoading ? "Logging in..." : "Login"}
+          <CardFooter className="flex flex-col space-y-4">
+            <Button 
+              className="w-full bg-gradient-to-r from-primary to-purple-500 hover:opacity-90 transition-opacity duration-200 text-white font-medium py-2.5" 
+              type="submit" 
+              disabled={loginResult.isLoading}
+            >
+              {loginResult.isLoading ? (
+                <div className="flex items-center justify-center gap-2">
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span>Logging in...</span>
+                </div>
+              ) : (
+                "Login"
+              )}
             </Button>
-            <div className="mt-4 text-center text-sm text-white">
+            <div className="text-center text-sm text-gray-400">
               Don't have an account?{" "}
-              <Link href="/auth/register" className="text-link underline-offset-4 hover:underline">
+              <Link 
+                href="/auth/register" 
+                className="text-primary hover:text-primary/80 transition-colors duration-200 font-medium"
+              >
                 Register
               </Link>
             </div>
