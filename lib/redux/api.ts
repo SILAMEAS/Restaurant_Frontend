@@ -9,6 +9,7 @@ import {
     IProfile, OrderResponse, PaginationRequest, PaginationRequestDefault, PaginationRequestWithIngoreCase,
     RestaurantResponse,
 } from "@/lib/redux/type";
+import { IMessage } from '@stomp/stompjs';
 
 
 export const customBaseQuery = (url: string) => {
@@ -29,7 +30,7 @@ export const customBaseQuery = (url: string) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
-    tagTypes:['address','favorite','user',"category","restaurant",'order','cart'],
+    tagTypes:['address','favorite','user',"category","restaurant",'order','cart','message'],
     endpoints: (builder) => ({
         /** ========================================== Restaurants */
         getRestaurants: builder.query<IPagination<RestaurantResponse>, { offset?: number; limit?: number; search?: string }>({
@@ -290,6 +291,16 @@ export const apiSlice = createApi({
         getRestaurantById: builder.query<RestaurantResponse, number>({
             query: (id) => `/restaurants/${id}`,
         }),
+        /**  ==========================================  Message */
+          getMessages: builder.query<IPagination<IMessage>,{req:PaginationRequestWithIngoreCase,roomId:string;}>({
+            query: ({req:{ params=PaginationRequestDefault,caseIgnoreFilter},roomId}) => ({
+                url: `chats/room/${roomId}`,
+                method: "GET",
+                params:{...params,filterBy:caseIgnoreFilter?undefined:params.filterBy,foodType:params.foodType===null?undefined:params.foodType}
+            }),
+            providesTags: ['message'],
+
+        }),
 
     }),
 });
@@ -326,5 +337,6 @@ export const {
     useRemoveCartMutation,
     useGetRestaurantByIdQuery,
     useGetFoodsByRestaurantIdQuery,
-    useAddOrderMutation
+    useAddOrderMutation,
+    useGetMessagesQuery
  } = apiSlice;

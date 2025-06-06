@@ -1,21 +1,44 @@
 'use client';
 
 import React from 'react';
-import { useProfileQuery } from '@/lib/redux/api';
+import { useGetMessagesQuery, useProfileQuery } from '@/lib/redux/api';
 import { useWebSocket } from './hooks/useWebSocket';
 import { MessageList } from './components/MessageList';
 import { MessageInput } from './components/MessageInput';
+import useParamQuery from '@/hooks/useParamQuery';
 
 const WebSocketPage = () => {
     const { data: profile } = useProfileQuery();
-    const roomId = '2-12'; // This could be dynamic based on your needs
+    const roomId = '2_12'; // This could be dynamic based on your needs
+    const {paramQuery}= useParamQuery();
+
+    // Get messages from API
+    const {data: messagesData}=useGetMessagesQuery({
+        req:{
+            params:{
+                ...paramQuery,
+                pageNo: 0,
+                pageSize: 50,
+                sortBy: 'id',
+                sortOrder: 'asc'
+            },
+            caseIgnoreFilter:true
+        },
+        roomId
+    });
     
     const {
-        messages,
+        messages: wsMessages,
         isSending,
         connectionStatus: { isConnected, error },
         sendMessage
     } = useWebSocket(roomId);
+
+    // Combine API messages with websocket messages
+    const allMessages = [
+        ...(messagesData?.contents || []),
+        ...wsMessages
+    ];
 
     return (
         <div className="p-4 max-w-2xl mx-auto">
@@ -58,7 +81,7 @@ const WebSocketPage = () => {
             
             <div className="bg-white shadow rounded-lg p-4 mb-4">
                 <MessageList 
-                    messages={messages}
+                    messages={allMessages}
                     currentUserId={profile?.id}
                 />
                 
