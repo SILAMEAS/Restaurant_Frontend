@@ -6,11 +6,13 @@ import SockJS from 'sockjs-client';
 import { useGlobalState } from '@/hooks/useGlobalState';
 import { useProfileQuery } from '@/lib/redux/api';
 
-interface IChatMessageDTO{
-    content:string;
-    senderId:number;
-    roomId:string;
+interface IChatMessageDTO {
+    content: string;
+    senderId: number;
+    roomId: string;
     senderName?: string;
+    messageId?: string;
+    timestamp?: string;
 }
 
 interface IMessage {
@@ -18,6 +20,7 @@ interface IMessage {
     timestamp: string;
     senderId: number;
     senderName?: string;
+    messageId: string;
 }
 
 const WebSocketPage = () => {
@@ -32,12 +35,18 @@ const WebSocketPage = () => {
     const clientRef = React.useRef<Client | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [connectionError, setConnectionError] = useState<string | null>(null);
+    const [isSending, setIsSending] = useState(false);
+
+    // Function to generate a unique message ID
+    const generateMessageId = () => {
+        return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    };
 
     useEffect(() => {
         const connect = () => {
             console.log("Starting WebSocket connection...");
             
-            const socket = new SockJS('http://localhost:5000/ws-chat');
+            const socket = new SockJS(process.env.NEXT_PUBLIC_BASE_URL+'/ws-chat');
             
             const stompClient = new Client({
                 webSocketFactory: () => socket,
@@ -59,13 +68,23 @@ const WebSocketPage = () => {
                             const receivedMessage = JSON.parse(message.body);
                             console.log('Parsed message:', receivedMessage);
                             
-                            // Add the message to state with all required fields
-                            setMessages(prev => [...prev, {
-                                content: receivedMessage.content,
-                                senderId: receivedMessage.senderId,
-                                senderName: receivedMessage.senderName || `User ${receivedMessage.senderId}`,
-                                timestamp: receivedMessage.timestamp || new Date().toISOString()
-                            }]);
+                            // Check if message already exists
+                            const messageId = receivedMessage.messageId || generateMessageId();
+                            setMessages(prev => {
+                                // Check if message with this ID already exists
+                                if (prev.some(msg => msg.messageId === messageId)) {
+                                    return prev;
+                                }
+                                
+                                // Add new message
+                                return [...prev, {
+                                    content: receivedMessage.content,
+                                    senderId: receivedMessage.senderId,
+                                    senderName: receivedMessage.senderName || `User ${receivedMessage.senderId}`,
+                                    timestamp: receivedMessage.timestamp || new Date().toISOString(),
+                                    messageId: messageId
+                                }];
+                            });
                         } catch (err) {
                             console.error('Error parsing message:', err);
                             console.error('Raw message:', message);
@@ -106,23 +125,28 @@ const WebSocketPage = () => {
         };
     }, []);
 
-    const sendMessage = (e: React.FormEvent) => {
+    const sendMessage = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!client || !client.active || !chatDTO.content.trim()) {
+        if (!client || !client.active || !chatDTO.content.trim() || isSending) {
             console.log('Cannot send message:', {
                 clientExists: !!client,
                 clientActive: client?.active,
-                hasContent: !!chatDTO.content.trim()
+                hasContent: !!chatDTO.content.trim(),
+                isSending
             });
             return;
         }
 
+        setIsSending(true);
+
+        const messageId = generateMessageId();
         const messageToSend = {
             content: chatDTO.content,
             senderId: profile?.id,
             roomId: chatDTO.roomId,
             senderName: profile?.fullName,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            messageId: messageId
         };
 
         try {
@@ -136,14 +160,7 @@ const WebSocketPage = () => {
             });
             console.log('Message sent successfully');
             
-            // Immediately add the sent message to the local state
-            setMessages(prev => [...prev, {
-                content: messageToSend.content,
-                senderId: messageToSend.senderId!,
-                senderName: messageToSend.senderName,
-                timestamp: messageToSend.timestamp
-            }]);
-            
+            // Clear the input field
             setChatDTO(prev => ({
                 ...prev,
                 content: ''
@@ -151,6 +168,8 @@ const WebSocketPage = () => {
         } catch (error) {
             console.error('Failed to send message:', error);
             setConnectionError('Failed to send message');
+        } finally {
+            setIsSending(false);
         }
     };
 
@@ -182,9 +201,9 @@ const WebSocketPage = () => {
                     {messages.length === 0 ? (
                         <div className="text-gray-500 text-center py-4">No messages yet</div>
                     ) : (
-                        messages.map((msg, i) => (
+                        messages.map((msg) => (
                             <div 
-                                key={i} 
+                                key={msg.messageId} 
                                 className={`mb-2 p-2 rounded ${
                                     msg.senderId === profile?.id 
                                         ? 'bg-blue-100 ml-auto' 
@@ -213,18 +232,18 @@ const WebSocketPage = () => {
                         }}
                         className="flex-1 border rounded px-2 py-1"
                         placeholder="Type your message..."
-                        disabled={!isConnected}
+                        disabled={!isConnected || isSending}
                     />
                     <button 
                         type="submit"
                         className={`px-4 py-1 rounded ${
-                            isConnected 
+                            isConnected && !isSending
                                 ? 'bg-blue-500 text-white hover:bg-blue-600' 
                                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
                         }`}
-                        disabled={!isConnected}
+                        disabled={!isConnected || isSending}
                     >
-                        Send
+                        {isSending ? 'Sending...' : 'Send'}
                     </button>
                 </form>
             </div>
