@@ -5,6 +5,7 @@ import { Client, Frame, Message } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { useGlobalState } from '@/hooks/useGlobalState';
 import { useProfileQuery } from '@/lib/redux/api';
+import { getWebSocketUrl, STOMP_CONFIG } from '../config';
 
 interface IChatMessageDTO {
     content: string;
@@ -46,73 +47,84 @@ const WebSocketPage = () => {
         const connect = () => {
             console.log("Starting WebSocket connection...");
             
-            const socket = new SockJS(process.env.NEXT_PUBLIC_BASE_URL+'/ws-chat');
-            
-            const stompClient = new Client({
-                webSocketFactory: () => socket,
-                debug: (str) => {
-                    console.log('STOMP Debug:', str);
-                },
-                reconnectDelay: 5000,
-                heartbeatIncoming: 4000,
-                heartbeatOutgoing: 4000,
-                onConnect: (frame: Frame) => {
-                    console.log('STOMP Connected:', frame);
-                    setIsConnected(true);
-                    setConnectionError(null);
+            try {
+                const socket = new SockJS(getWebSocketUrl());
+                
+                socket.onclose = () => {
+                    console.log('SockJS connection closed');
+                    setIsConnected(false);
+                    setConnectionError('Connection closed');
+                };
 
-                    // Subscribe to the messages topic
-                    stompClient.subscribe('/topic/messages', (message: Message) => {
-                        console.log('Raw message received:', message);
-                        try {
-                            const receivedMessage = JSON.parse(message.body);
-                            console.log('Parsed message:', receivedMessage);
-                            
-                            // Check if message already exists
-                            const messageId = receivedMessage.messageId || generateMessageId();
-                            setMessages(prev => {
-                                // Check if message with this ID already exists
-                                if (prev.some(msg => msg.messageId === messageId)) {
-                                    return prev;
-                                }
+                socket.onerror = (error) => {
+                    console.error('SockJS error:', error);
+                    setConnectionError('Connection error');
+                };
+                
+                const stompClient = new Client({
+                    ...STOMP_CONFIG,
+                    webSocketFactory: () => socket,
+                    onConnect: (frame: Frame) => {
+                        console.log('STOMP Connected:', frame);
+                        setIsConnected(true);
+                        setConnectionError(null);
+
+                        // Subscribe to the messages topic
+                        stompClient.subscribe('/topic/messages', (message) => {
+                            console.log('Raw message received:', message);
+                            try {
+                                const receivedMessage = JSON.parse(message.body);
+                                console.log('Parsed message:', receivedMessage);
                                 
-                                // Add new message
-                                return [...prev, {
-                                    content: receivedMessage.content,
-                                    senderId: receivedMessage.senderId,
-                                    senderName: receivedMessage.senderName || `User ${receivedMessage.senderId}`,
-                                    timestamp: receivedMessage.timestamp || new Date().toISOString(),
-                                    messageId: messageId
-                                }];
-                            });
-                        } catch (err) {
-                            console.error('Error parsing message:', err);
-                            console.error('Raw message:', message);
-                        }
-                    });
-                    console.log('Subscribed to /topic/messages');
-                },
-                onDisconnect: () => {
-                    console.log('STOMP Disconnected');
-                    setIsConnected(false);
-                    setConnectionError('Disconnected from server');
-                },
-                onWebSocketError: (event) => {
-                    console.error('WebSocket Error:', event);
-                    setIsConnected(false);
-                    setConnectionError('Failed to connect to server');
-                },
-                onStompError: (frame) => {
-                    console.error('STOMP Error:', frame);
-                    setIsConnected(false);
-                    setConnectionError('STOMP protocol error');
-                }
-            });
+                                // Check if message already exists
+                                const messageId = receivedMessage.messageId || generateMessageId();
+                                setMessages(prev => {
+                                    // Check if message with this ID already exists
+                                    if (prev.some(msg => msg.messageId === messageId)) {
+                                        return prev;
+                                    }
+                                    
+                                    // Add new message
+                                    return [...prev, {
+                                        content: receivedMessage.content,
+                                        senderId: receivedMessage.senderId,
+                                        senderName: receivedMessage.senderName || `User ${receivedMessage.senderId}`,
+                                        timestamp: receivedMessage.timestamp || new Date().toISOString(),
+                                        messageId: messageId
+                                    }];
+                                });
+                            } catch (err) {
+                                console.error('Error parsing message:', err);
+                                console.error('Raw message:', message);
+                            }
+                        });
+                        console.log('Subscribed to /topic/messages');
+                    },
+                    onDisconnect: () => {
+                        console.log('STOMP Disconnected');
+                        setIsConnected(false);
+                        setConnectionError('Disconnected from server');
+                    },
+                    onWebSocketError: (event) => {
+                        console.error('WebSocket Error:', event);
+                        setIsConnected(false);
+                        setConnectionError('Failed to connect to server');
+                    },
+                    onStompError: (frame) => {
+                        console.error('STOMP Error:', frame);
+                        setIsConnected(false);
+                        setConnectionError('STOMP protocol error');
+                    }
+                });
 
-            console.log('Activating STOMP client...');
-            stompClient.activate();
-            clientRef.current = stompClient;
-            setClient(stompClient);
+                console.log('Activating STOMP client...');
+                stompClient.activate();
+                clientRef.current = stompClient;
+                setClient(stompClient);
+            } catch (error) {
+                console.error('Error creating WebSocket connection:', error);
+                setConnectionError('Failed to create connection');
+            }
         };
 
         connect();
