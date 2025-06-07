@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Send, Users, X, Wifi, WifiOff } from "lucide-react"
+import { Send, Users, X, Wifi, WifiOff, WifiIcon } from "lucide-react"
 import {
   Popover,
   PopoverContent,
@@ -257,221 +257,146 @@ export function ChatPopover() {
   }
 
   return (
-    <>
-      {isOwner ? (
-        <div className={`fixed bottom-0 right-0 z-50 flex ${view === 'expanded' ? 'w-[1200px]' : 'w-[350px]'} transition-all duration-300 ease-in-out`}>
-          <div className="flex flex-col w-full bg-background border rounded-t-lg shadow-lg">
-            {/* Header */}
-            <div className="p-3 border-b flex items-center justify-between bg-muted/50">
-              <div className="flex items-center gap-2">
-                <h3 className="font-semibold">Customer Support</h3>
-                <Badge variant="default" className="bg-yellow-500">Owner</Badge>
-                {!isConnected && (
-                  <Badge variant="destructive">
-                    <WifiOff className="w-3 h-3 mr-1" />
-                    Disconnected
-                  </Badge>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <Button
+          variant="outline"
+          size="icon"
+          className="h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground relative border-2 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800 light:hover:bg-gray-100 transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          <MessageCircle className="h-5 w-5 dark:text-gray-300 light:text-gray-600" />
+          {isConnected ? (
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-green-500 text-[10px] font-medium text-white flex items-center justify-center animate-in zoom-in duration-200">
+              <WifiIcon className="w-3 h-3" />
+            </span>
+          ) : (
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center animate-in zoom-in duration-200">
+              <WifiOff className="w-3 h-3" />
+            </span>
+          )}
+        </Button>
+      </PopoverTrigger>
+      <PopoverContent 
+        className={`${isOwner ? 'w-[1200px]' : 'w-[800px]'} p-0`} 
+        align="end"
+        side="left"
+        sideOffset={20}
+      >
+        {!isUsernameSet ? (
+          <div className="p-4">
+            <form onSubmit={handleUsernameSubmit} className="space-y-3">
+              <h3 className="font-semibold">Enter your name to start chatting</h3>
+              <Input
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Your name..."
+                className="w-full"
+              />
+              <Button type="submit" className="w-full">
+                Start Chatting
+              </Button>
+            </form>
+          </div>
+        ) : (
+          <div className="flex h-[600px]">
+            <div className="flex-1 flex flex-col bg-background">
+              {/* Header */}
+              <div className="p-3 border-b flex items-center justify-between bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <h3 className="font-semibold">{isOwner ? "Customer Support" : "Chat with Restaurant"}</h3>
+                  {isOwner && <Badge variant="default" className="bg-yellow-500">Owner</Badge>}
+                  {!isOwner && <Badge variant="secondary">Support</Badge>}
+                  {isConnected ? (
+                    <Badge variant="default" className="bg-green-500">
+                      <WifiIcon className="w-3 h-3 mr-1" />
+                      Connected
+                    </Badge>
+                  ) : (
+                    <Badge variant="destructive">
+                      <WifiOff className="w-3 h-3 mr-1" />
+                      Disconnected
+                    </Badge>
+                  )}
+                </div>
+                {isOwner && (
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8"
+                      onClick={() => setView(view === 'minimized' ? 'expanded' : 'minimized')}
+                    >
+                      {view === 'minimized' ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m8-3v3a2 2 0 0 0 2 2h3"/></svg>
+                      )}
+                    </Button>
+                  </div>
                 )}
               </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setView(view === 'minimized' ? 'expanded' : 'minimized')}
-                >
-                  {view === 'minimized' ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6M14 10l7-7M9 21H3v-6M10 14l-7 7"/></svg>
-                  ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3M3 16h3a2 2 0 0 1 2 2v3m8-3v3a2 2 0 0 0 2 2h3"/></svg>
-                  )}
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => setIsOpen(false)}
-                >
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
 
-            <div className="flex h-[600px]">
               {/* Chat Area */}
-              <div className="flex-1 flex flex-col bg-background">
-                <div className="flex-1 overflow-y-auto p-3 space-y-4">
-                  {allMessages.map((message) => (
+              <div className="flex-1 overflow-y-auto p-3 space-y-4">
+                {allMessages.map((message) => (
+                  <div
+                    key={message.id}
+                    className={`flex animate-in slide-in-from-${
+                      message.isOwner ? "right" : "left"
+                    } duration-300 ${
+                      message.isOwner ? "justify-end" : "justify-start"
+                    }`}
+                  >
                     <div
-                      key={message.id}
-                      className={`flex animate-in slide-in-from-${
-                        message.isOwner ? "right" : "left"
-                      } duration-300 ${
-                        message.isOwner ? "justify-end" : "justify-start"
+                      className={`max-w-[80%] ${
+                        message.isOwner ? "order-2" : "order-1"
                       }`}
                     >
                       <div
-                        className={`max-w-[80%] ${
-                          message.isOwner ? "order-2" : "order-1"
+                        className={`rounded-lg px-3 py-2 text-sm ${
+                          message.isOwner
+                            ? isOwner 
+                              ? "bg-yellow-500 text-white"
+                              : "bg-primary text-primary-foreground"
+                            : "bg-accent"
                         }`}
                       >
-                        <div
-                          className={`rounded-lg px-3 py-2 text-sm ${
-                            message.isOwner
-                              ? "bg-yellow-500 text-white"
-                              : "bg-accent"
-                          }`}
-                        >
-                          {message.text}
-                          <div className="text-[10px] opacity-70 mt-1">
-                            {new Date(message.timestamp).toLocaleTimeString()}
-                          </div>
+                        {message.text}
+                        <div className="text-[10px] opacity-70 mt-1">
+                          {new Date(message.timestamp).toLocaleTimeString()}
                         </div>
                       </div>
                     </div>
-                  ))}
-                  <div ref={messagesEndRef} />
-                </div>
-
-                <div className="p-3 border-t bg-muted/30">
-                  <form
-                    onSubmit={handleMessageSubmit}
-                    className="flex items-center gap-2"
-                  >
-                    <Input
-                      value={input}
-                      onChange={(e) => setInput(e.target.value)}
-                      placeholder="Type a message..."
-                      className="flex-1"
-                      disabled={!isConnected || isSending}
-                    />
-                    <Button
-                      type="submit"
-                      className="px-4 h-10"
-                      disabled={!input.trim() || !isConnected || isSending}
-                    >
-                      {isSending ? "Sending..." : "Send"}
-                    </Button>
-                  </form>
-                </div>
+                  </div>
+                ))}
+                <div ref={messagesEndRef} />
               </div>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <Popover open={isOpen} onOpenChange={setIsOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="outline"
-              size="icon"
-              className="h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground relative border-2 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800 light:hover:bg-gray-100 transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              <MessageCircle className="h-5 w-5 dark:text-gray-300 light:text-gray-600" />
-              {!isConnected && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center animate-in zoom-in duration-200">
-                  <WifiOff className="w-3 h-3" />
-                </span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-[800px] p-0" 
-            align="end"
-            side="left"
-            sideOffset={20}
-          >
-            {!isUsernameSet ? (
-              <div className="p-4">
-                <form onSubmit={handleUsernameSubmit} className="space-y-3">
-                  <h3 className="font-semibold">Enter your name to start chatting</h3>
+
+              <div className="p-3 border-t bg-muted/30">
+                <form
+                  onSubmit={handleMessageSubmit}
+                  className="flex items-center gap-2"
+                >
                   <Input
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    placeholder="Your name..."
-                    className="w-full"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="Type a message..."
+                    className="flex-1"
+                    disabled={!isConnected || isSending}
                   />
-                  <Button type="submit" className="w-full">
-                    Start Chatting
+                  <Button
+                    type="submit"
+                    className={isOwner ? "px-4 h-10" : "h-8 w-8 rounded-full"}
+                    disabled={!input.trim() || !isConnected || isSending}
+                  >
+                    {isOwner ? (isSending ? "Sending..." : "Send") : <Send className="h-4 w-4" />}
                   </Button>
                 </form>
               </div>
-            ) : (
-              <div className="flex h-[600px]">
-                <div className="flex-1 flex flex-col">
-                  <div className="flex items-center justify-between p-3 border-b">
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-semibold">Chat with Restaurant</h3>
-                      <Badge variant="secondary">Support</Badge>
-                      {!isConnected && (
-                        <Badge variant="destructive">
-                          <WifiOff className="w-3 h-3 mr-1" />
-                          Disconnected
-                        </Badge>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto p-3 space-y-4">
-                    {allMessages.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex animate-in slide-in-from-${
-                          message.isOwner ? "right" : "left"
-                        } duration-300 ${
-                          message.isOwner ? "justify-end" : "justify-start"
-                        }`}
-                      >
-                        <div
-                          className={`max-w-[80%] ${
-                            message.isOwner ? "order-2" : "order-1"
-                          }`}
-                        >
-                          <div
-                            className={`rounded-lg px-3 py-2 text-sm ${
-                              message.isOwner
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-accent"
-                            }`}
-                          >
-                            {message.text}
-                            <div className="text-[10px] opacity-70 mt-1">
-                              {new Date(message.timestamp).toLocaleTimeString()}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                    <div ref={messagesEndRef} />
-                  </div>
-
-                  <div className="p-3 border-t">
-                    <form
-                      onSubmit={handleMessageSubmit}
-                      className="flex items-center gap-2"
-                    >
-                      <Input
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Type a message..."
-                        className="flex-1"
-                        disabled={!isConnected || isSending}
-                      />
-                      <Button
-                        type="submit"
-                        size="icon"
-                        className="h-8 w-8 rounded-full"
-                        disabled={!input.trim() || !isConnected || isSending}
-                      >
-                        <Send className="h-4 w-4" />
-                      </Button>
-                    </form>
-                  </div>
-                </div>
-              </div>
-            )}
-          </PopoverContent>
-        </Popover>
-      )}
-    </>
+            </div>
+          </div>
+        )}
+      </PopoverContent>
+    </Popover>
   )
 } 
