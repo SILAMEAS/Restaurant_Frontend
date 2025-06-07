@@ -139,7 +139,7 @@ const AdminFood=()=>{
       formData.append("categoryId", data.categoryId);
       formData.append("foodType", `${data.foodType}`);
       formData.append("price", data.price);
-      formData.append("discount", data.discount);
+      formData.append("discount", "0");
       formData.append("available", `${data.available}`);
       formData.append("restaurantId", data.restaurantId);
      if(dropzoneCustom.imageFile){
@@ -388,7 +388,7 @@ const AdminFood=()=>{
                               defaultValue={
                                 editingFood !== null
                                     ? foodsData?.contents?.find((c) => c.id === editingFood)?.discount.total ?? 0
-                                    : ""
+                                    : 0
                               }
                           />
                         </div>

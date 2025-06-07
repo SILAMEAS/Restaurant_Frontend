@@ -5,13 +5,18 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { Send, Users, X } from "lucide-react"
+import { Send, Users, X, Wifi, WifiOff } from "lucide-react"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { MessageCircle } from "lucide-react"
+import { useGlobalState } from "@/hooks/useGlobalState"
+import { useProfileQuery, useGetMessagesQuery } from "@/lib/redux/api"
+import { Role } from "@/lib/redux/counterSlice"
+import { useWebSocket } from "@/app/websocket/hooks/useWebSocket"
+import { IMessage, IChatMessageDTO } from "@/app/websocket/types"
 
 interface Message {
   id: string
@@ -29,12 +34,13 @@ interface User {
   username: string
   color: string
   lastSeen: number
-  role?: 'owner' | 'user'
+  role?: Role
   unreadCount?: number
   lastMessage?: string
 }
 
 export function ChatPopover() {
+  const { data: profile } = useProfileQuery();
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState("")
   const [username, setUsername] = useState("")
@@ -55,9 +61,84 @@ export function ChatPopover() {
   ])
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
-  // Owner credentials - in a real app, this should come from your authentication system
-  const OWNER_USERNAME = "Restaurant Owner"
-  const isOwner = username === OWNER_USERNAME
+  // Owner credentials
+  const isOwner = profile?.role === Role.OWNER
+  const roomId = '2_12' // This could be dynamic based on your needs
+
+  // Get messages from API
+  const {data: messagesData} = useGetMessagesQuery({
+    req: {
+      params: {
+        pageNo: 0,
+        pageSize: 50,
+        sortBy: 'id',
+        sortOrder: 'asc'
+      },
+      caseIgnoreFilter: true
+    },
+    roomId
+  });
+
+  // WebSocket connection
+  const {
+    messages: wsMessages,
+    isSending,
+    connectionStatus: { isConnected, error },
+    sendMessage
+  } = useWebSocket(roomId);
+
+  // Combine API messages with websocket messages
+  const allMessages = useMemo(() => {
+    const apiMessages = (messagesData?.contents || []).map((msg: any): Message => ({
+      id: msg.messageId,
+      text: msg.content,
+      username: msg.senderName || `User ${msg.senderId}`,
+      timestamp: new Date(msg.timestamp).getTime(),
+      color: userColor,
+      isOwner: msg.senderId === profile?.id
+    }));
+
+    const wsMessagesConverted = wsMessages.map((msg: IMessage): Message => ({
+      id: msg.messageId,
+      text: msg.content,
+      username: msg.senderName || `User ${msg.senderId}`,
+      timestamp: new Date(msg.timestamp).getTime(),
+      color: userColor,
+      isOwner: msg.senderId === profile?.id
+    }));
+
+    return [...apiMessages, ...wsMessagesConverted];
+  }, [messagesData, wsMessages, profile?.id, userColor]);
+
+  const handleMessageSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (input.trim() && profile?.id) {
+      const message: IChatMessageDTO = {
+        content: input.trim(),
+        senderId: profile.id,
+        roomId,
+        senderName: profile.fullName
+      };
+
+      sendMessage(message);
+      setInput("");
+    }
+  }
+
+  useEffect(() => {
+    if (profile) {
+      setUsername(profile.fullName);
+      setIsUsernameSet(true);
+    }
+  }, [profile]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [allMessages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   const colors = [
     "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
@@ -67,11 +148,11 @@ export function ChatPopover() {
   const filteredMessages = useMemo(() => {
     if (!isOwner || !selectedUser) {
       return messages.filter(m => 
-        !isOwner || m.username === username || m.username === OWNER_USERNAME
+        !isOwner || m.username === username 
       )
     }
     return messages.filter(m => 
-      m.username === selectedUser || m.username === OWNER_USERNAME
+      m.username === selectedUser 
     )
   }, [messages, isOwner, selectedUser, username])
 
@@ -80,7 +161,7 @@ export function ChatPopover() {
     const chats: { [key: string]: User & { messages: Message[] } } = {}
     
     messages.forEach(message => {
-      if (message.username !== OWNER_USERNAME) {
+      if (!isOwner) {
         if (!chats[message.username]) {
           const user = onlineUsers.find(u => u.username === message.username) || {
             username: message.username,
@@ -116,58 +197,6 @@ export function ChatPopover() {
     )
   }, [userChats, searchQuery])
 
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
-
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  useEffect(() => {
-    // Load existing messages
-    const savedMessages = localStorage.getItem("chat-messages")
-    if (savedMessages) {
-      setMessages(JSON.parse(savedMessages))
-    }
-
-    // Load existing users
-    const savedUsers = localStorage.getItem("chat-users")
-    if (savedUsers) {
-      setOnlineUsers(JSON.parse(savedUsers))
-    }
-
-    // Listen for storage changes (real-time updates)
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === "chat-messages" && e.newValue) {
-        setMessages(JSON.parse(e.newValue))
-      }
-      if (e.key === "chat-users" && e.newValue) {
-        setOnlineUsers(JSON.parse(e.newValue))
-      }
-    }
-
-    window.addEventListener("storage", handleStorageChange)
-
-    // Update user presence every 5 seconds
-    const presenceInterval = setInterval(() => {
-      if (isUsernameSet) {
-        updateUserPresence()
-      }
-    }, 5000)
-
-    // Cleanup offline users every 30 seconds
-    const cleanupInterval = setInterval(() => {
-      cleanupOfflineUsers()
-    }, 30000)
-
-    return () => {
-      window.removeEventListener("storage", handleStorageChange)
-      clearInterval(presenceInterval)
-      clearInterval(cleanupInterval)
-    }
-  }, [isUsernameSet])
-
   const updateUserPresence = () => {
     const savedUsers = localStorage.getItem("chat-users")
     const users: User[] = savedUsers ? JSON.parse(savedUsers) : []
@@ -177,7 +206,7 @@ export function ChatPopover() {
       username, 
       color: userColor, 
       lastSeen: Date.now(),
-      role: username === OWNER_USERNAME ? 'owner' as const : 'user' as const
+      role: profile?.role as Role
     }
 
     if (userIndex >= 0) {
@@ -211,42 +240,9 @@ export function ChatPopover() {
       updateUserPresence()
       
       // If it's the owner logging in, use a special color and role
-      if (username === OWNER_USERNAME) {
+      if (isOwner) {
         setUserColor("#FFD700") // Gold color for owner
       }
-    }
-  }
-
-  const handleMessageSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (input.trim()) {
-      const newMessage: Message = {
-        id: Date.now().toString(),
-        text: input.trim(),
-        username,
-        timestamp: Date.now(),
-        color: userColor,
-        isOwner: username === OWNER_USERNAME,
-        status: username === OWNER_USERNAME ? 'replied' : 'pending',
-        replyTo: selectedUser || undefined
-      }
-
-      const savedMessages = localStorage.getItem("chat-messages")
-      const existingMessages: Message[] = savedMessages ? JSON.parse(savedMessages) : []
-      
-      // Mark previous messages as read when owner replies
-      const updatedMessages = existingMessages.map(msg => {
-        if (isOwner && msg.username === selectedUser) {
-          return { ...msg, status: 'read' as const }
-        }
-        return msg
-      })
-
-      const finalMessages = [...updatedMessages, newMessage]
-      localStorage.setItem("chat-messages", JSON.stringify(finalMessages))
-      setMessages(finalMessages)
-      setInput("")
-      updateUserPresence()
     }
   }
 
@@ -270,9 +266,10 @@ export function ChatPopover() {
               <div className="flex items-center gap-2">
                 <h3 className="font-semibold">Customer Support</h3>
                 <Badge variant="default" className="bg-yellow-500">Owner</Badge>
-                {messages.filter(m => m.status === 'pending').length > 0 && (
+                {!isConnected && (
                   <Badge variant="destructive">
-                    {messages.filter(m => m.status === 'pending').length} unread
+                    <WifiOff className="w-3 h-3 mr-1" />
+                    Disconnected
                   </Badge>
                 )}
               </div>
@@ -301,201 +298,62 @@ export function ChatPopover() {
             </div>
 
             <div className="flex h-[600px]">
-              {/* Conversations List */}
-              <div className="w-[350px] border-r flex flex-col">
-                <div className="p-3 border-b">
-                  <Input
-                    placeholder="Search conversations..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                <div className="flex-1 overflow-y-auto">
-                  {filteredChats.map((chat) => (
-                    <button
-                      key={chat.username}
-                      onClick={() => setSelectedUser(chat.username)}
-                      className={`w-full p-3 text-left hover:bg-accent/50 flex flex-col gap-1 border-b transition-colors ${
-                        selectedUser === chat.username ? 'bg-accent' : ''
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback
-                              style={{
-                                backgroundColor: chat.color,
-                                color: "white",
-                              }}
-                            >
-                              {chat.username.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-sm flex items-center gap-2">
-                              {chat.username}
-                              {onlineUsers.find(u => u.username === chat.username) && (
-                                <span className="w-2 h-2 rounded-full bg-green-500"/>
-                              )}
-                            </div>
-                            <div className="text-xs text-muted-foreground truncate">
-                              {chat.lastMessage}
-                            </div>
-                          </div>
-                        </div>
-                        {(chat.unreadCount || 0) > 0 && (
-                          <Badge variant="default" className="bg-primary ml-2">
-                            {chat.unreadCount || 0}
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center justify-between text-xs text-muted-foreground">
-                        <span>Last active: {new Date(chat.lastSeen).toLocaleTimeString()}</span>
-                        {chat.messages.length > 0 && (
-                          <span>{chat.messages.length} messages</span>
-                        )}
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               {/* Chat Area */}
               <div className="flex-1 flex flex-col bg-background">
-                {selectedUser ? (
-                  <>
-                    <div className="p-3 border-b bg-muted/30">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="h-8 w-8">
-                            <AvatarFallback
-                              style={{
-                                backgroundColor: userChats.find(c => c.username === selectedUser)?.color || '#000',
-                                color: "white",
-                              }}
-                            >
-                              {selectedUser.charAt(0).toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h3 className="font-semibold">{selectedUser}</h3>
-                            <div className="text-xs text-muted-foreground flex items-center gap-2">
-                              {onlineUsers.find(u => u.username === selectedUser) ? (
-                                <>
-                                  <span className="w-2 h-2 rounded-full bg-green-500"/>
-                                  Online
-                                </>
-                              ) : (
-                                'Offline'
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {pinnedMessage && (
-                      <div className="p-2 bg-muted/50 border-b flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="text-xs">Pinned</Badge>
-                          <span className="text-sm">{pinnedMessage.text}</span>
-                        </div>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6"
-                          onClick={() => setPinnedMessage(null)}
-                        >
-                          <X className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    )}
-
-                    <div className="flex-1 overflow-y-auto p-3 space-y-4">
-                      {filteredMessages.map((message) => (
+                <div className="flex-1 overflow-y-auto p-3 space-y-4">
+                  {allMessages.map((message) => (
+                    <div
+                      key={message.id}
+                      className={`flex animate-in slide-in-from-${
+                        message.isOwner ? "right" : "left"
+                      } duration-300 ${
+                        message.isOwner ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[80%] ${
+                          message.isOwner ? "order-2" : "order-1"
+                        }`}
+                      >
                         <div
-                          key={message.id}
-                          className={`flex animate-in slide-in-from-${
-                            message.username === OWNER_USERNAME ? "right" : "left"
-                          } duration-300 ${
-                            message.username === OWNER_USERNAME
-                              ? "justify-end"
-                              : "justify-start"
+                          className={`rounded-lg px-3 py-2 text-sm ${
+                            message.isOwner
+                              ? "bg-yellow-500 text-white"
+                              : "bg-accent"
                           }`}
                         >
-                          <div
-                            className={`max-w-[80%] group ${
-                              message.username === OWNER_USERNAME ? "order-2" : "order-1"
-                            }`}
-                          >
-                            <div
-                              className={`rounded-lg px-3 py-2 text-sm ${
-                                message.username === OWNER_USERNAME
-                                  ? "bg-yellow-500 text-white"
-                                  : "bg-accent"
-                              }`}
-                              onClick={() => handlePinMessage(message)}
-                              style={{ cursor: 'pointer' }}
-                            >
-                              {message.text}
-                              <div className="text-[10px] opacity-70 mt-1 flex items-center gap-2">
-                                {new Date(message.timestamp).toLocaleTimeString()}
-                                {message.status === 'pending' && (
-                                  <span className="text-primary-foreground">Unread</span>
-                                )}
-                                {message.status === 'read' && (
-                                  <span>Read</span>
-                                )}
-                              </div>
-                            </div>
+                          {message.text}
+                          <div className="text-[10px] opacity-70 mt-1">
+                            {new Date(message.timestamp).toLocaleTimeString()}
                           </div>
                         </div>
-                      ))}
-                      <div ref={messagesEndRef} />
-                    </div>
-
-                    <div className="p-3 border-t bg-muted/30">
-                      <div className="flex gap-2 mb-2 overflow-x-auto pb-2">
-                        {quickReplies.map((reply, index) => (
-                          <Button
-                            key={index}
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleQuickReply(reply)}
-                            className="whitespace-nowrap"
-                          >
-                            {reply}
-                          </Button>
-                        ))}
                       </div>
-                      <form
-                        onSubmit={handleMessageSubmit}
-                        className="flex items-center gap-2"
-                      >
-                        <Input
-                          value={input}
-                          onChange={(e) => setInput(e.target.value)}
-                          placeholder={`Message ${selectedUser}...`}
-                          className="flex-1"
-                        />
-                        <Button
-                          type="submit"
-                          className="px-4 h-10"
-                          disabled={!input.trim()}
-                        >
-                          Send
-                        </Button>
-                      </form>
                     </div>
-                  </>
-                ) : (
-                  <div className="flex-1 flex items-center justify-center text-muted-foreground flex-col gap-2">
-                    <MessageCircle className="h-8 w-8 mb-2" />
-                    <p>Select a conversation to start chatting</p>
-                    <p className="text-sm">You have {messages.filter(m => m.status === 'pending').length} unread messages</p>
-                  </div>
-                )}
+                  ))}
+                  <div ref={messagesEndRef} />
+                </div>
+
+                <div className="p-3 border-t bg-muted/30">
+                  <form
+                    onSubmit={handleMessageSubmit}
+                    className="flex items-center gap-2"
+                  >
+                    <Input
+                      value={input}
+                      onChange={(e) => setInput(e.target.value)}
+                      placeholder="Type a message..."
+                      className="flex-1"
+                      disabled={!isConnected || isSending}
+                    />
+                    <Button
+                      type="submit"
+                      className="px-4 h-10"
+                      disabled={!input.trim() || !isConnected || isSending}
+                    >
+                      {isSending ? "Sending..." : "Send"}
+                    </Button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
@@ -509,9 +367,9 @@ export function ChatPopover() {
               className="h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground relative border-2 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800 light:hover:bg-gray-100 transition-all duration-200 shadow-sm hover:shadow-md"
             >
               <MessageCircle className="h-5 w-5 dark:text-gray-300 light:text-gray-600" />
-              {messages.filter(m => m.status === 'pending').length > 0 && (
-                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-primary text-[10px] font-medium text-primary-foreground flex items-center justify-center animate-in zoom-in duration-200">
-                  {messages.filter(m => m.status === 'pending').length}
+              {!isConnected && (
+                <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-red-500 text-[10px] font-medium text-white flex items-center justify-center animate-in zoom-in duration-200">
+                  <WifiOff className="w-3 h-3" />
                 </span>
               )}
             </Button>
@@ -544,52 +402,34 @@ export function ChatPopover() {
                     <div className="flex items-center gap-2">
                       <h3 className="font-semibold">Chat with Restaurant</h3>
                       <Badge variant="secondary">Support</Badge>
+                      {!isConnected && (
+                        <Badge variant="destructive">
+                          <WifiOff className="w-3 h-3 mr-1" />
+                          Disconnected
+                        </Badge>
+                      )}
                     </div>
                   </div>
 
                   <div className="flex-1 overflow-y-auto p-3 space-y-4">
-                    {filteredMessages.map((message) => (
+                    {allMessages.map((message) => (
                       <div
                         key={message.id}
                         className={`flex animate-in slide-in-from-${
-                          message.username === username ? "right" : "left"
+                          message.isOwner ? "right" : "left"
                         } duration-300 ${
-                          message.username === username
-                            ? "justify-end"
-                            : "justify-start"
+                          message.isOwner ? "justify-end" : "justify-start"
                         }`}
                       >
                         <div
                           className={`max-w-[80%] ${
-                            message.username === username ? "order-2" : "order-1"
+                            message.isOwner ? "order-2" : "order-1"
                           }`}
                         >
-                          {message.username !== username && (
-                            <div className="flex items-center gap-1 mb-1">
-                              <Avatar className="h-4 w-4">
-                                <AvatarFallback
-                                  style={{
-                                    backgroundColor: message.color,
-                                    color: "white",
-                                  }}
-                                >
-                                  {message.username.charAt(0).toUpperCase()}
-                                </AvatarFallback>
-                              </Avatar>
-                              <span className="text-xs text-muted-foreground">
-                                {message.username}
-                                {message.isOwner && (
-                                  <Badge variant="default" className="ml-1 bg-yellow-500 text-[10px]">Owner</Badge>
-                                )}
-                              </span>
-                            </div>
-                          )}
                           <div
                             className={`rounded-lg px-3 py-2 text-sm ${
-                              message.username === username
+                              message.isOwner
                                 ? "bg-primary text-primary-foreground"
-                                : message.isOwner
-                                ? "bg-yellow-500/10 border border-yellow-500/20"
                                 : "bg-accent"
                             }`}
                           >
@@ -614,12 +454,13 @@ export function ChatPopover() {
                         onChange={(e) => setInput(e.target.value)}
                         placeholder="Type a message..."
                         className="flex-1"
+                        disabled={!isConnected || isSending}
                       />
                       <Button
                         type="submit"
                         size="icon"
                         className="h-8 w-8 rounded-full"
-                        disabled={!input.trim()}
+                        disabled={!input.trim() || !isConnected || isSending}
                       >
                         <Send className="h-4 w-4" />
                       </Button>
