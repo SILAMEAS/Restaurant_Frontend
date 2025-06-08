@@ -66,7 +66,7 @@ const AdminFood=()=>{
     const getRestaurantOwnerQuery = useGetRestaurantOwnerQuery({})
     const [addFood, { isLoading: isAddingFoodLoading }] = useAddFoodMutation()
     const [updateFood, { isLoading: isUpdatingFoodLoading }] = useUpdateFoodMutation()
-    const [deleteFood] = useDeleteFoodMutation()
+    const [deleteFood,df] = useDeleteFoodMutation()
     const dropzoneCustom=useDropzoneCustom();
     const {
       register,
@@ -98,10 +98,10 @@ const AdminFood=()=>{
     }
 
     const closePopUp=()=>{
+        setIsAddingFood(false);
       reset();
       dropzoneCustom.setImageFile(null);
       dropzoneCustom.setImagePreviewUrl(null)
-      setIsAddingFood(false);
       setEditingFood(null);
     }
 
@@ -231,6 +231,7 @@ const AdminFood=()=>{
                             <DropdownMenuSeparator />
                             <DropdownMenuItem
                                 className="text-destructive"
+                                disabled={df.isLoading}
                                 onClick={() => handleDeleteFood(row.id)}
                             >
                                 <Trash2 className="h-4 w-4 mr-2" />
@@ -283,12 +284,13 @@ const AdminFood=()=>{
                             : "Add a new food to the platform"}
                         </DialogDescription>
                       </DialogHeader>
-                      <form onSubmit={handleSubmit(onSubmit)}>
-                        <div className="space-y-2">
+                      <form onSubmit={handleSubmit(onSubmit)} className={'grid grid-cols-2 gap-4 items-center'
+                      }>
+                        <div className="space-y-2 col-span-2">
                           <Label>Food Image</Label>
                           <ImageDropzone dropzoneCustom={dropzoneCustom} />
                         </div>
-                        {/** Name **/}
+                        {/** Food **/}
                         <div className="space-y-4 py-4">
                           <div className="space-y-2">
                             <Label htmlFor="categoryName">Food Name</Label>
@@ -303,6 +305,21 @@ const AdminFood=()=>{
                             {errors.name && <p className="text-sm text-red-500">{errors.name.message}</p>}
                           </div>
                         </div>
+                          {/** Description **/}
+                          <div className="space-y-4 py-4">
+                              <div className="space-y-2">
+                                  <Label htmlFor="categoryName">Food Description</Label>
+                                  <Input
+                                      {...register("description")}
+                                      placeholder="e.g., COFFEE, CAKE"
+                                      defaultValue={
+                                          editingFood !== null ? foodsData?.contents?.find((c) => c.id === editingFood)?.description : ""
+                                      }
+                                      required
+                                  />
+                                  {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
+                              </div>
+                          </div>
                         {/** Price Field */}
                         <div className="space-y-4 py-4">
                           <Label htmlFor="price">Price</Label>
@@ -374,7 +391,6 @@ const AdminFood=()=>{
                               }
                           />
                         </div>
-                       
                          {/** Discount Field */}
                          <div className="space-y-4 py-4">
                           <Label htmlFor="discount_total">Discount (%)</Label>
@@ -391,61 +407,6 @@ const AdminFood=()=>{
                                     : 0
                               }
                           />
-                        </div>
-                        
-                        {/** Price With Discount Field */}
-                        <div className="space-y-4 py-4">
-                          <Label htmlFor="price_with_discount">Price With Discount</Label>
-                          <input
-                              type="number"
-                              step="0.01"
-                              id="price_with_discount"
-                              {...register("price_with_discount")}
-                              className="w-full border rounded-md px-3 py-2 bg-muted text-muted-foreground cursor-not-allowed"
-                              disabled
-                              defaultValue={
-                                editingFood !== null
-                                    ? foodsData?.contents?.find((c) => c.id === editingFood)?.priceDiscount ?? 0
-                                    : ""
-                              }
-                          />
-                        </div>
-                        {/** Description **/}
-                        <div className="space-y-4 py-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="categoryName">Food Description</Label>
-                            <Input
-                                {...register("description")}
-                                placeholder="e.g., COFFEE, CAKE"
-                                defaultValue={
-                                  editingFood !== null ? foodsData?.contents?.find((c) => c.id === editingFood)?.description : ""
-                                }
-                                required
-                            />
-                            {errors.description && <p className="text-sm text-red-500">{errors.description.message}</p>}
-                          </div>
-                        </div>
-                        {/** Available **/}
-                        <div className="space-y-4 py-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="available">Available</Label>
-                            <div className="flex items-center space-x-2">
-                              <input
-                                  type="checkbox"
-                                  id="available"
-                                  {...register("available")}
-                                  defaultChecked={
-                                    editingFood !== null
-                                        ? foodsData?.contents?.find((c) => c.id === editingFood)?.available
-                                        : false
-                                  }
-                              />
-                              <span className="text-sm">Is this food currently available?</span>
-                            </div>
-                            {errors.available && (
-                                <p className="text-sm text-red-500">{errors.available.message}</p>
-                            )}
-                          </div>
                         </div>
                         {/** FoodType **/}
                         <div className="space-y-4 py-4">
@@ -503,7 +464,46 @@ const AdminFood=()=>{
                             )}
                           </div>
                         </div>
-                        <DialogFooter>
+                          {/** Price With Discount Field */}
+                          <div className="space-y-4 py-4 col-span-2">
+                              <Label htmlFor="price_with_discount">Price With Discount</Label>
+                              <input
+                                  type="number"
+                                  step="0.01"
+                                  id="price_with_discount"
+                                  {...register("price_with_discount")}
+                                  className="w-full border rounded-md px-3 py-2 bg-muted text-muted-foreground cursor-not-allowed"
+                                  disabled
+                                  defaultValue={
+                                      editingFood !== null
+                                          ? foodsData?.contents?.find((c) => c.id === editingFood)?.priceDiscount ?? 0
+                                          : ""
+                                  }
+                              />
+                          </div>
+                          {/** Available **/}
+                          <div className="space-y-4 py-4 col-span-2">
+                              <div className="space-y-2">
+                                  <Label htmlFor="available">Available</Label>
+                                  <div className="flex items-center space-x-2">
+                                      <input
+                                          type="checkbox"
+                                          id="available"
+                                          {...register("available")}
+                                          defaultChecked={
+                                              editingFood !== null
+                                                  ? foodsData?.contents?.find((c) => c.id === editingFood)?.available
+                                                  : false
+                                          }
+                                      />
+                                      <span className="text-sm">Is this food currently available?</span>
+                                  </div>
+                                  {errors.available && (
+                                      <p className="text-sm text-red-500">{errors.available.message}</p>
+                                  )}
+                              </div>
+                          </div>
+                        <DialogFooter className={'col-span-2'}>
                           <Button type="submit">{(isAddingFoodLoading||isUpdatingFoodLoading)?"loading ...":  editingFood !== null ? "Update Food" : "Add Food"}</Button>
                         </DialogFooter>
                       </form>

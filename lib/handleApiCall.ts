@@ -1,3 +1,5 @@
+import {Slide, toast} from "react-toastify";
+
 type ApiHandlerOptions<T> = {
     apiFn: () => Promise<T>; // expects a function that returns a promise (already wrapped with data)
     onSuccess?: (res: T) => void;
@@ -13,10 +15,19 @@ export async function handleApiCall<T>({
                                        }: ApiHandlerOptions<T>) {
     try {
         const res = await apiFn(); // e.g. () => login(data).unwrap()
+        console.log('rs')
         return onSuccess?.(res);
     } catch (e: any) {
+        console.log(e)
         if(e?.data?.message){
-            return onError?.(e);
+            if(onError){
+                return onError?.(e);
+            }else {
+               return  toast.error(`${e.data.message}`, {
+                    theme: "dark",
+                    transition: Slide,
+                });
+            }
         }
     }
 }

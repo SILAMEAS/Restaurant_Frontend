@@ -52,6 +52,8 @@ const mockRestaurant: RestaurantResponse = {
         },
     ],
     open: true,
+    deliveryFee:0,
+    discount:0
 }
 
 const cuisineTypes = [
@@ -114,8 +116,8 @@ export default function RestaurantViewEdit() {
                 setValue('contactInformation',contactInformation);
                 setValue('open',open);
                 setValue('openingHours',`${openingHours}`);
-                setValue('discount',`${discount}`);
-                setValue('deliveryFee',`${deliveryFee}`);
+                setValue('discount',discount);
+                setValue('deliveryFee',deliveryFee);
                 dropzoneCustom.setImagePreviewUrls(imageUrls);
 
             }
@@ -151,7 +153,7 @@ export default function RestaurantViewEdit() {
 
             /** Image */
             if(dropzoneCustom.imageFiles){
-                dropzoneCustom.imageFiles.map(f=>
+                dropzoneCustom.imageFiles.forEach(f=>
                     body.append("images", f)
                 )
             }
