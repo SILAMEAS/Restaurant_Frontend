@@ -56,12 +56,20 @@ export enum enumStatus{
     DELIVERED='DELIVERED',
     CANCELLED='CANCELLED'
 }
+export interface ItemOrderResponse{
+    foodId:number,
+    id:number,
+    quantity:number,
+    subtotal:number,
+    name:string,
+    price:number
+}
 export interface OrderResponse {
     id: number;
     user : IProfile,
     restaurant:RestaurantResponse,
     totalAmount:number,
-    items:Array<any>,
+    items:Array<ItemOrderResponse>,
     status:enumStatus,
     createdAt:string
 }

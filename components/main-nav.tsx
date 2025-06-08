@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, User, ShoppingCart, MenuIcon, LogOut } from "lucide-react"
+import { Home, User, ShoppingCart, MenuIcon, LogOut ,ListOrderedIcon} from "lucide-react"
 import { useState } from "react"
 
 import { cn } from "@/lib/utils"
@@ -43,6 +43,12 @@ export function MainNav() {
       label: "Cart",
       icon: ShoppingCart,
       active: pathname === "/cart",
+    },
+    {
+      href: "/order",
+      label: "Order",
+      icon: ListOrderedIcon,
+      active: pathname === "/order",
     },
   ]
 
