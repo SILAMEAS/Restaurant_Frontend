@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { IChatMessageDTO } from '../types';
+import { IChatMessageDTO } from '../../../components/(chatPopOver)/type/types';
 import { Send, Loader2, Sparkles } from 'lucide-react';
 
 interface MessageInputProps {

@@ -2,12 +2,12 @@
 
 import React from 'react';
 import { useGetMessagesQuery, useProfileQuery } from '@/lib/redux/api';
-import { useWebSocket } from './hooks/useWebSocket';
+import { useWebSocket } from '../../components/(chatPopOver)/hooks/useWebSocket';
 import { MessageList } from './components/MessageList';
 import { MessageInput } from './components/MessageInput';
 import useParamQuery from '@/hooks/useParamQuery';
 import { Shield, User, Home, Wifi, WifiOff } from 'lucide-react';
-import { IMessage } from './types';
+import { IMessage } from '../../components/(chatPopOver)/type/types';
 
 const WebSocketPage = () => {
     const { data: profile } = useProfileQuery();

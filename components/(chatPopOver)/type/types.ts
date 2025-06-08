@@ -1,3 +1,5 @@
+import {Role} from "@/lib/redux/counterSlice";
+
 export interface IChatMessageDTO {
     content: string;
     senderId: number;
@@ -24,4 +26,25 @@ export interface ChatState {
     messages: IMessage[];
     isSending: boolean;
     connectionStatus: ConnectionStatus;
-} 
+}
+
+export interface IMessageChatPopOver {
+    id: string|number
+    text: string
+    username: string
+    timestamp: number
+    color: string
+    isOwner?: boolean
+    isPinned?: boolean
+    status?: 'pending' | 'read' | 'replied'
+    replyTo?: string
+}
+
+export interface UserChatPopOver {
+    username: string
+    color: string
+    lastSeen: number
+    role?: Role
+    unreadCount?: number
+    lastMessage?: string
+}

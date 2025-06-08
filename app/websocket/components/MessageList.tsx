@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { IMessage } from '../types';
+import { IMessage } from '../../../components/(chatPopOver)/type/types';
 import { Sparkles, Moon, Sun } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 

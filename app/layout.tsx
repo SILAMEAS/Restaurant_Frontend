@@ -9,7 +9,7 @@ import {GlobalLoadingProvider} from "@/lib/provider/GlobalLoadingProvider";
 import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Import the new Client Component
 import { ToastContainer } from 'react-toastify';
 import { ThemeProvider } from '@/components/theme-provider';
-import { ChatPopover } from "@/components/ChatPopover";
+import { ChatPopover } from "@/components/(chatPopOver)/ChatPopover";
 
 const inter = Inter({ subsets: ['latin'] });
 
