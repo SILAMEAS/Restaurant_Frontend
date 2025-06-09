@@ -1,89 +1,60 @@
 "use client"
 
-import { useState } from "react"
-import {Order} from "@/components/(user)/order/types/order";
 import {OrderList} from "@/components/(user)/order/components/OrderList";
-import {useGetOrdersQuery} from "@/lib/redux/api";
+import {useCreateOrGetRoomMutation, useGetOrdersQuery, useProfileQuery} from "@/lib/redux/api";
 import {OrderResponse} from "@/lib/redux/type";
-
-// Mock data for orders
-const mockOrders: Order[] = [
-    {
-        id: "1",
-        restaurantName: "Pizza Palace",
-        restaurantImage: "/placeholder.svg?height=40&width=40",
-        orderNumber: "#ORD-001",
-        status: "preparing",
-        items: [
-            { name: "Margherita Pizza", quantity: 1, price: 18.99 },
-            { name: "Garlic Bread", quantity: 2, price: 6.99 },
-        ],
-        total: 25.98,
-        orderTime: "2024-01-15T14:30:00Z",
-        estimatedDelivery: "2024-01-15T15:15:00Z",
-        unreadMessages: 2,
-    },
-    {
-        id: "2",
-        restaurantName: "Burger Barn",
-        restaurantImage: "/placeholder.svg?height=40&width=40",
-        orderNumber: "#ORD-002",
-        status: "delivered",
-        items: [
-            { name: "Classic Burger", quantity: 1, price: 12.99 },
-            { name: "French Fries", quantity: 1, price: 4.99 },
-            { name: "Coke", quantity: 1, price: 2.99 },
-        ],
-        total: 20.97,
-        orderTime: "2024-01-14T19:45:00Z",
-        estimatedDelivery: "2024-01-14T20:30:00Z",
-        unreadMessages: 0,
-    },
-    {
-        id: "3",
-        restaurantName: "Sushi Zen",
-        restaurantImage: "/placeholder.svg?height=40&width=40",
-        orderNumber: "#ORD-003",
-        status: "on_the_way",
-        items: [
-            { name: "California Roll", quantity: 2, price: 24.98 },
-            { name: "Miso Soup", quantity: 1, price: 4.99 },
-        ],
-        total: 29.97,
-        orderTime: "2024-01-15T18:20:00Z",
-        estimatedDelivery: "2024-01-15T19:05:00Z",
-        unreadMessages: 1,
-    },
-]
+import {useAppDispatch} from "@/lib/redux/hooks";
+import {setChat} from "@/lib/redux/counterSlice";
+import {Slide, toast} from "react-toastify";
+import {handleApiCall} from "@/lib/handleApiCall";
 
 export default function OrdersPage() {
+    const profileQuery = useProfileQuery();
     const ordersQuery = useGetOrdersQuery();
-    const [selectedOrder, setSelectedOrder] = useState<OrderResponse | null>(null)
-    const [isChatOpen, setIsChatOpen] = useState(false)
+    const dispatch = useAppDispatch();
 
-    const orders = ordersQuery.currentData?.contents ??[];
+    const [createRoom]=useCreateOrGetRoomMutation();
 
-    const handleChatOpen = (order:  OrderResponse) => {
-        setSelectedOrder(order)
-        setIsChatOpen(true)
-    }
-
-    const handleChatClose = () => {
-        setIsChatOpen(false)
-        setSelectedOrder(null)
-    }
+    const orders = ordersQuery.currentData?.contents ?? [];
 
     return (
         <div className="min-h-screen ">
             <div className="container mx-auto px-4 py-6">
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">My Orders</h1>
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">My Orders</h1>
                     <p className="text-gray-600 mt-1">Track your orders and chat with restaurants</p>
                 </div>
 
-                <OrderList orders={orders} onChatOpen={handleChatOpen} />
+                <OrderList orders={orders} onChatOpen={async (order: OrderResponse) => {
+                    const senderId =  profileQuery.currentData?.id;
+                    const receiverId = order.restaurant.ownerId;
+                    if(senderId&&receiverId) {
+                        await handleApiCall({
+                            apiFn: () => createRoom({senderId,receiverId}).unwrap(),
+                            onSuccess: (r) => {
+                                const roomId= `${senderId}_${receiverId}`
+                                dispatch(setChat({isChatOpen: true, selectedOrder: order,roomId}));
+                                toast.success(`Go to Room ${roomId}`, {
+                                    theme: "dark",
+                                    transition: Slide,
+                                });
+                            },
+                            onError:(e)=>{
+                                toast.error(`${e.data.message}`, {
+                                    theme: "dark",
+                                    transition: Slide,
+                                });
+                            }
+                        });
 
-                {/*{selectedOrder && <ChatDialog order={selectedOrder} isOpen={isChatOpen} onClose={handleChatClose} />}*/}
+
+                    }else {
+                        toast.error(`${profileQuery?.error??"UNKNOWN ERROR"}`, {
+                            theme: "dark",
+                            transition: Slide,
+                        });
+                    }
+                }}/>
             </div>
         </div>
     )

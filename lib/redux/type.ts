@@ -87,6 +87,7 @@ export interface RestaurantResponse {
     imageUrls: ImageUrl[]
     rating: number
     ownerName: string
+    ownerId:number
     deliveryFee:number
     discount : number
 }

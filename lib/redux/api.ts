@@ -30,7 +30,7 @@ export const customBaseQuery = (url: string) => {
 export const apiSlice = createApi({
     reducerPath: 'api',
     baseQuery: customBaseQuery(process.env.NEXT_PUBLIC_BASE_URL+ '/api/'), // Adjust baseUrl to your API
-    tagTypes:['address','favorite','user',"category","restaurant",'order','cart','message'],
+    tagTypes:['address','favorite','user',"category","restaurant",'order','cart','message',"room"],
     endpoints: (builder) => ({
         /** ========================================== Restaurants */
         getRestaurants: builder.query<IPagination<RestaurantResponse>, { offset?: number; limit?: number; search?: string }>({
@@ -302,6 +302,17 @@ export const apiSlice = createApi({
 
         }),
 
+        /**  ==========================================  Room */
+        createOrGetRoom: builder.mutation<IPagination<IMessage>,{senderId:number,receiverId:number;}>({
+            query: (params) => ({
+                url: `chats/room`,
+                method: "POST",
+                params:params
+            }),
+            invalidatesTags: ['room'],
+
+        }),
+
     }),
 });
 
@@ -338,5 +349,6 @@ export const {
     useGetRestaurantByIdQuery,
     useGetFoodsByRestaurantIdQuery,
     useAddOrderMutation,
-    useGetMessagesQuery
+    useGetMessagesQuery,
+    useCreateOrGetRoomMutation
  } = apiSlice;

@@ -1,6 +1,6 @@
 // counterSlice.ts
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { IFavorite, IProfile } from './api';
+import {IFavorite, IProfile, OrderResponse} from "@/lib/redux/type";
 
 export enum Role{
     USER="USER",
@@ -15,15 +15,21 @@ export interface UserInfo {
     role:         Role;
     message:      string;
 }
-
+interface IChat {
+    selectedOrder?:OrderResponse | null,
+    isChatOpen?:boolean,
+    roomId?:string|null;
+    
+}
 interface CounterState {
     value: number;
     login?:UserInfo;
-    profile?:IProfile
+    profile?:IProfile;
+    chat?:IChat
 }
 
 const initialState: CounterState = {
-    value: 0
+    value: 0,
 };
 
 const counterSlice = createSlice({
@@ -42,17 +48,15 @@ const counterSlice = createSlice({
         setProfile: (state, action: PayloadAction<IProfile>) => {
             state.profile = action.payload;
         },
-        setFavorite: (state, action: PayloadAction<IFavorite>) => {
-        if (state.profile&&action.payload) {
-            state.profile.favourites = [
-            ...(state.profile.favourites || []),
-            action.payload,
-            ];
-        }
+        reset: () => initialState,
+        setChat: (state, action: PayloadAction<IChat>) => {
+            state.chat = action.payload;
         },
-        reset: () => initialState
+        resetChat: (state) => {
+            state.chat = initialState.chat;
+        }
     },
 });
 
-export const { increment, decrement,setLogin,reset ,setProfile,setFavorite} = counterSlice.actions;
+export const { setChat,setLogin,reset,resetChat} = counterSlice.actions;
 export default counterSlice.reducer;
