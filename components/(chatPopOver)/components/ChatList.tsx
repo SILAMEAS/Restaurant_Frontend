@@ -1,0 +1,208 @@
+import React, {useEffect} from 'react';
+import { useState } from "react"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { ScrollArea } from "@/components/ui/scroll-area"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Search, MoreVertical, Send, Phone, Video, Settings, Plus, Circle, Maximize2 } from "lucide-react"
+import {useDispatch} from "react-redux";
+import {setChatSelected} from "@/lib/redux/counterSlice";
+interface Chat {
+    id: string
+    name: string
+    lastMessage: string
+    timestamp: string
+    unreadCount: number
+    status: "online" | "offline" | "away"
+    avatar?: string
+    type: "customer" | "internal" | "support"
+}
+
+const mockChats: Chat[] = [
+    {
+        id: "1",
+        name: "Sarah Johnson",
+        lastMessage: "Hi, I need help with my recent order...",
+        timestamp: "2 min ago",
+        unreadCount: 3,
+        status: "online",
+        type: "customer",
+    },
+    {
+        id: "2",
+        name: "Mike Chen",
+        lastMessage: "Thank you for the quick response!",
+        timestamp: "15 min ago",
+        unreadCount: 0,
+        status: "offline",
+        type: "customer",
+    },
+    {
+        id: "3",
+        name: "Customer Support",
+        lastMessage: "How can I assist you today?",
+        timestamp: "1 hour ago",
+        unreadCount: 1,
+        status: "online",
+        type: "support",
+    },
+    {
+        id: "4",
+        name: "Emma Wilson",
+        lastMessage: "Is there a way to track my shipment?",
+        timestamp: "2 hours ago",
+        unreadCount: 0,
+        status: "away",
+        type: "customer",
+    },
+    {
+        id: "5",
+        name: "Tech Support",
+        lastMessage: "I've escalated your issue to our team",
+        timestamp: "3 hours ago",
+        unreadCount: 2,
+        status: "online",
+        type: "internal",
+    },
+    {
+        id: "6",
+        name: "Tech Support 1",
+        lastMessage: "I've escalated your issue to our team",
+        timestamp: "3 hours ago",
+        unreadCount: 2,
+        status: "online",
+        type: "internal",
+    },
+    {
+        id: "7",
+        name: "Tech Support 2",
+        lastMessage: "I've escalated your issue to our team",
+        timestamp: "3 hours ago",
+        unreadCount: 2,
+        status: "online",
+        type: "internal",
+    },
+]
+const ChatList = () => {
+    const [selectedChat, setSelectedChat] = useState<Chat>(mockChats[0])
+    const [message, setMessage] = useState("")
+    const [searchQuery, setSearchQuery] = useState("")
+    const dispatch = useDispatch();
+
+    const filteredChats = mockChats.filter(
+        (chat) =>
+            chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
+    const getStatusColor = (status: string) => {
+        switch (status) {
+            case "online":
+                return "bg-green-500"
+            case "away":
+                return "bg-yellow-500"
+            case "offline":
+                return "bg-gray-500"
+            default:
+                return "bg-gray-500"
+        }
+    }
+    const getTypeColor = (type: string) => {
+        switch (type) {
+            case "customer":
+                return "bg-blue-600"
+            case "support":
+                return "bg-green-600"
+            case "internal":
+                return "bg-purple-600"
+            default:
+                return "bg-gray-600"
+        }
+    }
+
+    useEffect(()=>{
+        if(selectedChat){
+            dispatch(setChatSelected(selectedChat));
+        }
+    },[selectedChat])
+    return  <div className={'flex w-[100%] flex-col bg-amber-300 '}>
+        <div className="bg-gray-800 border-r border-gray-700 flex flex-col w-[100%] h-[600px]">
+            {/* Header */}
+            <div className="p-4 border-b border-gray-700">
+                <div className="flex items-center justify-between mb-4">
+                    <h1 className="text-xl font-semibold">Chats</h1>
+                    <div className="flex gap-2">
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                            <Plus className="h-4 w-4" />
+                        </Button>
+                        <Button size="sm" variant="ghost" className="h-8 w-8 p-0">
+                            <Settings className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+
+                {/* Search */}
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Input
+                        placeholder="Search conversations..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-10 bg-gray-700 border-gray-600 text-white placeholder-gray-400"
+                    />
+                </div>
+            </div>
+
+            {/* Chat List */}
+            <ScrollArea className="flex-1  w-[100%]">
+                <div className="p-2">
+                    {filteredChats.map((chat) => (
+                        <div
+                            key={chat.id}
+                            onClick={() => setSelectedChat(chat)}
+                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors mb-1 ${
+                                selectedChat.id === chat.id ? "bg-gray-700" : "hover:bg-gray-750"
+                            }`}
+                        >
+                            <div className="relative">
+                                <Avatar className="h-12 w-12">
+                                    <AvatarImage src={chat.avatar || "/placeholder.svg"} />
+                                    <AvatarFallback className="bg-gray-600">
+                                        {chat.name
+                                            .split(" ")
+                                            .map((n) => n[0])
+                                            .join("")}
+                                    </AvatarFallback>
+                                </Avatar>
+                                <div
+                                    className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-gray-800 ${getStatusColor(chat.status)}`}
+                                />
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                    <h3 className="font-medium truncate">{chat.name}</h3>
+                                    <span className="text-xs text-gray-400">{chat.timestamp}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm text-gray-400 truncate">{chat.lastMessage}</p>
+                                    {chat.unreadCount > 0 && (
+                                        <Badge className="bg-blue-600 text-white text-xs ml-2">{chat.unreadCount}</Badge>
+                                    )}
+                                </div>
+                                <div className="mt-1">
+                                    <Badge variant="secondary" className={`text-xs ${getTypeColor(chat.type)} text-white`}>
+                                        {chat.type}
+                                    </Badge>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </ScrollArea>
+        </div>
+
+    </div>
+};
+
+export default ChatList;

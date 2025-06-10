@@ -7,14 +7,15 @@ interface ChatHeaderProp{
     isOwner:boolean,
     isConnected:boolean,
     setView: Dispatch<SetStateAction<"minimized" | "expanded">>
-    view:"minimized" | "expanded"
+    view:"minimized" | "expanded",
+    name:string,
 }
-const ChatMessageHeader = ({isOwner,isConnected,setView,view}:ChatHeaderProp) => {
+const ChatMessageHeader = ({isOwner,isConnected,setView,view,name}:ChatHeaderProp) => {
     return  <div className="p-3 border-b flex items-center justify-between bg-muted/50">
         <div className="flex items-center gap-2">
-            <h3 className="font-semibold">{isOwner ? "Customer Support" : "Chat with Restaurant"}</h3>
-            {isOwner && <Badge variant="default" className="bg-yellow-500">Owner</Badge>}
-            {!isOwner && <Badge variant="secondary">Support</Badge>}
+            <h3 className="font-semibold">{isOwner ? name : "Chat with Restaurant"}</h3>
+            {/*{isOwner && <Badge variant="default" className="bg-yellow-500">Owner</Badge>}*/}
+            {/*{!isOwner && <Badge variant="secondary">Support</Badge>}*/}
             {isConnected ? (
                 <Badge variant="default" className="bg-green-500">
                     <WifiIcon className="w-3 h-3 mr-1" />

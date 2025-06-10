@@ -21,15 +21,26 @@ interface IChat {
     roomId?:string|null;
     
 }
+interface ISelectedChat {
+    id: string
+    name: string
+    lastMessage: string
+    timestamp: string
+    unreadCount: number
+    status: "online" | "offline" | "away"
+    avatar?: string
+    type: "customer" | "internal" | "support"
+}
 interface CounterState {
     value: number;
     login?:UserInfo;
     profile?:IProfile;
-    chat?:IChat
+    chat?:IChat;
+    chatSelected?:ISelectedChat
 }
 
 const initialState: CounterState = {
-    value: 0,
+    value: 0
 };
 
 const counterSlice = createSlice({
@@ -54,9 +65,12 @@ const counterSlice = createSlice({
         },
         resetChat: (state) => {
             state.chat = initialState.chat;
+        },
+        setChatSelected: (state, action: PayloadAction<ISelectedChat>) => {
+            state.chatSelected = action.payload;
         }
     },
 });
 
-export const { setChat,setLogin,reset,resetChat} = counterSlice.actions;
+export const { setChat,setLogin,reset,resetChat,setChatSelected} = counterSlice.actions;
 export default counterSlice.reducer;
