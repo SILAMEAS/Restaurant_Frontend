@@ -34,7 +34,7 @@ export function ChatPopover() {
 
     // Owner credentials
     const isOwner = profile?.role === Role.OWNER
-    const roomId = chat?.roomId ?? '2_12' // This could be dynamic based on your needs
+    const roomId =chat?.roomId?? '2_12' // This could be dynamic based on your needs
 
     // Get messages from API
     const {data: messagesData} = useGetMessagesQuery({
@@ -54,16 +54,16 @@ export function ChatPopover() {
     const {
         messages: wsMessages,
         isSending,
-        connectionStatus: {isConnected, error},
+        connectionStatus: {isConnected},
         sendMessage
-    } = useWebSocket(roomId);
+    } = useWebSocket({roomId,subscribeUrl:'/topic/messages',publishUrl:'/app/chat/send'});
 
     // Combine API messages with websocket messages
     const allMessages = useMemo(() => {
         const apiMessages = (messagesData?.contents || []).map((msg: any): IMessageChatPopOver => ({
             id: msg.messageId,
             text: msg.content,
-            username: msg.senderName || `UserChatPopOver ${msg.senderId}`,
+            username: msg.senderName ?? `UserChatPopOver ${msg.senderId}`,
             timestamp: new Date(msg.timestamp).getTime(),
             color: userColor,
             isOwner: msg.senderId === profile?.id
@@ -72,7 +72,7 @@ export function ChatPopover() {
         const wsMessagesConverted = wsMessages.map((msg: IMessage): IMessageChatPopOver => ({
             id: msg.messageId,
             text: msg.content,
-            username: msg.senderName || `UserChatPopOver ${msg.senderId}`,
+            username: msg.senderName ?? `UserChatPopOver ${msg.senderId}`,
             timestamp: new Date(msg.timestamp).getTime(),
             color: userColor,
             isOwner: msg.senderId === profile?.id
@@ -104,7 +104,7 @@ export function ChatPopover() {
     }, [isOpen]);
 
     return (
-        <Popover open={chat?.isChatOpen} onOpenChange={()=>{
+        <Popover open={isOpen} onOpenChange={()=>{
             setIsOpen(!isOpen);
             dispatch(setChat({isChatOpen:false}))
         }}>

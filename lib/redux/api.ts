@@ -294,7 +294,7 @@ export const apiSlice = createApi({
         /**  ==========================================  Message */
           getMessages: builder.query<IPagination<IMessage>,{req:PaginationRequestWithIngoreCase,roomId:string;}>({
             query: ({req:{ params=PaginationRequestDefault,caseIgnoreFilter},roomId}) => ({
-                url: `chats/room/${roomId}`,
+                url: `chats-message/rooms/${roomId}`,
                 method: "GET",
                 params:{...params,filterBy:caseIgnoreFilter?undefined:params.filterBy,foodType:params.foodType===null?undefined:params.foodType}
             }),
@@ -305,7 +305,7 @@ export const apiSlice = createApi({
         /**  ==========================================  Room */
         createOrGetRoom: builder.mutation<IPagination<IMessage>,{senderId:number,receiverId:number;}>({
             query: (params) => ({
-                url: `chats/room`,
+                url: `chats-room`,
                 method: "POST",
                 params:params
             }),

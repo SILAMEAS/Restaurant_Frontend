@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Client, Frame } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { getWebSocketUrl, STOMP_CONFIG } from '../../../app/config';
-import { IChatMessageDTO, IMessage, ChatState } from '../type/types';
+import { getWebSocketUrl, STOMP_CONFIG } from '@/app/config';
+import { IChatMessageDTO, ChatState } from '../type/types';
 
 const INITIAL_STATE: ChatState = {
     messages: [],
@@ -12,8 +12,14 @@ const INITIAL_STATE: ChatState = {
         error: null
     }
 };
+interface IWebSocket {
+    roomId?: string,
+    subscribeUrl: string,
+    publishUrl: string,
 
-export const useWebSocket = (roomId: string) => {
+}
+
+export const useWebSocket = ({subscribeUrl,publishUrl}:IWebSocket) => {
     const [state, setState] = useState<ChatState>(INITIAL_STATE);
     const clientRef = useRef<Client | null>(null);
 
@@ -57,10 +63,10 @@ export const useWebSocket = (roomId: string) => {
                         }
                     }));
 
-                    stompClient.subscribe('/topic/messages', (message) => {
+                    stompClient.subscribe(subscribeUrl, (message) => {
                         try {
                             const receivedMessage = JSON.parse(message.body);
-                            const messageId = receivedMessage.messageId || generateMessageId();
+                            const messageId = receivedMessage.messageId ?? generateMessageId();
                             
                             setState(prev => {
                                 // Prevent duplicate messages
@@ -73,8 +79,8 @@ export const useWebSocket = (roomId: string) => {
                                     messages: [...prev.messages, {
                                         content: receivedMessage.content,
                                         senderId: receivedMessage.senderId,
-                                        senderName: receivedMessage.senderName || `User ${receivedMessage.senderId}`,
-                                        timestamp: receivedMessage.timestamp || new Date().toISOString(),
+                                        senderName: receivedMessage.senderName ?? `User ${receivedMessage.senderId}`,
+                                        timestamp: receivedMessage.timestamp ?? new Date().toISOString(),
                                         messageId
                                     }]
                                 };
@@ -141,7 +147,7 @@ export const useWebSocket = (roomId: string) => {
             };
 
             clientRef.current.publish({
-                destination: '/app/chat/send',
+                destination: publishUrl,
                 body: JSON.stringify(messageToSend),
                 headers: { 'content-type': 'application/json' }
             });

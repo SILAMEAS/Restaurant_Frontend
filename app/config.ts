@@ -6,7 +6,8 @@ export const getWebSocketUrl = () => {
     
     // For SockJS, we use the http/https URL directly
     const finalUrl = `${cleanBaseUrl}/ws-chat`;
-    
+
+
     // Debug logging
     console.log('WebSocket Configuration:', {
         baseUrl,
