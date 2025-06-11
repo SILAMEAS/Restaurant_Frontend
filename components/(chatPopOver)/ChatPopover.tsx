@@ -116,7 +116,10 @@ console.log('view',view)
                     disabled={!isOwner}
                     variant="outline"
                     size="icon"
-                    className="h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground relative border-2 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800 light:hover:bg-gray-100 transition-all duration-200 shadow-sm hover:shadow-md"
+                    className={
+                    `h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground relative border-2 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800 light:hover:bg-gray-100 transition-all duration-200 shadow-sm hover:shadow-md
+                    ${!isOwner?'invisible':"visible"}`
+                    }
                 >
                     <MessageCircle className="h-5 w-5 dark:text-gray-300 light:text-gray-600"/>
                     {/** SignalConnect **/}
@@ -124,28 +127,29 @@ console.log('view',view)
                 </Button>
             </PopoverTrigger>
             <PopoverContent
-                className={`${view==='expanded'? 'w-[1400px]' : 'w-[1000px]'} p-0 flex`}
+                className={`${view==='expanded'? 'w-[1400px]' : 'w-[1000px]'} p-0 flex h-[600px]`}
                 align="end"
                 side="left"
                 sideOffset={20}
             >
-               <div className={'w-[40%]'}>
-                   <ChatList/>
-               </div>
-            <div className={'w-full bg-gray-800'}>
+                {
+                    isOwner&&
+                    <div className={'w-[40%] h-[100%]'}>
+                        <ChatList/>
+                    </div>
+                }
+            <div className={'w-full bg-gray-800 h-[100%] '}>
                 {!isUsernameSet ? (
                     <TypingUsername username={username} setUsername={setUsername} profile={profile}
                                     setIsUsernameSet={setIsUsernameSet} userColor={userColor} isOwner={isOwner}
                                     setOnlineUsers={setOnlineUsers} setUserColor={setUserColor}/>
                 ) : (
-                    <div className="flex h-[600px] w-[100%]">
+                    <div className="flex w-[100%] h-[100%]">
                         <div className="flex-1 flex flex-col w-[100%]">
 
                             {/** Chat Header */}
                             <ChatMessageHeader isOwner={isOwner} isConnected={isConnected} setView={setView}
-                                               view={view} name={chatSelected?.name??"unknown"}/>
-
-                            <p>Room : {roomId}</p>
+                                               view={view} name={chatSelected?.name??"unknown"} roomId={roomId}/>
 
                             {/** Chat Area */}
                             <ChatMessageContent isOwner={isOwner} allMessages={allMessages}

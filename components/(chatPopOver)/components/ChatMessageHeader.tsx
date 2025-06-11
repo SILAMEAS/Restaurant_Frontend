@@ -2,6 +2,7 @@ import React, {Dispatch, SetStateAction} from 'react';
 import {Badge} from "@/components/ui/badge";
 import {WifiIcon, WifiOff} from "lucide-react";
 import {Button} from "@/components/ui/button";
+import {useGlobalState} from "@/hooks/useGlobalState";
 
 interface ChatHeaderProp{
     isOwner:boolean,
@@ -9,13 +10,13 @@ interface ChatHeaderProp{
     setView: Dispatch<SetStateAction<"minimized" | "expanded">>
     view:"minimized" | "expanded",
     name:string,
+    roomId:string
 }
-const ChatMessageHeader = ({isOwner,isConnected,setView,view,name}:ChatHeaderProp) => {
+const ChatMessageHeader = ({isOwner,isConnected,setView,view,name,roomId}:ChatHeaderProp) => {
+    const {chat}=useGlobalState();
     return  <div className="p-3 border-b flex items-center justify-between bg-muted/50">
         <div className="flex items-center gap-2">
-            <h3 className="font-semibold">{isOwner ? name : "Chat with Restaurant"}</h3>
-            {/*{isOwner && <Badge variant="default" className="bg-yellow-500">Owner</Badge>}*/}
-            {/*{!isOwner && <Badge variant="secondary">Support</Badge>}*/}
+            <h3 className="font-semibold">{isOwner ? name :chat?.selectedOrder?.restaurant?.name?? "Chat with Restaurant"}</h3>
             {isConnected ? (
                 <Badge variant="default" className="bg-green-500">
                     <WifiIcon className="w-3 h-3 mr-1" />
@@ -27,6 +28,7 @@ const ChatMessageHeader = ({isOwner,isConnected,setView,view,name}:ChatHeaderPro
                     Disconnected
                 </Badge>
             )}
+            <Badge variant="default">Room : {roomId}</Badge>
         </div>
         {isOwner && (
             <div className="flex items-center gap-2">

@@ -125,8 +125,8 @@ const ChatList = () => {
             dispatch(setChatSelected(selectedChat));
         }
     },[selectedChat])
-    return  <div className={'flex w-[100%] flex-col bg-amber-300 '}>
-        <div className="bg-gray-800 border-r border-gray-700 flex flex-col w-[100%] h-[600px]">
+    return  <div className={'flex w-[100%] flex-col bg-amber-300 h-[100%]'}>
+        <div className="bg-gray-800 border-r border-gray-700 flex flex-col w-[100%] h-[100%]">
             {/* Header */}
             <div className="p-4 border-b border-gray-700">
                 <div className="flex items-center justify-between mb-4">
