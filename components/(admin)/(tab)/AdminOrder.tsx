@@ -26,7 +26,6 @@ const AdminOrder = () => {
 
     useEffect(() => {
         if (ordersData?.contents) {
-            console.log('Orders data:', ordersData.contents);
             // Log the first order to check its structure
             if (ordersData.contents.length > 0) {
                 console.log('First order structure:', ordersData.contents[0]);
@@ -77,7 +76,6 @@ const AdminOrder = () => {
             header: "Customer",
             accessorKey: "user.fullName",
             cell: (row) => {
-                console.log('Customer row data:', row);
                 return row.user?.fullName || 'N/A';
             }
         },
@@ -85,7 +83,6 @@ const AdminOrder = () => {
             header: "Restaurant",
             accessorKey: "restaurant.name",
             cell: (row) => {
-                console.log('Restaurant row data:', row);
                 return row.restaurant?.name || 'N/A';
             }
         },

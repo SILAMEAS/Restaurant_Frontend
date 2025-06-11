@@ -7,9 +7,9 @@ import {
     IDashboard, IFavorite,
     IPagination,
     IProfile, OrderResponse, PaginationRequest, PaginationRequestDefault, PaginationRequestWithIngoreCase,
-    RestaurantResponse,
+    RestaurantResponse, RoomResponse,
 } from "@/lib/redux/type";
-import { IMessage } from '@stomp/stompjs';
+import {IMessage} from "@/components/(chatPopOver)/type/types";
 
 
 export const customBaseQuery = (url: string) => {
@@ -296,9 +296,10 @@ export const apiSlice = createApi({
             query: ({req:{ params=PaginationRequestDefault,caseIgnoreFilter},roomId}) => ({
                 url: `chats-message/rooms/${roomId}`,
                 method: "GET",
-                params:{...params,filterBy:caseIgnoreFilter?undefined:params.filterBy,foodType:params.foodType===null?undefined:params.foodType}
+                params:{...params,filterBy:caseIgnoreFilter?undefined:params.filterBy,foodType:params.foodType===null?undefined:params.foodType},
             }),
             providesTags: ['message'],
+            keepUnusedDataFor:-1
 
         }),
 
@@ -312,6 +313,16 @@ export const apiSlice = createApi({
             invalidatesTags: ['room'],
 
         }),
+        listRooms: builder.query<IPagination<RoomResponse>,void>({
+            query: () => ({
+                url: `chats-room`,
+                method: "GET",
+            }),
+            providesTags: ['room'],
+
+        }),
+
+
 
     }),
 });
@@ -350,5 +361,6 @@ export const {
     useGetFoodsByRestaurantIdQuery,
     useAddOrderMutation,
     useGetMessagesQuery,
-    useCreateOrGetRoomMutation
+    useCreateOrGetRoomMutation,
+    useListRoomsQuery
  } = apiSlice;

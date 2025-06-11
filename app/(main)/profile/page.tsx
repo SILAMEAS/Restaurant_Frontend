@@ -29,8 +29,7 @@ export default function ProfilePage() {
     try {
       // You can handle the form data submission here
       // This is where you'll make your API call
-      console.log('Form data to submit:', Object.fromEntries(formData.entries()));
-      
+
       // Example success notification
       toast.success("Profile updated successfully!", {
         theme: "dark",

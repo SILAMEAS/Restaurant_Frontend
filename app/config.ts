@@ -9,12 +9,12 @@ export const getWebSocketUrl = () => {
 
 
     // Debug logging
-    console.log('WebSocket Configuration:', {
-        baseUrl,
-        cleanBaseUrl,
-        finalUrl,
-        nodeEnv: process.env.NODE_ENV,
-    });
+    // console.log('WebSocket Configuration:', {
+    //     baseUrl,
+    //     cleanBaseUrl,
+    //     finalUrl,
+    //     nodeEnv: process.env.NODE_ENV,
+    // });
     
     return finalUrl;
 };
@@ -27,7 +27,7 @@ export const STOMP_CONFIG = {
     heartbeatOutgoing: 4000,
     // Debug mode
     debug: (str: string) => {
-        console.log('STOMP Debug:', str);
+        // console.log('STOMP Debug:', str);
     },
     // Connection timeout
     connectionTimeout: 10000,

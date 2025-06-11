@@ -15,10 +15,8 @@ export async function handleApiCall<T>({
                                        }: ApiHandlerOptions<T>) {
     try {
         const res = await apiFn(); // e.g. () => login(data).unwrap()
-        console.log('rs')
         return onSuccess?.(res);
     } catch (e: any) {
-        console.log(e)
         if(e?.data?.message){
             if(onError){
                 return onError?.(e);

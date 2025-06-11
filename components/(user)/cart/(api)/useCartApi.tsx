@@ -39,7 +39,6 @@ const useCartApi = () => {
             })
           },
           onError: (e) => {
-            console.log(e)
             toast.error(`${e.data.message}`, {
               theme: "dark",
               transition: Slide,
@@ -89,11 +88,9 @@ const useCartApi = () => {
     
     
       const isLoadingProcess = rsUpCartItem.isLoading || rsRemoveItem.isLoading;
-      console.log(rsRemoveCart)
 
       React.useEffect(() => {
         if (rsRemoveCart.isSuccess) {
-          console.log("rsRemoveCart.isSuccess")
           window.location.reload();
         }
       }, [rsRemoveCart.isSuccess])

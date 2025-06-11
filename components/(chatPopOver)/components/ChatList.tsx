@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react';
+import React, {useCallback, useEffect, useMemo} from 'react';
 import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -8,7 +8,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Search, MoreVertical, Send, Phone, Video, Settings, Plus, Circle, Maximize2 } from "lucide-react"
 import {useDispatch} from "react-redux";
 import {setChatSelected} from "@/lib/redux/counterSlice";
+import {useListRoomsQuery, useProfileQuery} from "@/lib/redux/api";
 interface Chat {
+    roomId: string;
     id: string
     name: string
     lastMessage: string
@@ -19,78 +21,95 @@ interface Chat {
     type: "customer" | "internal" | "support"
 }
 
-const mockChats: Chat[] = [
-    {
-        id: "1",
-        name: "Sarah Johnson",
-        lastMessage: "Hi, I need help with my recent order...",
-        timestamp: "2 min ago",
-        unreadCount: 3,
-        status: "online",
-        type: "customer",
-    },
-    {
-        id: "2",
-        name: "Mike Chen",
-        lastMessage: "Thank you for the quick response!",
-        timestamp: "15 min ago",
-        unreadCount: 0,
-        status: "offline",
-        type: "customer",
-    },
-    {
-        id: "3",
-        name: "Customer Support",
-        lastMessage: "How can I assist you today?",
-        timestamp: "1 hour ago",
-        unreadCount: 1,
-        status: "online",
-        type: "support",
-    },
-    {
-        id: "4",
-        name: "Emma Wilson",
-        lastMessage: "Is there a way to track my shipment?",
-        timestamp: "2 hours ago",
-        unreadCount: 0,
-        status: "away",
-        type: "customer",
-    },
-    {
-        id: "5",
-        name: "Tech Support",
-        lastMessage: "I've escalated your issue to our team",
-        timestamp: "3 hours ago",
-        unreadCount: 2,
-        status: "online",
-        type: "internal",
-    },
-    {
-        id: "6",
-        name: "Tech Support 1",
-        lastMessage: "I've escalated your issue to our team",
-        timestamp: "3 hours ago",
-        unreadCount: 2,
-        status: "online",
-        type: "internal",
-    },
-    {
-        id: "7",
-        name: "Tech Support 2",
-        lastMessage: "I've escalated your issue to our team",
-        timestamp: "3 hours ago",
-        unreadCount: 2,
-        status: "online",
-        type: "internal",
-    },
-]
+// const mockChats: Chat[] = [
+//     {
+//         id: "1",
+//         name: "Sarah Johnson",
+//         lastMessage: "Hi, I need help with my recent order...",
+//         timestamp: "2 min ago",
+//         unreadCount: 3,
+//         status: "online",
+//         type: "customer",
+//     },
+//     {
+//         id: "2",
+//         name: "Mike Chen",
+//         lastMessage: "Thank you for the quick response!",
+//         timestamp: "15 min ago",
+//         unreadCount: 0,
+//         status: "offline",
+//         type: "customer",
+//     },
+//     {
+//         id: "3",
+//         name: "Customer Support",
+//         lastMessage: "How can I assist you today?",
+//         timestamp: "1 hour ago",
+//         unreadCount: 1,
+//         status: "online",
+//         type: "support",
+//     },
+//     {
+//         id: "4",
+//         name: "Emma Wilson",
+//         lastMessage: "Is there a way to track my shipment?",
+//         timestamp: "2 hours ago",
+//         unreadCount: 0,
+//         status: "away",
+//         type: "customer",
+//     },
+//     {
+//         id: "5",
+//         name: "Tech Support",
+//         lastMessage: "I've escalated your issue to our team",
+//         timestamp: "3 hours ago",
+//         unreadCount: 2,
+//         status: "online",
+//         type: "internal",
+//     },
+//     {
+//         id: "6",
+//         name: "Tech Support 1",
+//         lastMessage: "I've escalated your issue to our team",
+//         timestamp: "3 hours ago",
+//         unreadCount: 2,
+//         status: "online",
+//         type: "internal",
+//     },
+//     {
+//         id: "7",
+//         name: "Tech Support 2",
+//         lastMessage: "I've escalated your issue to our team",
+//         timestamp: "3 hours ago",
+//         unreadCount: 2,
+//         status: "online",
+//         type: "internal",
+//     },
+// ]
 const ChatList = () => {
-    const [selectedChat, setSelectedChat] = useState<Chat>(mockChats[0])
-    const [message, setMessage] = useState("")
+    const profileQuery = useProfileQuery();
+    const profile = profileQuery?.currentData;
+    const chatListQuery = useListRoomsQuery();
+    const chatRooms:Chat[]|[]=useMemo(()=>{
+        return chatListQuery?.currentData?.contents?.map(i=>{
+            return {
+                roomId:i.roomId,
+                id:i.id,
+                name:i.members.filter(m=>m.id!==profile?.id)[0].fullName,
+                lastMessage: "I've escalated your issue to our team",
+                timestamp: "3 hours ago",
+                unreadCount: 2,
+                status: "online",
+                type: "internal",
+            } as Chat;
+        }) ?? [];
+    },[chatListQuery?.currentData]);
+    const [selectedChat, setSelectedChat] = useState<Chat>(chatRooms[0])
     const [searchQuery, setSearchQuery] = useState("")
     const dispatch = useDispatch();
 
-    const filteredChats = mockChats.filter(
+
+    const filteredChats = chatRooms?.filter(
         (chat) =>
             chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()),
@@ -156,12 +175,12 @@ const ChatList = () => {
             {/* Chat List */}
             <ScrollArea className="flex-1  w-[100%]">
                 <div className="p-2">
-                    {filteredChats.map((chat) => (
+                    {filteredChats?.map((chat) => (
                         <div
-                            key={chat.id}
+                            key={chat?.id}
                             onClick={() => setSelectedChat(chat)}
                             className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors mb-1 ${
-                                selectedChat.id === chat.id ? "bg-gray-700" : "hover:bg-gray-750"
+                                selectedChat?.id === chat?.id ? "bg-gray-700" : "hover:bg-gray-750"
                             }`}
                         >
                             <div className="relative">

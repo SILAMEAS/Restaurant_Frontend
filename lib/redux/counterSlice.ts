@@ -22,6 +22,7 @@ interface IChat {
     
 }
 interface ISelectedChat {
+    roomId:string,
     id: string
     name: string
     lastMessage: string

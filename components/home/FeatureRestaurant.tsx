@@ -21,7 +21,6 @@ const FeatureRestaurant = () => {
             {currentData?.contents?.map((i) => (
                 <Card key={i.id} className="overflow-hidden cursor-pointer" onClick={(e)=>{
                     e.preventDefault();
-                    console.log('Clicking card, navigating to:', `/restaurants/${i.id}`);
                     router.push(`/restaurants/${i.id}`);
                 }}>
                 <div className="relative h-48">

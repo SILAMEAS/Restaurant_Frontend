@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {FoodType} from "@/constant/FoodType";
+import {UserInfo} from "@/lib/redux/counterSlice";
 
 export interface IDashboard{
     total_users:number;
@@ -147,7 +148,14 @@ export interface ContactInformation {
     phone: string;
     email: string;
 }
+export interface RoomResponse {
+    id:string|number;
+    name: string;
+    members:Array<IProfile>,
+    roomId:string,
+    isGroup:boolean,
 
+}
 
 /** Define the schema for form validation using Zod   */
 export const loginSchema = z.object({

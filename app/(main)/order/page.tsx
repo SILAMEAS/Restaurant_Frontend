@@ -29,29 +29,16 @@ export default function OrdersPage() {
                     const senderId =  profileQuery.currentData?.id;
                     const receiverId = order.restaurant.ownerId;
                     if(senderId&&receiverId) {
-                        await createRoom({senderId,receiverId}).unwrap();
-                        const roomId= `${senderId}_${receiverId}`
-                        console.log(roomId);
-                        dispatch(setChat({isChatOpen: true, selectedOrder: order,roomId}));
-                        // await handleApiCall({
-                        //     apiFn: () => createRoom({senderId,receiverId}).unwrap(),
-                        //     onSuccess: (r) => {
-                        //         const roomId= `${senderId}_${receiverId}`
-                        //         console.log("JKl")
-                        //         dispatch(setChat({isChatOpen: true, selectedOrder: order,roomId}));
-                        //         toast.success(`Go to Room ${roomId}`, {
-                        //             theme: "dark",
-                        //             transition: Slide,
-                        //         });
-                        //     },
-                        //     onError:(e)=>{
-                        //         toast.error(`${e.data.message}`, {
-                        //             theme: "dark",
-                        //             transition: Slide,
-                        //         });
-                        //     }
-                        // });
-
+                      try {
+                          await createRoom({senderId,receiverId}).unwrap();
+                          const roomId= `${senderId}_${receiverId}`
+                          dispatch(setChat({isChatOpen: true, selectedOrder: order,roomId}));
+                      }catch (e:any) {
+                         return  toast.error(`${e.data.message}`, {
+                              theme: "dark",
+                              transition: Slide,
+                          });
+                      }
 
                     }else {
                         toast.error(`${profileQuery?.error??"UNKNOWN ERROR"}`, {

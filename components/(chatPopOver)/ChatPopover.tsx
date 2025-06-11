@@ -37,7 +37,9 @@ export function ChatPopover() {
 
     // Owner credentials
     const isOwner = profile?.role === Role.OWNER
-    const roomId =chat?.roomId?? '2_12' // This could be dynamic based on your needs
+    const roomId =isOwner?chatSelected?.roomId: chat?.roomId // This could be dynamic based on your needs
+    const open = isOwner?isOpen: chat?.isChatOpen?? isOpen;
+
 
     // Get messages from API
     const {data: messagesData} = useGetMessagesQuery({
@@ -50,7 +52,10 @@ export function ChatPopover() {
             },
             caseIgnoreFilter: true
         },
-        roomId
+        roomId:roomId!
+    }, {
+        skip:!roomId|| !open,
+        refetchOnFocus:true
     });
 
     // WebSocket connection
@@ -59,10 +64,10 @@ export function ChatPopover() {
         isSending,
         connectionStatus: {isConnected},
         sendMessage
-    } = useWebSocket({roomId,subscribeUrl:'/topic/messages',publishUrl:'/app/chat/send'});
+    } = useWebSocket({subscribeUrl:'/topic/messages',publishUrl:'/app/chat/send',open});
 
     // Combine API messages with websocket messages
-    const allMessages = useMemo(() => {
+    let allMessages = useMemo(() => {
         const apiMessages = (messagesData?.contents || []).map((msg: any): IMessageChatPopOver => ({
             id: msg.messageId,
             text: msg.content,
@@ -85,12 +90,19 @@ export function ChatPopover() {
     }, [messagesData, wsMessages, profile?.id, userColor]);
 
 
+
     useEffect(() => {
         if (profile) {
             setUsername(profile.fullName);
             setIsUsernameSet(true);
         }
-    }, [profile]);
+        if(roomId){
+            allMessages=[]
+        }
+    }, [profile,roomId]);
+
+    roomId&&
+    console.log(roomId,allMessages)
 
     useEffect(() => {
         scrollToBottom();
@@ -105,9 +117,8 @@ export function ChatPopover() {
             dispatch(resetChat());
         }
     }, [isOpen]);
-console.log('view',view)
     return (
-        <Popover open={isOwner?isOpen: chat?.isChatOpen?? isOpen} onOpenChange={()=>{
+        <Popover open={open} onOpenChange={()=>{
             setIsOpen(!isOpen);
             dispatch(setChat({isChatOpen:false}))
         }}>
@@ -148,8 +159,12 @@ console.log('view',view)
                         <div className="flex-1 flex flex-col w-[100%]">
 
                             {/** Chat Header */}
-                            <ChatMessageHeader isOwner={isOwner} isConnected={isConnected} setView={setView}
-                                               view={view} name={chatSelected?.name??"unknown"} roomId={roomId}/>
+                            {
+                                roomId&&
+                                <ChatMessageHeader isOwner={isOwner} isConnected={isConnected} setView={setView}
+                                                   view={view} name={chatSelected?.name??"unknown"} roomId={roomId}/>
+                            }
+
 
                             {/** Chat Area */}
                             <ChatMessageContent isOwner={isOwner} allMessages={allMessages}

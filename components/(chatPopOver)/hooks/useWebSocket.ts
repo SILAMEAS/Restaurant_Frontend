@@ -16,10 +16,11 @@ interface IWebSocket {
     roomId?: string,
     subscribeUrl: string,
     publishUrl: string,
+    open:boolean
 
 }
 
-export const useWebSocket = ({subscribeUrl,publishUrl}:IWebSocket) => {
+export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
     const [state, setState] = useState<ChatState>(INITIAL_STATE);
     const clientRef = useRef<Client | null>(null);
 
@@ -130,7 +131,7 @@ export const useWebSocket = ({subscribeUrl,publishUrl}:IWebSocket) => {
                 }
             }));
         }
-    }, [generateMessageId]);
+    }, [generateMessageId,open]);
 
     const sendMessage = useCallback(async (message: IChatMessageDTO) => {
         if (!clientRef.current?.active || !message.content.trim() || state.isSending) {
