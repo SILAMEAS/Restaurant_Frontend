@@ -49,6 +49,14 @@ export interface IPagination<T> {
     hasNext?: boolean;
     totalInvalid?: number;
 }
+export interface IResponseQuery<T>{
+    currentData?:IPagination<T>,
+    isLoading:boolean,
+    data?:T,
+    isError:boolean,
+    isFetching:boolean,
+    isSuccess:boolean
+}
 
 
 export enum enumStatus{

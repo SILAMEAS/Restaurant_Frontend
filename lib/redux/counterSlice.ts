@@ -66,6 +66,7 @@ const counterSlice = createSlice({
         },
         resetChat: (state) => {
             state.chat = initialState.chat;
+            state.chatSelected= undefined;
         },
         setChatSelected: (state, action: PayloadAction<ISelectedChat>) => {
             state.chatSelected = action.payload;

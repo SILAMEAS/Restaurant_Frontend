@@ -304,7 +304,7 @@ export const apiSlice = createApi({
         }),
 
         /**  ==========================================  Room */
-        createOrGetRoom: builder.mutation<IPagination<IMessage>,{senderId:number,receiverId:number;}>({
+        createOrGetRoom: builder.mutation<RoomResponse,{senderId:number,receiverId:number;}>({
             query: (params) => ({
                 url: `chats-room`,
                 method: "POST",
@@ -313,7 +313,7 @@ export const apiSlice = createApi({
             invalidatesTags: ['room'],
 
         }),
-        listRooms: builder.query<IPagination<RoomResponse>,void>({
+        listRooms: builder.query<IPagination<RoomResponse>,{}>({
             query: () => ({
                 url: `chats-room`,
                 method: "GET",
