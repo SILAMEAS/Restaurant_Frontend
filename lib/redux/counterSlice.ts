@@ -64,8 +64,8 @@ const counterSlice = createSlice({
         setChat: (state, action: PayloadAction<IChat>) => {
             state.chat = action.payload;
         },
-        resetChat: (state) => {
-            state.chat = initialState.chat;
+        resetChatClosePopOver: (state) => {
+            state.chat ={isChatOpen:false, roomId:undefined, selectedOrder:undefined};
             state.chatSelected= undefined;
         },
         setChatSelected: (state, action: PayloadAction<ISelectedChat>) => {
@@ -74,5 +74,5 @@ const counterSlice = createSlice({
     },
 });
 
-export const { setChat,setLogin,reset,resetChat,setChatSelected} = counterSlice.actions;
+export const { setChat,setLogin,reset,resetChatClosePopOver,setChatSelected} = counterSlice.actions;
 export default counterSlice.reducer;

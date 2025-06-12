@@ -10,7 +10,7 @@ import {ChatAsUI} from "@/components/(chatPopOver)/components/ChatList";
 
 export default function OrdersPage() {
     const profileQuery = useProfileQuery();
-    const ordersQuery = useGetOrdersQuery();
+    const ordersQuery = useGetOrdersQuery({},{refetchOnMountOrArgChange:true});
     const dispatch = useAppDispatch();
 
     const [createRoom] = useCreateOrGetRoomMutation();

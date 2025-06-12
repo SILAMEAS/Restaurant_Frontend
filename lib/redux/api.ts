@@ -264,12 +264,13 @@ export const apiSlice = createApi({
 
         }),
         /**  ==========================================  Order */
-        getOrders: builder.query<IPagination<OrderResponse>,void>({
+        getOrders: builder.query<IPagination<OrderResponse>,{}>({
             query: () => ({
                 url: `orders`,
                 method: "GET"
             }),
             providesTags: ['order'],
+            keepUnusedDataFor:0
 
         }),
         addOrder: builder.mutation<IPagination<OrderResponse>,{cartId:number}>({

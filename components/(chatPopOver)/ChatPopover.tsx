@@ -5,7 +5,7 @@ import {Button} from "@/components/ui/button"
 import {MessageCircle} from "lucide-react"
 import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
 import {useGetMessagesQuery, useProfileQuery} from "@/lib/redux/api"
-import {Role, setChat, setChatSelected} from "@/lib/redux/counterSlice"
+import {resetChatClosePopOver, Role} from "@/lib/redux/counterSlice"
 import {useWebSocket} from "@/components/(chatPopOver)/hooks/useWebSocket"
 import {IMessage, IMessageChatPopOver, UserChatPopOver} from "@/components/(chatPopOver)/type/types"
 import ChatMessageHeader from "@/components/(chatPopOver)/components/ChatMessageHeader";
@@ -16,6 +16,7 @@ import {useAppDispatch, useAppSelector} from "@/lib/redux/hooks";
 import ChatList from "@/components/(chatPopOver)/components/ChatList";
 import {useGlobalState} from "@/hooks/useGlobalState";
 import {store} from "@/lib/redux/store";
+import {uniqueArray} from "@/lib/commons/uniqueArray";
 
 
 export function ChatPopover() {
@@ -42,6 +43,8 @@ export function ChatPopover() {
     const isOwner = profile?.role === Role.OWNER
     const roomId = isOwner ? chatSelected?.roomId : chat?.roomId // This could be dynamic based on your needs
     const open = isOwner ? isOpen : chat?.isChatOpen ?? isOpen;
+
+    console.log(open,isOwner,chatSelected?.roomId,chat?.roomId);
 
 
     // Get messages from API
@@ -76,7 +79,7 @@ export function ChatPopover() {
     // Combine API messages with websocket messages
     let allMessages = useMemo(() => {
         const apiMessages = (messagesData?.contents || []).map((msg: any): IMessageChatPopOver => ({
-            id: msg.messageId,
+            id: msg.id,
             text: msg.content,
             username: msg.senderName ?? `UserChatPopOver ${msg.senderId}`,
             timestamp: new Date(msg.timestamp).getTime(),
@@ -85,7 +88,7 @@ export function ChatPopover() {
         }));
 
         const wsMessagesConverted = wsMessages.map((msg: IMessage): IMessageChatPopOver => ({
-            id: msg.messageId,
+            id: msg.id,
             text: msg.content,
             username: msg.senderName ?? `UserChatPopOver ${msg.senderId}`,
             timestamp: new Date(msg.timestamp).getTime(),
@@ -122,8 +125,7 @@ export function ChatPopover() {
     return (
         <Popover open={open} onOpenChange={() => {
             setIsOpen(!isOpen);
-            dispatch(setChat({isChatOpen: false, roomId: undefined, selectedOrder: undefined}))
-            dispatch(setChatSelected(undefined))
+            dispatch(resetChatClosePopOver())
 
         }}>
             <PopoverTrigger asChild>
@@ -168,7 +170,7 @@ export function ChatPopover() {
 
                                 {/** Chat Area */}
                                 <ChatMessageContent isOwner={isOwner}
-                                                    allMessages={allMessages}
+                                                    allMessages={uniqueArray<IMessageChatPopOver>(allMessages, 'id')}
                                                     messagesEndRef={messagesEndRef}
                                                     profile={profile} onlineUsers={onlineUsers}/>
                                 {/** Message Input **/}

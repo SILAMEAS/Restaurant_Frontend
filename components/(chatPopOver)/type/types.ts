@@ -10,6 +10,7 @@ export interface IChatMessageDTO {
 }
 
 export interface IMessage {
+    id:number;
     content: string;
     timestamp: string;
     senderId: number;
