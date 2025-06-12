@@ -326,6 +326,10 @@ export const apiSlice = createApi({
 
 
     }),
+    // disable caching
+    keepUnusedDataFor: 0,
+    refetchOnMountOrArgChange: true,
+    refetchOnReconnect: true,
 });
 
 /** Export hooks for usage in components  */
