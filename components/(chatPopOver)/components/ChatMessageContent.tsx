@@ -1,6 +1,7 @@
 import React, {RefObject} from 'react';
 import {IMessageChatPopOver, UserChatPopOver} from "@/components/(chatPopOver)/type/types";
 import {IProfile} from "@/lib/redux/type";
+import {formatDateTimeToPP} from "@/lib/commons/formatDateTimeToPP";
 
 interface ChatMessageContentProps {
     allMessages: IMessageChatPopOver[]
@@ -39,7 +40,7 @@ const ChatMessageContent = ({messagesEndRef, allMessages, isOwner}: ChatMessageC
                         <p>{message.isOwner?message.username: message.username}</p>
                         {message.text}
                         <div className="text-[10px] opacity-70 mt-1">
-                            {new Date(message.timestamp).toLocaleTimeString()}
+                            {formatDateTimeToPP(message.timestamp)}
                         </div>
                     </div>
                 </div>
