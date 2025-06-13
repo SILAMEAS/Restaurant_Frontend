@@ -2,7 +2,7 @@ import React from 'react';
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Role} from "@/lib/redux/counterSlice";
-import {UserChatPopOver} from "@/components/(chatPopOver)/type/types";
+import {UserChatPopOver} from "@/app/(chat)/type/types";
 import {IProfile} from "@/lib/redux/type";
 
 interface TypingUsernameProps{

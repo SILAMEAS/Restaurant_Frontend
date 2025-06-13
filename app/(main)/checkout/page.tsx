@@ -4,9 +4,9 @@ import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import MainAddresses from "@/app/(main)/profile/(tab)/MainAddresses"
-import PaymentMethod from "@/components/(user)/cart/PaymentMethod"
-import OrderNotes from "@/components/(user)/cart/OrderNotes"
-import OrderSummary from "@/components/(user)/cart/OrderSummary"
+import PaymentMethod from "@/app/(main)/cart/components/PaymentMethod"
+import OrderNotes from "@/app/(main)/cart/components/OrderNotes"
+import OrderSummary from "@/app/(main)/cart/components/OrderSummary"
 
 // Sample cart data for order summary
 const cartItems = [

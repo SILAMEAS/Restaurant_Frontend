@@ -9,7 +9,7 @@ import {
     IProfile, OrderResponse, PaginationRequest, PaginationRequestDefault, PaginationRequestWithIngoreCase,
     RestaurantResponse, RoomResponse,
 } from "@/lib/redux/type";
-import {IMessage} from "@/components/(chatPopOver)/type/types";
+import {IMessage} from "@/app/(chat)/type/types";
 
 
 export const customBaseQuery = (url: string) => {

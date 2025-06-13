@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation"
 import { LayoutDashboard, LogOut, Store } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useLogout } from "@/lib/hooks/useLogout"
-import { CheckRole } from "@/components/(admin)/(hooks)/useUsersByRole"
+import { CheckRole } from "@/app/admin/components/(hooks)/useUsersByRole"
 
 export function AdminNav() {
   const pathname = usePathname()

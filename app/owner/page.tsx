@@ -6,11 +6,11 @@ import {useDashboardQuery} from "@/lib/redux/api"
 import {ICurrentData} from "@/lib/generic/ICurrentData"
 
 import {IDashboard} from "@/lib/redux/type";
-import AdminUser from "@/components/(admin)/(tab)/AdminUser";
-import AdminOrder from "@/components/(admin)/(tab)/AdminOrder";
-import AdminCategory from "@/components/(admin)/(tab)/AdminCategory";
-import AdminFood from "@/components/(admin)/(tab)/AdminFood";
-import CartDashboardOwner from "@/components/(owner)/CartDashboardOwner";
+import AdminUser from "@/app/admin/components/(tab)/AdminUser";
+import AdminOrder from "@/app/admin/components/(tab)/AdminOrder";
+import AdminCategory from "@/app/admin/components/(tab)/AdminCategory";
+import AdminFood from "@/app/admin/components/(tab)/AdminFood";
+import CartDashboardOwner from "@/app/owner/components/CartDashboardOwner";
 
 
 export default function OwnerDashboardPage() {

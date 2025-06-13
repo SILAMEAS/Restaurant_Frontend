@@ -6,14 +6,14 @@ import {MessageCircle} from "lucide-react"
 import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
 import {useGetMessagesQuery, useProfileQuery} from "@/lib/redux/api"
 import {resetChatClosePopOver, Role} from "@/lib/redux/counterSlice"
-import {useWebSocket} from "@/components/(chatPopOver)/hooks/useWebSocket"
-import {IMessage, IMessageChatPopOver, UserChatPopOver} from "@/components/(chatPopOver)/type/types"
-import ChatMessageHeader from "@/components/(chatPopOver)/components/ChatMessageHeader";
-import ChatMessageContent from "@/components/(chatPopOver)/components/ChatMessageContent";
-import ChatMessageInput from "@/components/(chatPopOver)/components/ChatMessageInput";
-import SignalConnect from "@/components/(chatPopOver)/components/SignalConnect";
+import {useWebSocket} from "@/app/(chat)/hooks/useWebSocket"
+import {IMessage, IMessageChatPopOver, UserChatPopOver} from "@/app/(chat)/type/types"
+import ChatMessageHeader from "@/app/(chat)/components/ChatMessageHeader";
+import ChatMessageContent from "@/app/(chat)/components/ChatMessageContent";
+import ChatMessageInput from "@/app/(chat)/components/ChatMessageInput";
+import SignalConnect from "@/app/(chat)/components/SignalConnect";
 import {useAppDispatch, useAppSelector} from "@/lib/redux/hooks";
-import ChatList from "@/components/(chatPopOver)/components/ChatList";
+import ChatList from "@/app/(chat)/components/ChatList";
 import {useGlobalState} from "@/hooks/useGlobalState";
 import {store} from "@/lib/redux/store";
 import {uniqueArray} from "@/lib/commons/uniqueArray";

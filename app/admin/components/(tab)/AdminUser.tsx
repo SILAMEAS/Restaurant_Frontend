@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { PaginatedTable, type Column } from "@/components/ui/paginated-table"
 import { usePagination } from "@/lib/hooks/usePagination"
-import { useUsersByRole } from "@/components/(admin)/(hooks)/useUsersByRole"
+import { useUsersByRole } from "@/app/admin/components/(hooks)/useUsersByRole"
 
 const AdminUser = () => {
     const [searchQuery, setSearchQuery] = useState("")

@@ -1,22 +1,20 @@
 // app/ReduxProvider.tsx
 'use client';
 
-import { Provider } from 'react-redux';
+import {Provider} from 'react-redux';
 import dynamic from 'next/dynamic';
-import { store, persistor } from '@/lib/redux/store';
-import { ThemeProvider } from '@/components/theme-provider';
-import { Toaster } from '@/components/ui/toaster';
+import {persistor, store} from '@/lib/redux/store';
+import {ThemeProvider} from '@/components/theme-provider';
 import type React from 'react';
-import PageLoader from "@/components/loading/PageLoder";
-import { ToastContainer, toast } from 'react-toastify';
+import RouteChangeHandler from "@/lib/loading/RouteChangeHandler";
 
 // Dynamically import PersistGate with SSR disabled
 const PersistGate = dynamic(
     () => import('redux-persist/integration/react').then((mod) => mod.PersistGate),
-    { ssr: false }
+    {ssr: false}
 );
 
-export default function ReduxProvider({ children }: { children: React.ReactNode }) {
+export default function ReduxProvider({children}: Readonly<{ children: React.ReactNode }>) {
     return (
         <Provider store={store}>
             <PersistGate loading={<div>Loading...</div>} persistor={persistor}>

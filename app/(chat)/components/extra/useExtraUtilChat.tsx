@@ -1,5 +1,5 @@
 import {useMemo, useState} from 'react';
-import {IMessageChatPopOver, UserChatPopOver} from "@/components/(chatPopOver)/type/types";
+import {IMessageChatPopOver, UserChatPopOver} from "@/app/(chat)/type/types";
 
 interface ExtraUtilChatProps {
     isOwner: boolean,

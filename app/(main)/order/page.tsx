@@ -1,12 +1,12 @@
 "use client"
 
-import {OrderList} from "@/components/(user)/order/components/OrderList";
+import {OrderList} from "@/app/(main)/order/components/OrderList";
 import {useCreateOrGetRoomMutation, useGetOrdersQuery, useProfileQuery} from "@/lib/redux/api";
 import {OrderResponse} from "@/lib/redux/type";
 import {useAppDispatch} from "@/lib/redux/hooks";
 import {setChat, setChatSelected} from "@/lib/redux/counterSlice";
 import {Slide, toast} from "react-toastify";
-import {ChatAsUI} from "@/components/(chatPopOver)/components/ChatList";
+import {ChatAsUI} from "@/app/(chat)/components/ChatList";
 
 export default function OrdersPage() {
     const profileQuery = useProfileQuery();

@@ -2,7 +2,7 @@ import React, {useState} from 'react';
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
 import {Send} from "lucide-react";
-import {IChatMessageDTO} from "@/components/(chatPopOver)/type/types";
+import {IChatMessageDTO} from "@/app/(chat)/type/types";
 
 interface ChatMessageInputProps{
     isConnected:boolean,

@@ -1,4 +1,4 @@
-import {OrderCard} from "@/components/(user)/order/components/OrderCart";
+import {OrderCard} from "@/app/(main)/order/components/OrderCart";
 import {OrderResponse} from "@/lib/redux/type";
 
 interface OrderListProps {

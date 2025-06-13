@@ -1,5 +1,5 @@
 import React, {RefObject} from 'react';
-import {IMessageChatPopOver, UserChatPopOver} from "@/components/(chatPopOver)/type/types";
+import {IMessageChatPopOver, UserChatPopOver} from "@/app/(chat)/type/types";
 import {IProfile} from "@/lib/redux/type";
 import {formatDateTimeToPP} from "@/lib/commons/formatDateTimeToPP";
 

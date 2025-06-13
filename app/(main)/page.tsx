@@ -1,7 +1,7 @@
 "use client"
-import HeroSection from "@/components/home/HeroSection";
-import FeatureRestaurant from "@/components/home/FeatureRestaurant";
-import FeatureCategories from "@/components/home/FeatureCategories";
+import HeroSection from "@/app/(main)/components/HeroSection";
+import FeatureRestaurant from "@/app/(main)/components/FeatureRestaurant";
+import FeatureCategories from "@/app/(main)/components/FeatureCategories";
 
 export default function Home() {
 

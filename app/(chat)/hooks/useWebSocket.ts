@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Client, Frame } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import { getWebSocketUrl, STOMP_CONFIG } from '@/app/config';
-import { IChatMessageDTO, ChatState } from '../type/types';
+import { IChatMessageDTO, ChatState } from '@/app/(chat)/type/types';
 
 const INITIAL_STATE: ChatState = {
     messages: [],
