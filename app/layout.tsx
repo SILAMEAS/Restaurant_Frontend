@@ -11,6 +11,8 @@ import {ToastContainer} from 'react-toastify';
 import {ThemeProvider} from '@/components/provider/theme-provider';
 import {ChatPopover} from "@/app/(chat)/ChatPopover";
 import {store} from "@/lib/redux/store";
+import RouteChangeHandler from "@/lib/loading/RouteChangeHandler";
+import RouteChangeSpinner from "@/components/provider/RouteChangeSpinner";
 
 const inter = Inter({subsets: ['latin']});
 
@@ -36,8 +38,7 @@ export default function RootLayout({
         >
             <GlobalLoadingProvider>
                 <ReduxProvider>
-                    {/* 🔥 Add RouteChangeHandler here */}
-                    {/*<RouteChangeHandler />*/}
+                    <RouteChangeSpinner />
                     {children}
                     <ToastContainer/>
                 </ReduxProvider>

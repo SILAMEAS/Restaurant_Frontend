@@ -1,4 +1,4 @@
-// lib/provider/RouteChangeHandler.tsx
+// lib/provider/RouteChangeSpinner.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
