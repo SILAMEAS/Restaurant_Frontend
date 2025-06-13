@@ -26,7 +26,7 @@ const ChatList = () => {
     const {chatSelected} = useGlobalState();
     const profileQuery = useProfileQuery();
     const profile = profileQuery?.currentData;
-    const chatListQuery = useListRoomsQuery({},{refetchOnMountOrArgChange:true});
+    const chatListQuery = useListRoomsQuery({}, {refetchOnMountOrArgChange: true});
     const chatRooms: ChatAsUI[] | [] = useMemo(() => {
         return chatListQuery?.currentData?.contents?.map(i => {
             return {
@@ -76,11 +76,11 @@ const ChatList = () => {
         }
     }
 
-    useEffect(()=>{
-        if(chatRooms?.length>0){
+    useEffect(() => {
+        if (chatRooms?.length > 0) {
             dispatch(setChatSelected(chatRooms[0]))
         }
-    },[chatRooms])
+    }, [chatRooms])
 
     return <div className={'flex w-[100%] flex-col bg-amber-300 h-[100%]'}>
         <div className="bg-gray-800 border-r border-gray-700 flex flex-col w-[100%] h-[100%]">

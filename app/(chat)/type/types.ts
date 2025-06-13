@@ -10,7 +10,7 @@ export interface IChatMessageDTO {
 }
 
 export interface IMessage {
-    id:number;
+    id: number;
     content: string;
     timestamp: string;
     senderId: number;
@@ -30,7 +30,7 @@ export interface ChatState {
 }
 
 export interface IMessageChatPopOver {
-    id: string|number
+    id: string | number
     text: string
     username: string
     timestamp: number

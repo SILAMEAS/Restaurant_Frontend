@@ -37,7 +37,7 @@ const ChatMessageContent = ({messagesEndRef, allMessages, isOwner}: ChatMessageC
                                 : "bg-accent"
                         }`}
                     >
-                        <p>{message.isOwner?message.username: message.username}</p>
+                        <p>{message.isOwner ? message.username : message.username}</p>
                         {message.text}
                         <div className="text-[10px] opacity-70 mt-1">
                             {formatDateTimeToPP(message.timestamp)}

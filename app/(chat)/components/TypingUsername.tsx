@@ -5,22 +5,32 @@ import {Role} from "@/lib/redux/counterSlice";
 import {UserChatPopOver} from "@/app/(chat)/type/types";
 import {IProfile} from "@/lib/redux/type";
 
-interface TypingUsernameProps{
-    username:string,
-    setUserColor:React.Dispatch<React.SetStateAction<string>>,
+interface TypingUsernameProps {
+    username: string,
+    setUserColor: React.Dispatch<React.SetStateAction<string>>,
     setIsUsernameSet: React.Dispatch<React.SetStateAction<boolean>>,
-    isOwner:boolean
+    isOwner: boolean
     setUsername: React.Dispatch<React.SetStateAction<string>>,
     setOnlineUsers: React.Dispatch<React.SetStateAction<UserChatPopOver[]>>,
     profile?: IProfile,
     userColor: string
 
 }
+
 const colors = [
     "#FF6B6B", "#4ECDC4", "#45B7D1", "#96CEB4", "#FFEAA7",
     "#DDA0DD", "#98D8C8", "#F7DC6F", "#BB8FCE", "#85C1E9",
 ]
-const TypingUsername = ({userColor,profile,username,setIsUsernameSet,setUserColor,setUsername,isOwner,setOnlineUsers}:TypingUsernameProps) => {
+const TypingUsername = ({
+                            userColor,
+                            profile,
+                            username,
+                            setIsUsernameSet,
+                            setUserColor,
+                            setUsername,
+                            isOwner,
+                            setOnlineUsers
+                        }: TypingUsernameProps) => {
 
 
     const updateUserPresence = () => {
@@ -61,7 +71,7 @@ const TypingUsername = ({userColor,profile,username,setIsUsernameSet,setUserColo
     }
 
 
-    return  <div className="p-4">
+    return <div className="p-4">
         <form onSubmit={handleUsernameSubmit} className="space-y-3">
             <h3 className="font-semibold">Enter your name to start chatting</h3>
             <Input

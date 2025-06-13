@@ -15,15 +15,11 @@ import SignalConnect from "@/app/(chat)/components/SignalConnect";
 import {useAppDispatch, useAppSelector} from "@/lib/redux/hooks";
 import ChatList from "@/app/(chat)/components/ChatList";
 import {useGlobalState} from "@/hooks/useGlobalState";
-import {store} from "@/lib/redux/store";
 import {uniqueArray} from "@/lib/commons/uniqueArray";
 
 
 export function ChatPopover() {
-    const token = store.getState().counter.login?.accessToken;
-    if (!token) {
-        return <></>;
-    }
+
     const {data: profile} = useProfileQuery();
 
 
@@ -43,8 +39,6 @@ export function ChatPopover() {
     const isOwner = profile?.role === Role.OWNER
     const roomId = isOwner ? chatSelected?.roomId : chat?.roomId // This could be dynamic based on your needs
     const open = isOwner ? isOpen : chat?.isChatOpen ?? isOpen;
-
-    console.log(open,isOwner,chatSelected?.roomId,chat?.roomId);
 
 
     // Get messages from API
@@ -110,7 +104,6 @@ export function ChatPopover() {
         }
     }, [profile, roomId, chat?.isChatOpen, open]);
 
-    console.log(allMessages)
 
 
     useEffect(() => {
@@ -191,37 +184,3 @@ export function ChatPopover() {
         </Popover>
     )
 }
-
-//{!isUsernameSet ? (
-//                             <TypingUsername username={username} setUsername={setUsername} profile={profile}
-//                                             setIsUsernameSet={setIsUsernameSet} userColor={userColor} isOwner={isOwner}
-//                                             setOnlineUsers={setOnlineUsers} setUserColor={setUserColor}/>
-//                         ) : (
-//                             <div className="flex w-[100%] h-[100%]">
-//                                 <div className="flex-1 flex flex-col w-[100%]">
-//
-//                                     {/** Chat Header */}
-//                                     {
-//                                         roomId&&
-//                                         <ChatMessageHeader isOwner={isOwner} isConnected={isConnected} setView={setView}
-//                                                            view={view} name={chatSelected?.name??"unknown"} roomId={roomId}/>
-//                                     }
-//
-//
-//                                     {/** Chat Area */}
-//                                     <ChatMessageContent isOwner={isOwner} allMessages={allMessages}
-//                                                         messagesEndRef={messagesEndRef}
-//                                                         profile={profile} onlineUsers={onlineUsers}/>
-//
-//                                     {/** Message Input **/}
-//                                     <ChatMessageInput
-//                                         isConnected={isConnected}
-//                                         isSending={isSending} isOwner={isOwner}
-//                                         profile={profile}
-//                                         roomId={roomId}
-//                                         sendMessage={sendMessage}
-//                                     />
-//
-//                                 </div>
-//                             </div>
-//                         )}

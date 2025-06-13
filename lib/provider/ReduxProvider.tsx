@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import {persistor, store} from '@/lib/redux/store';
 import {ThemeProvider} from '@/components/provider/theme-provider';
 import type React from 'react';
-import RouteChangeHandler from "@/lib/loading/RouteChangeHandler";
+import {ChatPopover} from "@/app/(chat)/ChatPopover";
 
 // Dynamically import PersistGate with SSR disabled
 const PersistGate = dynamic(
@@ -15,6 +15,7 @@ const PersistGate = dynamic(
 );
 
 export default function ReduxProvider({children}: Readonly<{ children: React.ReactNode }>) {
+
     return (
         <Provider store={store}>
             <PersistGate loading={<div>Loading...</div>} persistor={persistor}>

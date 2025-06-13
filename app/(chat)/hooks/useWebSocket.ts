@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
-import { Client, Frame } from '@stomp/stompjs';
+import {useCallback, useEffect, useRef, useState} from 'react';
+import {Client, Frame} from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import { getWebSocketUrl, STOMP_CONFIG } from '@/app/config';
-import { IChatMessageDTO, ChatState } from '@/app/(chat)/type/types';
+import {getWebSocketUrl, STOMP_CONFIG} from '@/app/config';
+import {ChatState, IChatMessageDTO} from '@/app/(chat)/type/types';
 
 const INITIAL_STATE: ChatState = {
     messages: [],
@@ -12,15 +12,16 @@ const INITIAL_STATE: ChatState = {
         error: null
     }
 };
+
 interface IWebSocket {
     roomId?: string,
     subscribeUrl: string,
     publishUrl: string,
-    open:boolean
+    open: boolean
 
 }
 
-export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
+export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
     const [state, setState] = useState<ChatState>(INITIAL_STATE);
     const clientRef = useRef<Client | null>(null);
 
@@ -31,7 +32,7 @@ export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
     const connect = useCallback(() => {
         try {
             const socket = new SockJS(getWebSocketUrl());
-            
+
             socket.onclose = () => {
                 setState(prev => ({
                     ...prev,
@@ -51,7 +52,7 @@ export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
                     }
                 }));
             };
-            
+
             const stompClient = new Client({
                 ...STOMP_CONFIG,
                 webSocketFactory: () => socket,
@@ -68,16 +69,17 @@ export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
                         try {
                             const receivedMessage = JSON.parse(message.body);
                             const messageId = receivedMessage.messageId ?? generateMessageId();
-                            
+
                             setState(prev => {
                                 // Prevent duplicate messages
                                 if (prev.messages.some(msg => msg.messageId === messageId)) {
                                     return prev;
                                 }
-                                
+
                                 return {
                                     ...prev,
                                     messages: [...prev.messages, {
+                                        id:receivedMessage.id,
                                         content: receivedMessage.content,
                                         senderId: receivedMessage.senderId,
                                         senderName: receivedMessage.senderName ?? `User ${receivedMessage.senderId}`,
@@ -131,14 +133,14 @@ export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
                 }
             }));
         }
-    }, [generateMessageId,open]);
+    }, [generateMessageId, open]);
 
     const sendMessage = useCallback(async (message: IChatMessageDTO) => {
         if (!clientRef.current?.active || !message.content.trim() || state.isSending) {
             return;
         }
 
-        setState(prev => ({ ...prev, isSending: true }));
+        setState(prev => ({...prev, isSending: true}));
 
         try {
             const messageToSend = {
@@ -150,7 +152,7 @@ export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
             clientRef.current.publish({
                 destination: publishUrl,
                 body: JSON.stringify(messageToSend),
-                headers: { 'content-type': 'application/json' }
+                headers: {'content-type': 'application/json'}
             });
         } catch (error) {
             setState(prev => ({
@@ -161,7 +163,7 @@ export const useWebSocket = ({subscribeUrl,publishUrl,open}:IWebSocket) => {
                 }
             }));
         } finally {
-            setState(prev => ({ ...prev, isSending: false }));
+            setState(prev => ({...prev, isSending: false}));
         }
     }, [generateMessageId, state.isSending]);
 

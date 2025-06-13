@@ -10,6 +10,7 @@ import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Impor
 import {ToastContainer} from 'react-toastify';
 import {ThemeProvider} from '@/components/provider/theme-provider';
 import {ChatPopover} from "@/app/(chat)/ChatPopover";
+import {store} from "@/lib/redux/store";
 
 const inter = Inter({subsets: ['latin']});
 
@@ -39,9 +40,6 @@ export default function RootLayout({
                     {/*<RouteChangeHandler />*/}
                     {children}
                     <ToastContainer/>
-                    <div className="fixed bottom-4 right-4 z-50">
-                        <ChatPopover/>
-                    </div>
                 </ReduxProvider>
                 <GlobalLoadingSpinner/>
             </GlobalLoadingProvider>
