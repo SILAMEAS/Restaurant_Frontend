@@ -7,7 +7,7 @@ import { useState } from "react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "@/components/theme-toggle"
+import { ThemeToggle } from "@/components/provider/theme-toggle"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { useLogout } from "@/lib/hooks/useLogout"
 import Cookies from "js-cookie"
@@ -56,7 +56,7 @@ export function MainNav() {
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50 border-b">
       <div className="container mx-auto flex items-center justify-between py-4 px-4 md:px-6">
         <div className="flex items-center">
-          <Link href="/" className="flex items-center">
+          <Link href="/public" className="flex items-center">
             <span className="text-xl font-bold">LaCy</span>
           </Link>
         </div>

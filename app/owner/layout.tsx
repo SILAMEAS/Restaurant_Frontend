@@ -1,5 +1,5 @@
 import React, {PropsWithChildren} from 'react';
-import { AdminNav } from '@/components/admin-nav';
+import { AdminNav } from '@/components/nav/admin-nav';
 
 const LayoutOwner = ({children}:PropsWithChildren) => {
     return (

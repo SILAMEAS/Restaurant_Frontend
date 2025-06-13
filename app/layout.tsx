@@ -8,7 +8,7 @@ import ReduxProvider from '../lib/provider/ReduxProvider';
 import {GlobalLoadingProvider} from "@/lib/provider/GlobalLoadingProvider";
 import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Import the new Client Component
 import {ToastContainer} from 'react-toastify';
-import {ThemeProvider} from '@/components/theme-provider';
+import {ThemeProvider} from '@/components/provider/theme-provider';
 import {ChatPopover} from "@/app/(chat)/ChatPopover";
 
 const inter = Inter({subsets: ['latin']});

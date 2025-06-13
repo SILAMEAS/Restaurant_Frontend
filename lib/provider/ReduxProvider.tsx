@@ -4,7 +4,7 @@
 import {Provider} from 'react-redux';
 import dynamic from 'next/dynamic';
 import {persistor, store} from '@/lib/redux/store';
-import {ThemeProvider} from '@/components/theme-provider';
+import {ThemeProvider} from '@/components/provider/theme-provider';
 import type React from 'react';
 import RouteChangeHandler from "@/lib/loading/RouteChangeHandler";
 
