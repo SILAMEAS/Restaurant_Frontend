@@ -7,7 +7,7 @@ import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
 import {Plus, Search, Settings} from "lucide-react"
 import {useDispatch} from "react-redux";
 import {setChatSelected} from "@/lib/redux/counterSlice";
-import {useListRoomsQuery, useProfileQuery} from "@/lib/redux/api";
+import {useListRoomsQuery, useProfileQuery} from "@/lib/redux/services/api";
 import {useGlobalState} from "@/hooks/useGlobalState";
 
 export interface ChatAsUI {

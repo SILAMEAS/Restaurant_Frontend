@@ -1,4 +1,4 @@
-import { useDeleteAddressMutation, useFavUnFavMutation, useUpdateAddressMutation } from "@/lib/redux/api";
+import { useDeleteAddressMutation, useFavUnFavMutation, useUpdateAddressMutation } from "@/lib/redux/services/api";
 import { Slide, toast } from "react-toastify";
 
 

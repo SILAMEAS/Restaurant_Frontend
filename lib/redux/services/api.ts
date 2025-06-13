@@ -8,7 +8,7 @@ import {
     IPagination,
     IProfile, OrderResponse, PaginationRequest, PaginationRequestDefault, PaginationRequestWithIngoreCase,
     RestaurantResponse, RoomResponse,
-} from "@/lib/redux/type";
+} from "@/lib/redux/services/type";
 import {IMessage} from "@/app/(chat)/type/types";
 
 

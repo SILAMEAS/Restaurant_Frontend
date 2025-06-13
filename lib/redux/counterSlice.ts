@@ -1,28 +1,31 @@
 // counterSlice.ts
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import {IFavorite, IProfile, OrderResponse} from "@/lib/redux/type";
+import {createSlice, PayloadAction} from '@reduxjs/toolkit';
+import {IProfile, OrderResponse, RestaurantResponse} from "@/lib/redux/services/type";
+import {mockRestaurant} from "@/constant/mock/mockRestaruant";
 
-export enum Role{
-    USER="USER",
-    OWNER="OWNER",
-    ADMIN="ADMIN"
+export enum Role {
+    USER = "USER",
+    OWNER = "OWNER",
+    ADMIN = "ADMIN"
 }
 
 export interface UserInfo {
-    accessToken:  string;
+    accessToken: string;
     refreshToken: string;
-    userId:       number;
-    role:         Role;
-    message:      string;
+    userId: number;
+    role: Role;
+    message: string;
 }
+
 interface IChat {
-    selectedOrder?:OrderResponse | null,
-    isChatOpen?:boolean,
-    roomId?:string|null;
-    
+    selectedOrder?: OrderResponse | null,
+    isChatOpen?: boolean,
+    roomId?: string | null;
+
 }
+
 interface ISelectedChat {
-    roomId:string,
+    roomId: string,
     id: string
     name: string
     lastMessage: string
@@ -32,16 +35,19 @@ interface ISelectedChat {
     avatar?: string
     type: "customer" | "internal" | "support"
 }
+
 interface CounterState {
     value: number;
-    login?:UserInfo;
-    profile?:IProfile;
-    chat?:IChat;
-    chatSelected?:ISelectedChat
+    login?: UserInfo;
+    profile?: IProfile;
+    chat?: IChat;
+    chatSelected?: ISelectedChat,
+    restaurant: RestaurantResponse
 }
 
 const initialState: CounterState = {
-    value: 0
+    value: 0,
+    restaurant:mockRestaurant
 };
 
 const counterSlice = createSlice({
@@ -57,16 +63,16 @@ const counterSlice = createSlice({
         setLogin: (state, action: PayloadAction<UserInfo>) => {
             state.login = action.payload;
         },
-        setProfile: (state, action: PayloadAction<IProfile>) => {
-            state.profile = action.payload;
+        setRestaurant: (state, action: PayloadAction<RestaurantResponse>) => {
+            state.restaurant = action.payload;
         },
         reset: () => initialState,
         setChat: (state, action: PayloadAction<IChat>) => {
             state.chat = action.payload;
         },
         resetChatClosePopOver: (state) => {
-            state.chat ={isChatOpen:false, roomId:undefined, selectedOrder:undefined};
-            state.chatSelected= undefined;
+            state.chat = {isChatOpen: false, roomId: undefined, selectedOrder: undefined};
+            state.chatSelected = undefined;
         },
         setChatSelected: (state, action: PayloadAction<ISelectedChat>) => {
             state.chatSelected = action.payload;
@@ -74,5 +80,5 @@ const counterSlice = createSlice({
     },
 });
 
-export const { setChat,setLogin,reset,resetChatClosePopOver,setChatSelected} = counterSlice.actions;
+export const {setChat, setLogin, reset, resetChatClosePopOver, setChatSelected,setRestaurant} = counterSlice.actions;
 export default counterSlice.reducer;

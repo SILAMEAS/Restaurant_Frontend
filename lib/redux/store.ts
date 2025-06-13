@@ -1,11 +1,11 @@
 // lib/redux/store.ts
 import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
-import { apiSlice } from '@/lib/redux/api';
+import { apiSlice } from '@/lib/redux/services/api';
 import counterReducer from './counterSlice';
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from 'redux-persist';
 import storage from 'redux-persist/lib/storage';
-import { authSlice } from './auth';
+import { authSlice } from './services/auth';
 
 // Combine all reducers
 const rootReducer = combineReducers({

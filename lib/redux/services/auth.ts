@@ -1,7 +1,7 @@
 // features/api/apiSlice.ts
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
-import {LoginFormData} from "@/lib/redux/type";
-import {UserInfo} from './counterSlice';
+import {LoginFormData} from "@/lib/redux/services/type";
+import {UserInfo} from '../counterSlice';
 
 interface Restaurant {
     id: number;

@@ -88,6 +88,7 @@ export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
                                     }]
                                 };
                             });
+                            setState(prev => ({...prev, isSending: false}));
                         } catch (err) {
                             console.error('Error parsing message:', err);
                         }
@@ -162,8 +163,6 @@ export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
                     error: 'Failed to send message'
                 }
             }));
-        } finally {
-            setState(prev => ({...prev, isSending: false}));
         }
     }, [generateMessageId, state.isSending]);
 

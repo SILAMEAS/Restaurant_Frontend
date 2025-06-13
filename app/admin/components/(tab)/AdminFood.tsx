@@ -30,9 +30,9 @@ import {
   useGetFoodsQuery,
   useGetRestaurantOwnerQuery,
   useUpdateFoodMutation
-} from "@/lib/redux/api";
+} from "@/lib/redux/services/api";
 import {useForm} from "react-hook-form";
-import {foodFormData, foodSchema, type FoodResponse, type ImageUrl} from "@/lib/redux/type";
+import {foodFormData, foodSchema, type FoodResponse, type ImageUrl} from "@/lib/redux/services/type";
 import {zodResolver} from "@hookform/resolvers/zod";
 import useDropzoneCustom from "@/app/(main)/profile/(component)/useDropzoneCustom";
 import {Slide, toast} from "react-toastify";
@@ -43,7 +43,7 @@ import useParamQuery from "@/hooks/useParamQuery";
 import {foodTypes} from "@/constant/FoodType";
 import { PaginatedTable, type Column } from "@/components/ui/paginated-table"
 import { usePagination } from "@/lib/hooks/usePagination"
-import { PaginationRequestDefault } from "@/lib/redux/type"
+import { PaginationRequestDefault } from "@/lib/redux/services/type"
 
 const AdminFood=()=>{
     const {paramQuery,setParamQuery} =useParamQuery();

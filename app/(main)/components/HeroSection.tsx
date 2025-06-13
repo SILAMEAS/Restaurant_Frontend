@@ -3,7 +3,7 @@ import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {ArrowRight} from "lucide-react";
 import Image from "next/image";
-import {useGetRestaurantOwnerQuery} from "@/lib/redux/api";
+import {useGetRestaurantOwnerQuery} from "@/lib/redux/services/api";
 
 const HeroSection = () => {
     return   <section className="container py-12 md:py-24 lg:py-32 flex-col items-center justify-center">

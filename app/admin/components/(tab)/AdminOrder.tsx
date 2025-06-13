@@ -11,8 +11,8 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {useDeleteOrderMutation, useGetOrdersQuery} from "@/lib/redux/api";
-import {enumStatus} from "@/lib/redux/type";
+import {useDeleteOrderMutation, useGetOrdersQuery} from "@/lib/redux/services/api";
+import {enumStatus} from "@/lib/redux/services/type";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
 import { PaginatedTable, type Column } from "@/components/ui/paginated-table"

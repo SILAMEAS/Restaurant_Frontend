@@ -2,13 +2,13 @@
 
 import type React from "react"
 import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs"
-import { useDashboardQuery} from "@/lib/redux/api"
+import { useDashboardQuery} from "@/lib/redux/services/api"
 import CartDashboard from "./components/CartDashboard"
 import {ICurrentData} from "@/lib/generic/ICurrentData"
 import AdminUser from "@/app/admin/components/(tab)/AdminUser"
 import AdminOrder from "@/app/admin/components/(tab)/AdminOrder"
 import AdminCategory from "@/app/admin/components/(tab)/AdminCategory"
-import {IDashboard} from "@/lib/redux/type";
+import {IDashboard} from "@/lib/redux/services/type";
 import AdminRestaurant from "@/app/admin/components/(tab)/AdminRestaurant";
 
 

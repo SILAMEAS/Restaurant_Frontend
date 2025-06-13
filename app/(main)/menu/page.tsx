@@ -12,12 +12,12 @@ import {Badge} from "@/components/ui/badge"
 import {Tabs, TabsList, TabsTrigger} from "@/components/ui/tabs"
 import {Sheet, SheetContent, SheetTrigger,} from "@/components/ui/sheet"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
-import {useAddCartMutation, useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/api";
+import {useAddCartMutation, useGetCategoriesQuery, useGetFoodsQuery} from "@/lib/redux/services/api";
 import useParamQuery from "@/hooks/useParamQuery";
 import SkeletonCard from "@/components/skeleton/SkeletonCard";
 import {FoodType} from "@/constant/FoodType";
 import ModernFilterPanel from "@/app/(main)/menu/ModernFilterPanel";
-import {FoodResponse} from "@/lib/redux/type";
+import {FoodResponse} from "@/lib/redux/services/type";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
 import { useSearchParams } from "next/navigation"

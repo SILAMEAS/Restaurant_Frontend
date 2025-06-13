@@ -4,7 +4,7 @@ import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
 import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
-import {useGetRestaurantsQuery} from "@/lib/redux/api"
+import {useGetRestaurantsQuery} from "@/lib/redux/services/api"
 import {
     DropdownMenu,
     DropdownMenuContent,

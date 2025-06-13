@@ -3,7 +3,7 @@
 import React from "react"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Avatar, AvatarFallback, AvatarImage} from "@/components/ui/avatar"
-import {useProfileQuery} from "@/lib/redux/api"
+import {useProfileQuery} from "@/lib/redux/services/api"
 import {useRouter} from "next/navigation"
 import Link from "next/link"
 import {Button} from "@/components/ui/button"

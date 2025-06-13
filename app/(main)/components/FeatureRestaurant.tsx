@@ -1,11 +1,11 @@
 import React, {useState} from 'react';
 import {Card, CardContent} from "@/components/ui/card";
 import Image from "next/image";
-import {useGetRestaurantsQuery, useMyFavQuery} from "@/lib/redux/api";
+import {useGetRestaurantsQuery, useMyFavQuery} from "@/lib/redux/services/api";
 import {Button} from "@/components/ui/button"
 import {Heart, Loader2} from 'lucide-react';
 import {useEndpointProfile} from '@/app/(main)/profile/useEndpointProfile';
-import {RestaurantResponse} from "@/lib/redux/type";
+import {RestaurantResponse} from "@/lib/redux/services/type";
 import { useRouter } from 'next/navigation';
 
 

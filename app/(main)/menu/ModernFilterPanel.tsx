@@ -9,7 +9,7 @@ import {Slider} from "@/components/ui/slider"
 import {Badge} from "@/components/ui/badge"
 import {Separator} from "@/components/ui/separator"
 import {Card, CardContent} from "@/components/ui/card"
-import {PaginationRequest} from "@/lib/redux/type";
+import {PaginationRequest} from "@/lib/redux/services/type";
 import {FoodType} from "@/constant/FoodType";
 
 

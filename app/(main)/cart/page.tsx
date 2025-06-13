@@ -9,7 +9,7 @@ import MainAddresses from "@/app/(main)/profile/(tab)/MainAddresses"
 import {RadioGroup, RadioGroupItem} from "@/components/ui/radio-group"
 import {Label} from "@/components/ui/label"
 import OrderSummary from "@/app/(main)/cart/components/OrderSummary"
-import useCartApi from "@/app/(main)/cart/(api)/useCartApi"
+import useCartApi from "@/hooks/useCartApi"
 import OrderNotes from "@/app/(main)/cart/components/OrderNotes"
 import PaymentMethod from "@/app/(main)/cart/components/PaymentMethod"
 import EmptyCart from "@/app/(main)/cart/EmptyCart";

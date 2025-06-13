@@ -4,7 +4,7 @@ import Image from "next/image";
 import {Button} from "@/components/ui/button";
 import {Heart, ExternalLink} from "lucide-react";
 import {useEndpointProfile} from "@/app/(main)/profile/useEndpointProfile";
-import {useMyFavQuery} from "@/lib/redux/api";
+import {useMyFavQuery} from "@/lib/redux/services/api";
 import Link from "next/link";
 
 const MainFavorite = () => {

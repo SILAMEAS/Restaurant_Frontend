@@ -1,5 +1,5 @@
 import {OrderCard} from "@/app/(main)/order/components/OrderCart";
-import {OrderResponse} from "@/lib/redux/type";
+import {OrderResponse} from "@/lib/redux/services/type";
 
 interface OrderListProps {
     orders: OrderResponse[]

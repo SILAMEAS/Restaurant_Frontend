@@ -4,7 +4,7 @@ import {Label} from "@/components/ui/label";
 import {Input} from "@/components/ui/input";
 import {Textarea} from "@/components/ui/textarea";
 import {Button} from "@/components/ui/button";
-import {IProfile} from "@/lib/redux/type";
+import {IProfile} from "@/lib/redux/services/type";
 import {ImageDropzone} from "../(component)/ImageDropzone";
 import useDropzoneCustom from "../(component)/useDropzoneCustom";
 

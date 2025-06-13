@@ -11,50 +11,14 @@ import {Switch} from "@/components/ui/switch"
 import {Badge} from "@/components/ui/badge"
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue} from "@/components/ui/select"
 import {Calendar, Clock, Edit, Mail, MapPin, Phone, Save, Star, User, X} from "lucide-react"
-import {RestaurantFormData, RestaurantResponse} from "@/lib/redux/type";
-import {useGetRestaurantOwnerQuery, useUpdateRestaurantMutation} from "@/lib/redux/api";
+import {RestaurantFormData, RestaurantResponse} from "@/lib/redux/services/type";
+import {useGetRestaurantOwnerQuery, useUpdateRestaurantMutation} from "@/lib/redux/services/api";
 import {ImageDropzone} from "@/app/(main)/profile/(component)/ImageDropzone";
 import useDropzoneCustom from "@/app/(main)/profile/(component)/useDropzoneCustom";
+import {useGlobalState} from "@/hooks/useGlobalState";
+import {useAppDispatch} from "@/lib/redux/hooks";
+import {setRestaurant} from "@/lib/redux/counterSlice";
 
-
-const mockRestaurant: RestaurantResponse = {
-    ownerName: "SOK",
-    rating: 3,
-    registrationDate: "2025-05-23T15:32:04.911514",
-    id: 1,
-    name: "Bella Vista Italian",
-    description:
-        "Authentic Italian cuisine with a modern twist. Our chefs use only the finest ingredients imported directly from Italy to create memorable dining experiences.",
-    cuisineType: "Italian",
-    address: {
-        street: "123 Main Street",
-        city: "New York",
-        state: "NY",
-        zip: "10001",
-        country: "USA",
-        currentUsage: false,
-        name: "HOME",
-        id: 1,
-    },
-    contactInformation: {
-        phone: "+1 (555) 123-4567",
-        email: "info@bellavista.com",
-    },
-    openingHours: "Mon-Thu: 11:00 AM - 10:00 PM, Fri-Sat: 11:00 AM - 11:00 PM, Sun: 12:00 PM - 9:00 PM",
-    imageUrls: [
-        {
-            url: "/placeholder.svg?height=300&width=400",
-            publicId: "lnnb5vn7yad7dalj6jrc",
-        },
-        {
-            url: "/placeholder.svg?height=300&width=400",
-            publicId: "lnnb5vn7yad7dalj6jrc",
-        },
-    ],
-    open: true,
-    deliveryFee:0,
-    discount:0
-}
 
 const cuisineTypes = [
     "Cambodia",
@@ -74,7 +38,8 @@ const addressNames = ["HOME", "WORK", "OTHER"]
 
 export default function RestaurantViewEdit() {
     const getRestaurantOwnerQuery = useGetRestaurantOwnerQuery({});
-    const [restaurant, setRestaurant] = useState<RestaurantResponse>(mockRestaurant)
+    const {restaurant}=useGlobalState();
+    const dispatch = useAppDispatch();
     const [isEditing, setIsEditing] = useState(false)
     const [updateRestaurant] = useUpdateRestaurantMutation();
     const dropzoneCustom=useDropzoneCustom();
@@ -103,7 +68,7 @@ export default function RestaurantViewEdit() {
     React.useEffect(()=>{
         if(getRestaurantOwnerQuery.currentData){
             const rest = getRestaurantOwnerQuery.currentData;
-            setRestaurant(rest);
+            dispatch(setRestaurant(rest))
             if(rest){
                 const {ownerName,name,description,cuisineType,address,contactInformation,open,imageUrls,openingHours,discount,deliveryFee}=rest;
 
@@ -160,7 +125,7 @@ export default function RestaurantViewEdit() {
 
             const res = await updateRestaurant({restaurantId:restaurant.id,body}).unwrap();
             if(res){
-                setRestaurant(res)
+                dispatch(setRestaurant(res))
                 setIsEditing(false)
 
             }

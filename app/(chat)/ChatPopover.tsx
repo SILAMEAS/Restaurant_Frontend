@@ -4,7 +4,7 @@ import React, {useEffect, useMemo, useRef, useState} from "react"
 import {Button} from "@/components/ui/button"
 import {MessageCircle} from "lucide-react"
 import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover"
-import {useGetMessagesQuery, useProfileQuery} from "@/lib/redux/api"
+import {useGetMessagesQuery, useProfileQuery} from "@/lib/redux/services/api"
 import {resetChatClosePopOver, Role} from "@/lib/redux/counterSlice"
 import {useWebSocket} from "@/app/(chat)/hooks/useWebSocket"
 import {IMessage, IMessageChatPopOver, UserChatPopOver} from "@/app/(chat)/type/types"
@@ -113,7 +113,6 @@ export function ChatPopover() {
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
     };
-
 
     return (
         <Popover open={open} onOpenChange={() => {

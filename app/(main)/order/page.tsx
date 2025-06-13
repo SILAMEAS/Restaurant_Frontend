@@ -1,12 +1,13 @@
 "use client"
 
 import {OrderList} from "@/app/(main)/order/components/OrderList";
-import {useCreateOrGetRoomMutation, useGetOrdersQuery, useProfileQuery} from "@/lib/redux/api";
-import {OrderResponse} from "@/lib/redux/type";
+import {useCreateOrGetRoomMutation, useGetOrdersQuery, useProfileQuery} from "@/lib/redux/services/api";
+import {OrderResponse} from "@/lib/redux/services/type";
 import {useAppDispatch} from "@/lib/redux/hooks";
 import {setChat, setChatSelected} from "@/lib/redux/counterSlice";
 import {Slide, toast} from "react-toastify";
 import {ChatAsUI} from "@/app/(chat)/components/ChatList";
+import EmptyOrder from "@/app/(main)/order/EmptyOrder";
 
 export default function OrdersPage() {
     const profileQuery = useProfileQuery();
@@ -16,6 +17,10 @@ export default function OrdersPage() {
     const [createRoom] = useCreateOrGetRoomMutation();
 
     const orders = ordersQuery.currentData?.contents ?? [];
+
+    if(orders.length === 0) {
+        return <EmptyOrder/>
+    }
 
     return (
         <div className="min-h-screen ">

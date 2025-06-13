@@ -2,7 +2,7 @@
 import {Card, CardContent, CardHeader, CardTitle} from "@/components/ui/card"
 import {ICurrentData} from "@/lib/generic/ICurrentData";
 import {Package, Tag, Users} from "lucide-react"
-import {IDashboard} from "@/lib/redux/type";
+import {IDashboard} from "@/lib/redux/services/type";
 
 
 const CartDashboard=({dashboard}:{dashboard:ICurrentData<IDashboard>})=>{

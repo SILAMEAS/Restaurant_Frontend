@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { handleApiCall } from "@/lib/handleApiCall"
-import { useGetCartQuery, useRemoveCartMutation, useRemoveItemFromCartMutation, useUpdateCartItemInCartMutation } from "@/lib/redux/api"
+import { useGetCartQuery, useRemoveCartMutation, useRemoveItemFromCartMutation, useUpdateCartItemInCartMutation } from "@/lib/redux/services/api"
 import React, { useState } from "react"
 import { Slide, toast } from "react-toastify"
 

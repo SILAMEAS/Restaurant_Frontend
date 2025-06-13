@@ -12,10 +12,10 @@ import {Button} from "@/components/ui/button";
 import {Input} from "@/components/ui/input";
 import {Label} from "@/components/ui/label";
 import {Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle} from "@/components/ui/card";
-import {LoginFormData, loginSchema} from "@/lib/redux/type";
+import {LoginFormData, loginSchema} from "@/lib/redux/services/type";
 
 import {Slide, toast} from "react-toastify";
-import {useLoginMutation} from "@/lib/redux/auth";
+import {useLoginMutation} from "@/lib/redux/services/auth";
 import {Role, setLogin} from "@/lib/redux/counterSlice";
 import {store} from "@/lib/redux/store";
 import Cookies from 'js-cookie'

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import {ImageUrl} from "@/lib/redux/type";
+import {ImageUrl} from "@/lib/redux/services/type";
 export interface InterfaceUseDropzoneCustomExport {
     imageFile: File | null
     imageFiles: File[] | null

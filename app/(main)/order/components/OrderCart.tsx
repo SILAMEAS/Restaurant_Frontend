@@ -4,7 +4,7 @@ import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader} from "@/components/ui/card"
 import {Clock, MapPin, MessageCircle} from "lucide-react"
 import {formatDistanceToNow} from "date-fns"
-import {enumStatus, OrderResponse} from "@/lib/redux/type";
+import {enumStatus, OrderResponse} from "@/lib/redux/services/type";
 import {Badge} from "@/components/ui/badge";
 
 interface OrderCardProps {

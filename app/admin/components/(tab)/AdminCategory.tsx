@@ -27,9 +27,9 @@ import {
   useDeleteCategoriesMutation,
   useGetCategoriesQuery,
   useUpdateCategoryMutation
-} from "@/lib/redux/api";
+} from "@/lib/redux/services/api";
 import {useForm} from "react-hook-form";
-import {categoryFormData, categorySchema} from "@/lib/redux/type";
+import {categoryFormData, categorySchema} from "@/lib/redux/services/type";
 import {zodResolver} from "@hookform/resolvers/zod";
 import {handleApiCall} from "@/lib/handleApiCall";
 import {Slide, toast} from "react-toastify";
