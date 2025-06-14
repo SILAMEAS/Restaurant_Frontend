@@ -3,7 +3,7 @@ import {Button} from "@/components/ui/button"
 import {Input} from "@/components/ui/input"
 import {Card, CardContent, CardDescription, CardHeader, CardTitle} from "@/components/ui/card"
 import {Badge} from "@/components/ui/badge"
-import {Edit, Eye, MoreVertical, Search, Trash2} from "lucide-react"
+import {Edit, Eye, MoreVertical, Trash2} from "lucide-react"
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -12,9 +12,9 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { PaginatedTable, type Column } from "@/components/ui/paginated-table"
-import { usePagination } from "@/lib/hooks/usePagination"
-import { useUsersByRole } from "@/app/admin/components/(hooks)/useUsersByRole"
+import {type Column, PaginatedTable} from "@/components/ui/paginated-table"
+import {usePagination} from "@/lib/hooks/usePagination"
+import {useUsersByRole} from "@/app/admin/components/(hooks)/useUsersByRole"
 
 const AdminUser = () => {
     const [searchQuery, setSearchQuery] = useState("")
@@ -103,7 +103,7 @@ const AdminUser = () => {
                 <PaginatedTable
                     columns={columns}
                     data={usersData?.contents}
-                    totalItems={usersData?.total || 0}
+                    totalItems={usersData?.total ?? 0}
                     currentPage={pagination.currentPage}
                     itemsPerPage={pagination.itemsPerPage}
                     isLoading={isLoading}

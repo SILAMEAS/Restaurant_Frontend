@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import {Client, Frame} from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import {getWebSocketUrl, STOMP_CONFIG} from '@/app/config';
+import {getWebSocketUrl, STOMP_CONFIG} from '@/lib/config/config';
 import {ChatState, IChatMessageDTO} from '@/app/(chat)/type/types';
 
 const INITIAL_STATE: ChatState = {
@@ -31,6 +31,8 @@ export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
 
     const connect = useCallback(() => {
         try {
+            console.log('sub : ',subscribeUrl);
+            console.log("url : ",publishUrl);
             const socket = new SockJS(getWebSocketUrl());
 
             socket.onclose = () => {
@@ -102,6 +104,7 @@ export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
                             error: 'Disconnected from server'
                         }
                     }));
+                    console.log("ws : onDisconnect")
                 },
                 onWebSocketError: () => {
                     setState(prev => ({
@@ -111,6 +114,7 @@ export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
                             error: 'Failed to connect to server'
                         }
                     }));
+                    console.log("ws : onWebSocketError")
                 },
                 onStompError: () => {
                     setState(prev => ({
@@ -120,6 +124,7 @@ export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
                             error: 'STOMP protocol error'
                         }
                     }));
+                    console.log("ws : onStompError")
                 }
             });
 
@@ -144,6 +149,7 @@ export const useWebSocket = ({subscribeUrl, publishUrl, open}: IWebSocket) => {
         setState(prev => ({...prev, isSending: true}));
 
         try {
+            console.log('sending ... ')
             const messageToSend = {
                 ...message,
                 messageId: generateMessageId(),

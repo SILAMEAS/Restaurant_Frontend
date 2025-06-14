@@ -9,6 +9,7 @@ import {useDispatch} from "react-redux";
 import {setChatSelected} from "@/lib/redux/counterSlice";
 import {useListRoomsQuery, useProfileQuery} from "@/lib/redux/services/api";
 import {useGlobalState} from "@/hooks/useGlobalState";
+import ChatListItem from "@/app/(chat)/components/ChatListItem";
 
 export interface ChatAsUI {
     roomId: string;
@@ -23,7 +24,6 @@ export interface ChatAsUI {
 }
 
 const ChatList = () => {
-    const {chatSelected} = useGlobalState();
     const profileQuery = useProfileQuery();
     const profile = profileQuery?.currentData;
     const chatListQuery = useListRoomsQuery({}, {refetchOnMountOrArgChange: true});
@@ -51,30 +51,7 @@ const ChatList = () => {
             chat.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()),
     )
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "online":
-                return "bg-green-500"
-            case "away":
-                return "bg-yellow-500"
-            case "offline":
-                return "bg-gray-500"
-            default:
-                return "bg-gray-500"
-        }
-    }
-    const getTypeColor = (type: string) => {
-        switch (type) {
-            case "customer":
-                return "bg-blue-600"
-            case "support":
-                return "bg-green-600"
-            case "internal":
-                return "bg-purple-600"
-            default:
-                return "bg-gray-600"
-        }
-    }
+
 
     useEffect(() => {
         if (chatRooms?.length > 0) {
@@ -82,8 +59,8 @@ const ChatList = () => {
         }
     }, [chatRooms])
 
-    return <div className={'flex w-[100%] flex-col bg-amber-300 h-[100%]'}>
-        <div className="bg-gray-800 border-r border-gray-700 flex flex-col w-[100%] h-[100%]">
+    return <div className={'flex w-[100%] flex-col bg-inherit h-[100%]'}>
+        <div className="bg-inherit border-r border-gray-700 flex flex-col w-[100%] h-[100%]">
             {/* Header */}
             <div className="p-4 border-b border-gray-700">
                 <div className="flex items-center justify-between mb-4">
@@ -114,48 +91,7 @@ const ChatList = () => {
             <ScrollArea className="flex-1  w-[100%]">
                 <div className="p-2">
                     {filteredChats?.map((chat) => (
-                        <div
-                            key={chat?.id}
-                            onClick={() => dispatch(setChatSelected(chat))}
-                            className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors mb-1 ${
-                                chatSelected?.id === chat?.id ? "bg-gray-700" : "hover:bg-gray-750"
-                            }`}
-                        >
-                            <div className="relative">
-                                <Avatar className="h-12 w-12">
-                                    <AvatarImage src={chat.avatar || "/placeholder.svg"}/>
-                                    <AvatarFallback className="bg-gray-600">
-                                        {chat.name
-                                            .split(" ")
-                                            .map((n) => n[0])
-                                            .join("")}
-                                    </AvatarFallback>
-                                </Avatar>
-                                <div
-                                    className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-gray-800 ${getStatusColor(chat.status)}`}
-                                />
-                            </div>
-
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center justify-between mb-1">
-                                    <h3 className="font-medium truncate">{chat.name}</h3>
-                                    <span className="text-xs text-gray-400">{chat.timestamp}</span>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <p className="text-sm text-gray-400 truncate">{chat.lastMessage}</p>
-                                    {chat.unreadCount > 0 && (
-                                        <Badge
-                                            className="bg-blue-600 text-white text-xs ml-2">{chat.unreadCount}</Badge>
-                                    )}
-                                </div>
-                                <div className="mt-1">
-                                    <Badge variant="secondary"
-                                           className={`text-xs ${getTypeColor(chat.type)} text-white`}>
-                                        {chat.type}
-                                    </Badge>
-                                </div>
-                            </div>
-                        </div>
+                        <ChatListItem chat={chat} key={chat.id}/>
                     ))}
                 </div>
             </ScrollArea>

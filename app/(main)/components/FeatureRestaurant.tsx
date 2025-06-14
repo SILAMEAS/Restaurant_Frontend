@@ -7,16 +7,20 @@ import {Heart, Loader2} from 'lucide-react';
 import {useEndpointProfile} from '@/app/(main)/profile/useEndpointProfile';
 import {RestaurantResponse} from "@/lib/redux/services/type";
 import { useRouter } from 'next/navigation';
+import LoadingRestaurant from "@/app/(main)/restaurants/LoadingRestaurant";
 
 
 const FeatureRestaurant = () => {
     const router = useRouter();
-    const {currentData} = useGetRestaurantsQuery();
+    const {currentData,isLoading} = useGetRestaurantsQuery({});
     const getMyFav = useMyFavQuery();
     const {method:{onUnFavorite},trigger:{resultFavUnFavMutation}}=useEndpointProfile();
     const [clickItem,setClickItem]=useState<RestaurantResponse|undefined>();
+    if(isLoading){
+        return <LoadingRestaurant/>
+    }
     return <section className="container px-4 md:px-6 py-8">
-        <h2 className="text-3xl font-bold tracking-tight mb-6">Featured Restaurants</h2>
+        <h2 className="text-xl lg:text-3xl font-bold tracking-tight mb-6">Restaurants</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {currentData?.contents?.map((i) => (
                 <Card key={i.id} className="overflow-hidden cursor-pointer" onClick={(e)=>{

@@ -65,8 +65,8 @@ export function ChatPopover() {
         connectionStatus: {isConnected},
         sendMessage
     } = useWebSocket({
-        subscribeUrl: process.env.NEXT_PUBLIC_SUBSCRIBE_URL ?? "/",
-        publishUrl: process.env.NEXT_PUBLIC_PUBLIC_URL ?? "/",
+        subscribeUrl: `${process.env.NEXT_PUBLIC_SUBSCRIBE_URL}`,
+        publishUrl: `${process.env.NEXT_PUBLIC_PUBLIC_URL}`,
         open
     });
 
@@ -126,8 +126,7 @@ export function ChatPopover() {
                     variant="outline"
                     size="icon"
                     className={
-                        `h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground relative border-2 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800 light:hover:bg-gray-100 transition-all duration-200 shadow-sm hover:shadow-md
-                    ${!isOwner ? 'invisible' : "visible"}`
+                        `h-10 w-10 rounded-full hover:bg-accent hover:text-accent-foreground relative border-2 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-800 light:hover:bg-gray-100 transition-all duration-200 shadow-sm hover:shadow-md`
                     }
                 >
                     <MessageCircle className="h-5 w-5 dark:text-gray-300 light:text-gray-600"/>
@@ -136,20 +135,21 @@ export function ChatPopover() {
                 </Button>
             </PopoverTrigger>
             <PopoverContent
-                className={`${view === 'expanded' ? 'w-[1400px]' : 'w-[1000px]'} p-0 flex h-[600px]`}
+                className={`w-screen lg:w-[900px] p-0 flex h-[600px] bg-black`}
                 align="end"
                 side="left"
-                sideOffset={20}
+                sticky={'always'}
+                sideOffset={-55}
             >
                 {
-                    isOwner &&
-                    <div className={'w-[40%] h-[100%]'}>
+                    isOwner&&view==='minimized' &&
+                    <div className={'w-[auto] h-[100%]'}>
                         <ChatList/>
                     </div>
                 }
 
                 {
-                    (chatSelected || !isOwner) ? <div className={'w-full bg-gray-800 h-[100%] '}>
+                    (chatSelected || !isOwner) ? <div className={'w-full bg-inherit h-[100%] '}>
                         <div className="flex w-[100%] h-[100%]">
                             <div className="flex-1 flex flex-col w-[100%]">
                                 {/** Chat Header */}

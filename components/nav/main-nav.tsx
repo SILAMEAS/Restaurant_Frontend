@@ -56,7 +56,7 @@ export function MainNav() {
     <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/50 border-b">
       <div className="container mx-auto flex items-center justify-between py-4 px-4 md:px-6">
         <div className="flex items-center">
-          <Link href="/public" className="flex items-center">
+          <Link href="/" className="flex items-center">
             <span className="text-xl font-bold">LaCy</span>
           </Link>
         </div>
@@ -116,16 +116,14 @@ export function MainNav() {
                     {route.label}
                   </Link>
                 ))}
-                {isAuthenticated && (
-                  <Button
-                    variant="ghost"
-                    className="flex items-center gap-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground justify-start"
+                <Link
+                    href={"/"}
+                    className="absolute right-[10px] bottom-[10px] z-1"
                     onClick={logout}
-                  >
-                    <LogOut className="h-5 w-5" />
-                    Logout
-                  </Button>
-                )}
+                >
+                  <LogOut className="h-5 w-5" />
+
+                </Link>
               </div>
             </SheetContent>
           </Sheet>

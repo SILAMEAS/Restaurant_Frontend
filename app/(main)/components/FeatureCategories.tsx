@@ -3,11 +3,15 @@ import {Card, CardContent} from "@/components/ui/card";
 import Link from "next/link";
 import Image from "next/image";
 import {useGetCategoriesQuery} from "@/lib/redux/services/api";
+import LoadingRestaurant from "@/app/(main)/restaurants/LoadingRestaurant";
 
 const FeatureCategories = () => {
     const getCategories= useGetCategoriesQuery();
-    return <section className="container px-4 md:px-6 py-8 bg-muted">
-        <h2 className="text-3xl font-bold tracking-tight mb-6">Browse by Category</h2>
+    if(getCategories?.isLoading){
+        return <LoadingRestaurant/>
+    }
+    return <section className="container px-4 md:px-6 py-8">
+        <h2 className="text-xl lg:text-3xl font-bold tracking-tight mb-6">Category</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
             {getCategories?.currentData?.contents?.map((category) => (
                 <Card key={category.id} className="overflow-hidden">

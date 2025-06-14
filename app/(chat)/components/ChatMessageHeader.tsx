@@ -16,20 +16,16 @@ interface ChatHeaderProp {
 const ChatMessageHeader = ({isOwner, isConnected, setView, view, name, roomId}: ChatHeaderProp) => {
     const {chat} = useGlobalState();
     return <div className="p-3 border-b flex items-center justify-between bg-muted/50">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-between w-screen">
             <h3 className="font-semibold">{isOwner ? name : chat?.selectedOrder?.restaurant?.name ?? "Chat with Restaurant"}</h3>
-            {isConnected ? (
-                <Badge variant="default" className="bg-green-500">
-                    <WifiIcon className="w-3 h-3 mr-1"/>
-                    Connected
-                </Badge>
-            ) : (
-                <Badge variant="destructive">
-                    <WifiOff className="w-3 h-3 mr-1"/>
-                    Disconnected
-                </Badge>
-            )}
-            <Badge variant="default">Room : {roomId}</Badge>
+            <div className={'pr-5'}>
+                {isConnected ? (
+                    <WifiIcon className="w-3 h-3 mr-1 text-green-300" />
+                ) : (
+                    <WifiOff className="w-3 h-3 mr-1 text-red-600"/>
+                )}
+            </div>
+            {/*<Badge variant="default">Room : {roomId}</Badge>*/}
         </div>
         {isOwner && (
             <div className="flex items-center gap-2">

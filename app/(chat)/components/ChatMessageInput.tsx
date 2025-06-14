@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import {Input} from "@/components/ui/input";
 import {Button} from "@/components/ui/button";
-import {Send} from "lucide-react";
+import {Loader, Send} from "lucide-react";
 import {IChatMessageDTO} from "@/app/(chat)/type/types";
 
 interface ChatMessageInputProps {
@@ -46,10 +46,10 @@ const ChatMessageInput = ({isConnected, isSending, isOwner, sendMessage, profile
             />
             <Button
                 type="submit"
-                className={isOwner ? "px-4 h-10" : "h-8 w-8 rounded-full"}
+                className={"bg-inherit"}
                 disabled={!input.trim() || !isConnected || isSending}
             >
-                {isOwner ? (isSending ? "Sending..." : "Send") : <Send className="h-4 w-4"/>}
+                {isSending ? <Loader /> :<Send  className={'text-black dark:text-white'}/>}
             </Button>
         </form>
     </div>

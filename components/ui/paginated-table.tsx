@@ -46,7 +46,7 @@ export function PaginatedTable({
     skeletonColumns = 6,
     onPageChange,
     onItemsPerPageChange,
-}: PaginatedTableProps) {
+}: Readonly<PaginatedTableProps>) {
     const totalPages = Math.ceil(totalItems / itemsPerPage)
 
     const handlePageChange = (newPage: number) => {
@@ -96,7 +96,7 @@ export function PaginatedTable({
             </div>
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
-                    <p className="text-sm font-medium">Rows per page</p>
+                    <p className="text-sm font-medium hidden lg:flex ">Rows per page</p>
                     <Select
                         value={itemsPerPage.toString()}
                         onValueChange={(value) => onItemsPerPageChange(Number(value))}

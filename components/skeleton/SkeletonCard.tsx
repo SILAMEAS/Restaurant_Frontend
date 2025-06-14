@@ -15,7 +15,7 @@ const Cart =()=>{
 
 const SkeletonCard = ({column}:{column:number}) => {
 
-    return <div className={'flex gap-2'}>
+    return <div className={'flex flex-col gap-2 md:flex-row items-center'}>
         {
             Array.from({ length: column }).map((_, i) => (
                 <Cart key={i}/>

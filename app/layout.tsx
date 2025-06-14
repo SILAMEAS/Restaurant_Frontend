@@ -3,15 +3,12 @@ import type React from 'react';
 import type {Metadata} from 'next';
 import {Inter} from 'next/font/google';
 import './globals.css';
-import './custom.css';
+import '../lib/css/custom.css';
 import ReduxProvider from '../lib/provider/ReduxProvider';
 import {GlobalLoadingProvider} from "@/lib/provider/GlobalLoadingProvider";
 import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Import the new Client Component
 import {ToastContainer} from 'react-toastify';
 import {ThemeProvider} from '@/components/provider/theme-provider';
-import {ChatPopover} from "@/app/(chat)/ChatPopover";
-import {store} from "@/lib/redux/store";
-import RouteChangeHandler from "@/lib/loading/RouteChangeHandler";
 import RouteChangeSpinner from "@/components/provider/RouteChangeSpinner";
 
 const inter = Inter({subsets: ['latin']});
