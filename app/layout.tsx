@@ -10,6 +10,7 @@ import GlobalLoadingSpinner from "@/lib/provider/GlobalLoadingSpinner"; // Impor
 import {ToastContainer} from 'react-toastify';
 import {ThemeProvider} from '@/components/provider/theme-provider';
 import RouteChangeSpinner from "@/components/provider/RouteChangeSpinner";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({subsets: ['latin']});
 
@@ -27,6 +28,7 @@ export default function RootLayout({
     return (
         <html lang="en" suppressHydrationWarning>
         <body className={inter.className}>
+        <NextTopLoader />
         <ThemeProvider
             attribute="class"
             defaultTheme="system"

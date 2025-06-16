@@ -16,17 +16,20 @@ import {useAppDispatch, useAppSelector} from "@/lib/redux/hooks";
 import ChatList from "@/app/(chat)/components/ChatList";
 import {useGlobalState} from "@/hooks/useGlobalState";
 import {uniqueArray} from "@/lib/commons/uniqueArray";
+import {Tabs, TabsContent, TabsList, TabsTrigger} from "@/components/ui/tabs";
+import AdminUser from "@/app/admin/components/(tab)/AdminUser";
+import AdminOrder from "@/app/admin/components/(tab)/AdminOrder";
+import AdminCategory from "@/app/admin/components/(tab)/AdminCategory";
+import AdminFood from "@/app/admin/components/(tab)/AdminFood";
 
 
-export function ChatPopover() {
+export function ChatPopoverOwner() {
 
     const {data: profile} = useProfileQuery();
 
-
-    const [username, setUsername] = useState("")
-    const [isUsernameSet, setIsUsernameSet] = useState(false)
-    const [onlineUsers, setOnlineUsers] = useState<UserChatPopOver[]>([])
-    const [userColor, setUserColor] = useState("")
+    const [viewListChat,setViewListChat]=useState<boolean>(false)
+    const [onlineUsers, ] = useState<UserChatPopOver[]>([])
+    const [userColor, ] = useState<string>("")
     const {chat} = useAppSelector(state => state.counter);
     const [isOpen, setIsOpen] = useState(Boolean(chat?.isChatOpen))
     const [view, setView] = useState<'minimized' | 'expanded'>('minimized')
@@ -55,7 +58,8 @@ export function ChatPopover() {
         roomId: roomId!
     }, {
         skip: !roomId || !open,
-        refetchOnFocus: true
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange:true
     });
 
     // WebSocket connection
@@ -131,49 +135,51 @@ export function ChatPopover() {
                 </Button>
             </PopoverTrigger>
             <PopoverContent
-                className={`w-screen lg:w-[900px] p-0 flex h-[600px] bg-black`}
-                align="end"
-                side="left"
+                className={`w-screen lg:w-[400px] p-0 flex h-[500px] `}
+                align="start"
+                side="top"
                 sticky={'always'}
-                sideOffset={-55}
             >
-                {
-                    isOwner&&view==='minimized' &&
-                    <div className={'w-[auto] h-[100%]'}>
-                        <ChatList/>
-                    </div>
-                }
+                <Tabs defaultValue="list" className={'flex flex-col h-[100%] overflow-auto'}>
+                    <TabsList className="grid w-[100%] grid-cols-2">
+                        <TabsTrigger value="chats" onClick={()=>setViewListChat(true)}>Chats</TabsTrigger>
+                        <TabsTrigger value="message" onClick={()=>setViewListChat(false)}>Message</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="chats">
+                        <div className={'w-full  h-[100%]'}>
+                            <ChatList/>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value={'message'}>
+                        <div className="flex-1 flex flex-col w-[100%] h-[440px]">
+                            {/** Chat Header */}
+                            {
+                                roomId &&
+                                <ChatMessageHeader isOwner={isOwner} isConnected={isConnected} setView={setView}
+                                                   view={view} name={chatSelected?.name ?? "unknown"}
+                                                   roomId={roomId}/>
+                            }
 
-                {
-                    (chatSelected || !isOwner) ? <div className={'w-full bg-inherit h-[100%] '}>
-                        <div className="flex w-[100%] h-[100%]">
-                            <div className="flex-1 flex flex-col w-[100%]">
-                                {/** Chat Header */}
-                                {
-                                    roomId &&
-                                    <ChatMessageHeader isOwner={isOwner} isConnected={isConnected} setView={setView}
-                                                       view={view} name={chatSelected?.name ?? "unknown"}
-                                                       roomId={roomId}/>
-                                }
-
+                            <div className={'h-[340px] overflow-auto'}>
                                 {/** Chat Area */}
                                 <ChatMessageContent isOwner={isOwner}
                                                     allMessages={uniqueArray<IMessageChatPopOver>(allMessages, 'id')}
                                                     messagesEndRef={messagesEndRef}
                                                     profile={profile} onlineUsers={onlineUsers}/>
-                                {/** Message Input **/}
-                                <ChatMessageInput
-                                    isConnected={isConnected}
-                                    isSending={isSending} isOwner={isOwner}
-                                    profile={profile}
-                                    roomId={roomId}
-                                    sendMessage={sendMessage}
-                                />
-
                             </div>
+                            {/** Message Input **/}
+                            <ChatMessageInput
+                                isConnected={isConnected}
+                                isSending={isSending} isOwner={isOwner}
+                                profile={profile}
+                                roomId={roomId}
+                                sendMessage={sendMessage}
+                            />
+
                         </div>
-                    </div> : <div className={'flex h-full items-center justify-center w-full'}>No Chat</div>
-                }
+                    </TabsContent>
+                </Tabs>
+
 
             </PopoverContent>
         </Popover>
