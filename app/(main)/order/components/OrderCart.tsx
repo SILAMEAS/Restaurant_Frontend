@@ -2,10 +2,13 @@
 
 import {Button} from "@/components/ui/button"
 import {Card, CardContent, CardHeader} from "@/components/ui/card"
-import {Clock, MapPin, MessageCircle} from "lucide-react"
+import {Clock, Delete, MapPin, MessageCircle} from "lucide-react"
 import {formatDistanceToNow} from "date-fns"
 import {enumStatus, OrderResponse} from "@/lib/redux/services/type";
 import {Badge} from "@/components/ui/badge";
+import {useDeleteOrderMutation} from "@/lib/redux/services/api";
+import {handleApiCall} from "@/lib/handleApiCall";
+import {Slide, toast} from "react-toastify";
 
 interface OrderCardProps {
     order: OrderResponse
@@ -19,8 +22,9 @@ const statusConfig = {
     cancelled: { label: "Cancelled", color: "bg-red-100 text-red-800" },
 }
 
-export function OrderCard({ order, onChatOpen }: OrderCardProps) {
-    const status = order.status
+export function OrderCard({ order, onChatOpen }: Readonly<OrderCardProps>) {
+
+    const [deleteOrder,resultDeleteOrder]=useDeleteOrderMutation();
     const orderTime = formatDistanceToNow(new Date(order.createdAt), { addSuffix: true })
     const estimatedTime = new Date(order.createdAt).toLocaleTimeString("en-US", {
         hour: "2-digit",
@@ -33,7 +37,7 @@ export function OrderCard({ order, onChatOpen }: OrderCardProps) {
                 <div className="flex items-center justify-between">
                     <div className="flex items-center space-x-3">
                         <img
-                            src={ "/placeholder.svg"}
+                            src={order.restaurant.imageUrls[0]?.url?? "/placeholder.svg"}
                             alt={order.restaurant.name}
                             className="w-10 h-10 rounded-full object-cover"
                         />
@@ -79,11 +83,6 @@ export function OrderCard({ order, onChatOpen }: OrderCardProps) {
                     <Button variant="outline" size="sm" onClick={onChatOpen} className="flex items-center space-x-2">
                         <MessageCircle className="w-4 h-4" />
                         <span>Chat with Restaurant</span>
-                        {/*{order.unreadMessages > 0 && (*/}
-                        {/*    <Badge variant="destructive" className="ml-1 px-1.5 py-0.5 text-xs">*/}
-                        {/*        {order.unreadMessages}*/}
-                        {/*    </Badge>*/}
-                        {/*)}*/}
                     </Button>
 
                     {order.status === enumStatus.DELIVERED && (
@@ -91,7 +90,25 @@ export function OrderCard({ order, onChatOpen }: OrderCardProps) {
                             Reorder
                         </Button>
                     )}
+                    {
+                        resultDeleteOrder?.isLoading?<>loading ...</>:
+                            <Delete onClick={async ()=>{
+                                await handleApiCall({
+                                    apiFn: () => deleteOrder({orderId:order.id}).unwrap(),
+                                    onSuccess: (res) => {
+                                        toast.success( "Delete order successfully!", {
+                                            theme: "dark",
+                                            transition: Slide,
+                                        });
+                                    }
+                                });
+
+                            }} className={'text-red-500 cursor-pointer'}/>
+                    }
+
+
                 </div>
+
             </CardContent>
         </Card>
     )

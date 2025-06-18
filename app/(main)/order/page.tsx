@@ -56,7 +56,7 @@ export default function OrdersPage() {
                         }
 
                     } else {
-                        toast.error(`${profileQuery?.error ?? "UNKNOWN ERROR"}`, {
+                        toast.error(`${profileQuery?.error}`, {
                             theme: "dark",
                             transition: Slide,
                         });
