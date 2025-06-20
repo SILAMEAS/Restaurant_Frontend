@@ -6,7 +6,7 @@ A modern, responsive frontend application for a restaurant management system.
 
 ## 🚀 Demo
 
-> (Add your live demo link here, if available)
+https://lacy-restaurant.vercel.app/
 
 ---
 
