@@ -25,7 +25,7 @@ export default function OrderSummary({
   setSelectedCartId,
   carts
 }: OrderSummaryProps) {
-  const [addOrder] = useAddOrderMutation();
+  const [addOrder,resultAddOrder] = useAddOrderMutation();
   const router = useRouter();
     // Calculate totals based on selected cart
     const calculateTotals = () => {
@@ -105,7 +105,7 @@ export default function OrderSummary({
               Processing...
             </div>
           ) : (
-            "Place order"
+              resultAddOrder.isLoading?"loading .... ": "Place order"
           )}
         </Button>
       </CardFooter>

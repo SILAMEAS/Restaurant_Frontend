@@ -104,7 +104,7 @@ export function ChatPopover() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [allMessages]);
+    }, [messagesData]);
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({behavior: "smooth"});
